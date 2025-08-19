@@ -1,0 +1,273 @@
+syntax = 'proto3';
+package batch_job; // 决定proto引用路径和rpc路由
+option go_package = "github.com/zlyuancn/batch_job/pb"; // 用于对golang包管理的定位
+
+import "google/api/annotations.proto";  // 添加导入
+import "validate/validate.proto";
+
+// 批量任务服务
+service CommonButtonService{
+  // 业务注册
+  rpc AdminRegistryBiz(AdminRegistryBizReq) returns (AdminRegistryBizRsp) {
+    option (google.api.http) = {
+      post: "/BatchJob/AdminRegistryBiz",
+      body: "*",
+    };
+  }
+  // 创建任务
+  rpc AdminCreateJob(AdminCreateJobReq) returns (AdminCreateJobRsp) {
+    option (google.api.http) = {
+      post: "/BatchJob/AdminCreateJob",
+      body: "*",
+    };
+  }
+  // 启动任务
+  rpc AdminStartJob(AdminStartJobReq) returns (AdminStartJobRsp) {
+    option (google.api.http) = {
+      post: "/BatchJob/AdminStartJob",
+      body: "*",
+    };
+  }
+  // 停止任务
+  rpc AdminStopJob(AdminStopJobReq) returns (AdminStopJobRsp) {
+    option (google.api.http) = {
+      post: "/BatchJob/AdminStopJob",
+      body: "*",
+    };
+  }
+
+  // 查询任务基本信息
+  rpc QueryJobBaseInfo(QueryJobBaseInfoReq) returns (QueryJobBaseInfoRsp) {
+    option (google.api.http) = {
+      post: "/BatchJob/QueryJobBaseInfo",
+      body: "*",
+    };
+  }
+  // 查询任务列表
+  rpc QueryJobList(QueryJobListReq) returns (QueryJobListRsp) {
+    option (google.api.http) = {
+      post: "/BatchJob/QueryJobList",
+      body: "*",
+    };
+  }
+  // 查询任务的数据日志
+  rpc QueryJobDataLog(QueryJobDataLogReq) returns (QueryJobDataLogRsp) {
+    option (google.api.http) = {
+      post: "/BatchJob/QueryJobDataLog",
+      body: "*",
+    };
+  }
+
+  // 业务启动. 要求任务必须处于 JobStatus.WaitBizRun 状态
+  rpc BizStartJob(BizStartJobReq) returns (BizStartJobRsp) {
+    option (google.api.http) = {
+      post: "/BatchJob/BizStartJob",
+      body: "*",
+    };
+  }
+  // 要求业务停止运行. 一般为业务判断任务无法继续的时候
+  rpc BizStopJob(BizStopJobReq) returns (BizStopJobRsp) {
+    option (google.api.http) = {
+      post: "/BatchJob/BizStopJob",
+      body: "*",
+    };
+  }
+  // 更新业务数据
+  rpc BizUpdateBizData(BizUpdateBizDataReq) returns (BizUpdateBizDataRsp) {
+    option (google.api.http) = {
+      post: "/BatchJob/BizUpdateBizData",
+      body: "*",
+    };
+  }
+  // 增加已处理数
+  rpc BizIncrProcessedNum(BizIncrProcessedNumReq) returns (BizIncrProcessedNumRsp) {
+    option (google.api.http) = {
+      post: "/BatchJob/BizIncrProcessedNum",
+      body: "*",
+    };
+  }
+  // 增加数据日志
+  rpc BizAddDataLog(BizAddDataLogReq) returns (BizAddDataLogRsp) {
+    option (google.api.http) = {
+      post: "/BatchJob/BizAddDataLog",
+      body: "*",
+    };
+  }
+
+}
+
+message AdminRegistryBizReq {
+  int32 biz_type = 1 [(validate.rules).int32.gt = 0]; // 业务类型. 必填
+  string cb_before_create = 2 [(validate.rules).string = {
+    ignore_empty: true,
+    uri: true, // 必须是一个有效的绝对uri地址
+  }]; // 创建任务回调url
+  string cb_before_run = 3 [(validate.rules).string = {
+    ignore_empty: true,
+    uri: true, // 必须是一个有效的绝对uri地址
+  }]; // 启动前回调. 一旦配置, 则任务必须由业务主动调用 BizStartJob 执行任务. 否则任务将一直处于 JobStatus.WaitBizRun 状态
+  string cb_process = 4 [(validate.rules).string = {
+    uri: true, // 必须是一个有效的绝对uri地址
+  }]; // 处理任务回调. 必填
+}
+message AdminRegistryBizRsp {}
+
+// 操作信息-请求
+message OpInfoQ {
+  string op_source = 1; // 操作来源
+  string op_userid = 2; // 操作用户id
+  string op_user_name = 3; // 操作用户名
+}
+
+// 操作信息-响应
+message OpInfoA {
+  string op_source = 1; // 操作来源
+  string op_userid = 2; // 操作用户id
+  string op_user_name = 3; // 操作用户名
+  int64 op_time = 4; // 操作秒级时间戳
+}
+
+// 任务状态
+enum JobStatus {
+  Created = 0; // 已创建
+  WaitBizRun = 1; // 等待业务主动启动
+  Running = 2; // 运行中
+  Finished = 3; // 已完成
+  Stopping = 4; // 正在停止
+  Stopped = 5; // 已停止
+}
+
+// 任务基础信息-响应
+message BaseInfoA {
+  int32 job_id = 1; // 任务id
+  int32 biz_type = 2; // 业务类型
+  string biz_data = 3; // 业务数据
+  int32 process_data_total = 4; // 业务中需要处理数据总数
+  int32 processed_count = 5; // 已处理过的数据量, 无论成功还是失败
+  int32 fail_count = 6; // 失败数
+  int32 status = 7; // 任务状态 0=未进行 1=等待业务启动 2=进行中 3=已完成 4=已取消/已停止
+  int64 create_time = 8; // 创建时间秒级时间戳
+  OpInfoA op = 9; // 操作信息
+  string status_info = 10; // 状态信息
+}
+
+// 数据的日志类型
+enum DataLogType {
+  Debug = 0; // 调试
+  Info = 1; // 信息
+  Warn = 2; // 警告
+  Err = 3; // 错误
+}
+
+// 日志-请求
+message DataLogQ {
+  string data_id = 1; // 数据id
+  string remark = 2; // 备注
+  string extend = 3; // 扩展数据
+  DataLogType log_type = 4; // 日志类型
+}
+
+// 日志-响应
+message DataLogA {
+  string data_id = 1; // 数据id
+  string remark = 2; // 备注
+  string extend = 3; // 扩展数据
+  DataLogType log_type = 4; // 日志类型
+  int64 create_time = 5; // 创建时间秒级时间戳
+}
+
+message AdminCreateJobReq {
+  int32 biz_type = 1 [(validate.rules).int32.gt = 0]; // 业务类型. 必填
+  string biz_data = 2; // 业务数据
+  string biz_process_data = 3; // 业务中需要处理的数据
+  int32 process_data_total = 4; // 需要处理数据总数
+  bool start_now = 5; // 创建后是否立即启动
+  OpInfoQ op = 6; // 操作信息
+}
+message AdminCreateJobRsp {
+  int32 job_id = 1; // 创建的任务id
+}
+
+message AdminStartJobReq {
+  int32 job_id = 1 [(validate.rules).int32.gt = 0]; // 创建的任务id. 必填
+  OpInfoQ op = 2; // 操作信息
+}
+message AdminStartJobRsp {}
+
+message AdminStopJobReq {
+  int32 job_id = 1 [(validate.rules).int32.gt = 0]; // 创建的任务id. 必填
+  OpInfoQ op = 2; // 操作信息
+}
+message AdminStopJobRsp {}
+
+message QueryJobBaseInfoReq {
+  int32 job_id = 1 [(validate.rules).int32.gt = 0]; // 创建的任务id. 必填
+}
+message QueryJobBaseInfoRsp {
+  BaseInfoA base_info = 1; // 任务基础信息
+}
+
+message QueryJobListReq {
+  int64 start_time = 1; // 开始时间, 秒级时间戳. 0表示不限制
+  int64 end_time = 2; // 结束时间, 秒级时间戳. 0表示不限制
+  string op_user = 3; // 操作人
+  repeated int32 biz_type = 4 [(validate.rules).repeated = {
+    unique: true, // 内部数据不允许重复
+    ignore_empty: true, // 允许空数据
+    items : {
+      int32 : {
+        gt: 0,
+      }
+    }
+  }]; // 业务类型
+  int32 page = 5 [(validate.rules).int32.gt = 0]; // 页号, 从1开始
+  int32 page_size = 6 [(validate.rules).int32.gte = 5]; // 每页返回数量, 最少返回5条
+}
+message QueryJobListRsp {
+  int32 total = 1; // 总条数
+  int32 page_size = 2; // 当前分一页预期返回条数
+  repeated BaseInfoA line = 3; // 基础任务信息
+}
+
+message QueryJobDataLogReq {
+  int32 job_id = 1 [(validate.rules).int32.gt = 0]; // 创建的任务id. 必填
+  int32 page = 2 [(validate.rules).int32.gt = 0]; // 页号, 从1开始
+  int32 page_size = 3 [(validate.rules).int32.gte = 5]; // 每页返回数量, 最少返回5条
+  DataLogType log_type = 4; // 日志类型
+}
+message QueryJobDataLogRsp {
+  int32 total = 1; // 总条数
+  int32 page_size = 2; // 当前分一页预期返回条数
+  repeated DataLogA log = 3; // 日志
+}
+
+message BizStartJobReq {
+  int32 job_id = 1 [(validate.rules).int32.gt = 0]; // 创建的任务id. 必填
+}
+message BizStartJobRsp {}
+
+message BizStopJobReq {
+  int32 job_id = 1 [(validate.rules).int32.gt = 0]; // 创建的任务id. 必填
+}
+message BizStopJobRsp {}
+
+message BizUpdateBizDataReq {
+  int32 job_id = 1 [(validate.rules).int32.gt = 0]; // 创建的任务id. 必填
+  string biz_data = 2; // 业务数据. 空值则不会更新这个数据
+  string biz_process_data = 3; // 业务中需要处理的数据. 空值则不会更新这个数据
+  int32 process_data_total = 4; // 需要处理数据总数. 空值则不会更新这个数据
+  int32 processed_count = 5; // 已处理过的数据量, 无论成功还是失败. 空值则不会更新这个数据
+}
+message BizUpdateBizDataRsp {}
+
+message BizIncrProcessedNumReq {
+  int32 job_id = 1 [(validate.rules).int32.gt = 0]; // 创建的任务id. 必填
+  int32 num = 2 [(validate.rules).int32.gt = 0]; // 增加数量. 必填
+}
+message BizIncrProcessedNumRsp {}
+
+message BizAddDataLogReq {
+  int32 job_id = 1 [(validate.rules).int32.gt = 0]; // 创建的任务id. 必填
+  repeated DataLogQ log = 2; // 日志内容
+}
+message BizAddDataLogRsp {}

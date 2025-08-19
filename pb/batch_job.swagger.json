@@ -1,0 +1,923 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "决定proto引用路径和rpc路由",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "CommonButtonService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/BatchJob/AdminCreateJob": {
+      "post": {
+        "summary": "创建任务",
+        "operationId": "CommonButtonService_AdminCreateJob",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/batch_jobAdminCreateJobRsp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/batch_jobAdminCreateJobReq"
+            }
+          }
+        ],
+        "tags": [
+          "CommonButtonService"
+        ]
+      }
+    },
+    "/BatchJob/AdminRegistryBiz": {
+      "post": {
+        "summary": "业务注册",
+        "operationId": "CommonButtonService_AdminRegistryBiz",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/batch_jobAdminRegistryBizRsp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/batch_jobAdminRegistryBizReq"
+            }
+          }
+        ],
+        "tags": [
+          "CommonButtonService"
+        ]
+      }
+    },
+    "/BatchJob/AdminStartJob": {
+      "post": {
+        "summary": "启动任务",
+        "operationId": "CommonButtonService_AdminStartJob",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/batch_jobAdminStartJobRsp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/batch_jobAdminStartJobReq"
+            }
+          }
+        ],
+        "tags": [
+          "CommonButtonService"
+        ]
+      }
+    },
+    "/BatchJob/AdminStopJob": {
+      "post": {
+        "summary": "停止任务",
+        "operationId": "CommonButtonService_AdminStopJob",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/batch_jobAdminStopJobRsp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/batch_jobAdminStopJobReq"
+            }
+          }
+        ],
+        "tags": [
+          "CommonButtonService"
+        ]
+      }
+    },
+    "/BatchJob/BizAddDataLog": {
+      "post": {
+        "summary": "增加数据日志",
+        "operationId": "CommonButtonService_BizAddDataLog",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/batch_jobBizAddDataLogRsp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/batch_jobBizAddDataLogReq"
+            }
+          }
+        ],
+        "tags": [
+          "CommonButtonService"
+        ]
+      }
+    },
+    "/BatchJob/BizIncrProcessedNum": {
+      "post": {
+        "summary": "增加已处理数",
+        "operationId": "CommonButtonService_BizIncrProcessedNum",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/batch_jobBizIncrProcessedNumRsp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/batch_jobBizIncrProcessedNumReq"
+            }
+          }
+        ],
+        "tags": [
+          "CommonButtonService"
+        ]
+      }
+    },
+    "/BatchJob/BizStartJob": {
+      "post": {
+        "summary": "业务启动. 要求任务必须处于 JobStatus.WaitBizRun 状态",
+        "operationId": "CommonButtonService_BizStartJob",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/batch_jobBizStartJobRsp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/batch_jobBizStartJobReq"
+            }
+          }
+        ],
+        "tags": [
+          "CommonButtonService"
+        ]
+      }
+    },
+    "/BatchJob/BizStopJob": {
+      "post": {
+        "summary": "要求业务停止运行. 一般为业务判断任务无法继续的时候",
+        "operationId": "CommonButtonService_BizStopJob",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/batch_jobBizStopJobRsp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/batch_jobBizStopJobReq"
+            }
+          }
+        ],
+        "tags": [
+          "CommonButtonService"
+        ]
+      }
+    },
+    "/BatchJob/BizUpdateBizData": {
+      "post": {
+        "summary": "更新业务数据",
+        "operationId": "CommonButtonService_BizUpdateBizData",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/batch_jobBizUpdateBizDataRsp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/batch_jobBizUpdateBizDataReq"
+            }
+          }
+        ],
+        "tags": [
+          "CommonButtonService"
+        ]
+      }
+    },
+    "/BatchJob/QueryJobBaseInfo": {
+      "post": {
+        "summary": "查询任务基本信息",
+        "operationId": "CommonButtonService_QueryJobBaseInfo",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/batch_jobQueryJobBaseInfoRsp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/batch_jobQueryJobBaseInfoReq"
+            }
+          }
+        ],
+        "tags": [
+          "CommonButtonService"
+        ]
+      }
+    },
+    "/BatchJob/QueryJobDataLog": {
+      "post": {
+        "summary": "查询任务的数据日志",
+        "operationId": "CommonButtonService_QueryJobDataLog",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/batch_jobQueryJobDataLogRsp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/batch_jobQueryJobDataLogReq"
+            }
+          }
+        ],
+        "tags": [
+          "CommonButtonService"
+        ]
+      }
+    },
+    "/BatchJob/QueryJobList": {
+      "post": {
+        "summary": "查询任务列表",
+        "operationId": "CommonButtonService_QueryJobList",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/batch_jobQueryJobListRsp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/batch_jobQueryJobListReq"
+            }
+          }
+        ],
+        "tags": [
+          "CommonButtonService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "batch_jobAdminCreateJobReq": {
+      "type": "object",
+      "properties": {
+        "bizType": {
+          "type": "integer",
+          "format": "int32",
+          "title": "业务类型. 必填"
+        },
+        "bizData": {
+          "type": "string",
+          "title": "业务数据"
+        },
+        "bizProcessData": {
+          "type": "string",
+          "title": "业务中需要处理的数据"
+        },
+        "processDataTotal": {
+          "type": "integer",
+          "format": "int32",
+          "title": "需要处理数据总数"
+        },
+        "startNow": {
+          "type": "boolean",
+          "title": "创建后是否立即启动"
+        },
+        "op": {
+          "$ref": "#/definitions/batch_jobOpInfoQ",
+          "title": "操作信息"
+        }
+      }
+    },
+    "batch_jobAdminCreateJobRsp": {
+      "type": "object",
+      "properties": {
+        "jobId": {
+          "type": "integer",
+          "format": "int32",
+          "title": "创建的任务id"
+        }
+      }
+    },
+    "batch_jobAdminRegistryBizReq": {
+      "type": "object",
+      "properties": {
+        "bizType": {
+          "type": "integer",
+          "format": "int32",
+          "title": "业务类型. 必填"
+        },
+        "cbBeforeCreate": {
+          "type": "string",
+          "title": "创建任务回调url"
+        },
+        "cbBeforeRun": {
+          "type": "string",
+          "title": "启动前回调. 一旦配置, 则任务必须由业务主动调用 BizStartJob 执行任务. 否则任务将一直处于 JobStatus.WaitBizRun 状态"
+        },
+        "cbProcess": {
+          "type": "string",
+          "title": "处理任务回调. 必填"
+        }
+      }
+    },
+    "batch_jobAdminRegistryBizRsp": {
+      "type": "object"
+    },
+    "batch_jobAdminStartJobReq": {
+      "type": "object",
+      "properties": {
+        "jobId": {
+          "type": "integer",
+          "format": "int32",
+          "title": "创建的任务id. 必填"
+        },
+        "op": {
+          "$ref": "#/definitions/batch_jobOpInfoQ",
+          "title": "操作信息"
+        }
+      }
+    },
+    "batch_jobAdminStartJobRsp": {
+      "type": "object"
+    },
+    "batch_jobAdminStopJobReq": {
+      "type": "object",
+      "properties": {
+        "jobId": {
+          "type": "integer",
+          "format": "int32",
+          "title": "创建的任务id. 必填"
+        },
+        "op": {
+          "$ref": "#/definitions/batch_jobOpInfoQ",
+          "title": "操作信息"
+        }
+      }
+    },
+    "batch_jobAdminStopJobRsp": {
+      "type": "object"
+    },
+    "batch_jobBaseInfoA": {
+      "type": "object",
+      "properties": {
+        "jobId": {
+          "type": "integer",
+          "format": "int32",
+          "title": "任务id"
+        },
+        "bizType": {
+          "type": "integer",
+          "format": "int32",
+          "title": "业务类型"
+        },
+        "bizData": {
+          "type": "string",
+          "title": "业务数据"
+        },
+        "processDataTotal": {
+          "type": "integer",
+          "format": "int32",
+          "title": "业务中需要处理数据总数"
+        },
+        "processedCount": {
+          "type": "integer",
+          "format": "int32",
+          "title": "已处理过的数据量, 无论成功还是失败"
+        },
+        "failCount": {
+          "type": "integer",
+          "format": "int32",
+          "title": "失败数"
+        },
+        "status": {
+          "type": "integer",
+          "format": "int32",
+          "title": "任务状态 0=未进行 1=等待业务启动 2=进行中 3=已完成 4=已取消/已停止"
+        },
+        "createTime": {
+          "type": "string",
+          "format": "int64",
+          "title": "创建时间秒级时间戳"
+        },
+        "op": {
+          "$ref": "#/definitions/batch_jobOpInfoA",
+          "title": "操作信息"
+        },
+        "statusInfo": {
+          "type": "string",
+          "title": "状态信息"
+        }
+      },
+      "title": "任务基础信息-响应"
+    },
+    "batch_jobBizAddDataLogReq": {
+      "type": "object",
+      "properties": {
+        "jobId": {
+          "type": "integer",
+          "format": "int32",
+          "title": "创建的任务id. 必填"
+        },
+        "log": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/batch_jobDataLogQ"
+          },
+          "title": "日志内容"
+        }
+      }
+    },
+    "batch_jobBizAddDataLogRsp": {
+      "type": "object"
+    },
+    "batch_jobBizIncrProcessedNumReq": {
+      "type": "object",
+      "properties": {
+        "jobId": {
+          "type": "integer",
+          "format": "int32",
+          "title": "创建的任务id. 必填"
+        },
+        "num": {
+          "type": "integer",
+          "format": "int32",
+          "title": "增加数量. 必填"
+        }
+      }
+    },
+    "batch_jobBizIncrProcessedNumRsp": {
+      "type": "object"
+    },
+    "batch_jobBizStartJobReq": {
+      "type": "object",
+      "properties": {
+        "jobId": {
+          "type": "integer",
+          "format": "int32",
+          "title": "创建的任务id. 必填"
+        }
+      }
+    },
+    "batch_jobBizStartJobRsp": {
+      "type": "object"
+    },
+    "batch_jobBizStopJobReq": {
+      "type": "object",
+      "properties": {
+        "jobId": {
+          "type": "integer",
+          "format": "int32",
+          "title": "创建的任务id. 必填"
+        }
+      }
+    },
+    "batch_jobBizStopJobRsp": {
+      "type": "object"
+    },
+    "batch_jobBizUpdateBizDataReq": {
+      "type": "object",
+      "properties": {
+        "jobId": {
+          "type": "integer",
+          "format": "int32",
+          "title": "创建的任务id. 必填"
+        },
+        "bizData": {
+          "type": "string",
+          "title": "业务数据. 空值则不会更新这个数据"
+        },
+        "bizProcessData": {
+          "type": "string",
+          "title": "业务中需要处理的数据. 空值则不会更新这个数据"
+        },
+        "processDataTotal": {
+          "type": "integer",
+          "format": "int32",
+          "title": "需要处理数据总数. 空值则不会更新这个数据"
+        },
+        "processedCount": {
+          "type": "integer",
+          "format": "int32",
+          "title": "已处理过的数据量, 无论成功还是失败. 空值则不会更新这个数据"
+        }
+      }
+    },
+    "batch_jobBizUpdateBizDataRsp": {
+      "type": "object"
+    },
+    "batch_jobDataLogA": {
+      "type": "object",
+      "properties": {
+        "dataId": {
+          "type": "string",
+          "title": "数据id"
+        },
+        "remark": {
+          "type": "string",
+          "title": "备注"
+        },
+        "extend": {
+          "type": "string",
+          "title": "扩展数据"
+        },
+        "logType": {
+          "$ref": "#/definitions/batch_jobDataLogType",
+          "title": "日志类型"
+        },
+        "createTime": {
+          "type": "string",
+          "format": "int64",
+          "title": "创建时间秒级时间戳"
+        }
+      },
+      "title": "日志-响应"
+    },
+    "batch_jobDataLogQ": {
+      "type": "object",
+      "properties": {
+        "dataId": {
+          "type": "string",
+          "title": "数据id"
+        },
+        "remark": {
+          "type": "string",
+          "title": "备注"
+        },
+        "extend": {
+          "type": "string",
+          "title": "扩展数据"
+        },
+        "logType": {
+          "$ref": "#/definitions/batch_jobDataLogType",
+          "title": "日志类型"
+        }
+      },
+      "title": "日志-请求"
+    },
+    "batch_jobDataLogType": {
+      "type": "string",
+      "enum": [
+        "Debug",
+        "Info",
+        "Warn",
+        "Err"
+      ],
+      "default": "Debug",
+      "description": "- Debug: 调试\n - Info: 信息\n - Warn: 警告\n - Err: 错误",
+      "title": "数据的日志类型"
+    },
+    "batch_jobOpInfoA": {
+      "type": "object",
+      "properties": {
+        "opSource": {
+          "type": "string",
+          "title": "操作来源"
+        },
+        "opUserid": {
+          "type": "string",
+          "title": "操作用户id"
+        },
+        "opUserName": {
+          "type": "string",
+          "title": "操作用户名"
+        },
+        "opTime": {
+          "type": "string",
+          "format": "int64",
+          "title": "操作秒级时间戳"
+        }
+      },
+      "title": "操作信息-响应"
+    },
+    "batch_jobOpInfoQ": {
+      "type": "object",
+      "properties": {
+        "opSource": {
+          "type": "string",
+          "title": "操作来源"
+        },
+        "opUserid": {
+          "type": "string",
+          "title": "操作用户id"
+        },
+        "opUserName": {
+          "type": "string",
+          "title": "操作用户名"
+        }
+      },
+      "title": "操作信息-请求"
+    },
+    "batch_jobQueryJobBaseInfoReq": {
+      "type": "object",
+      "properties": {
+        "jobId": {
+          "type": "integer",
+          "format": "int32",
+          "title": "创建的任务id. 必填"
+        }
+      }
+    },
+    "batch_jobQueryJobBaseInfoRsp": {
+      "type": "object",
+      "properties": {
+        "baseInfo": {
+          "$ref": "#/definitions/batch_jobBaseInfoA",
+          "title": "任务基础信息"
+        }
+      }
+    },
+    "batch_jobQueryJobDataLogReq": {
+      "type": "object",
+      "properties": {
+        "jobId": {
+          "type": "integer",
+          "format": "int32",
+          "title": "创建的任务id. 必填"
+        },
+        "page": {
+          "type": "integer",
+          "format": "int32",
+          "title": "页号, 从1开始"
+        },
+        "pageSize": {
+          "type": "integer",
+          "format": "int32",
+          "title": "每页返回数量, 最少返回5条"
+        },
+        "logType": {
+          "$ref": "#/definitions/batch_jobDataLogType",
+          "title": "日志类型"
+        }
+      }
+    },
+    "batch_jobQueryJobDataLogRsp": {
+      "type": "object",
+      "properties": {
+        "total": {
+          "type": "integer",
+          "format": "int32",
+          "title": "总条数"
+        },
+        "pageSize": {
+          "type": "integer",
+          "format": "int32",
+          "title": "当前分一页预期返回条数"
+        },
+        "log": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/batch_jobDataLogA"
+          },
+          "title": "日志"
+        }
+      }
+    },
+    "batch_jobQueryJobListReq": {
+      "type": "object",
+      "properties": {
+        "startTime": {
+          "type": "string",
+          "format": "int64",
+          "title": "开始时间, 秒级时间戳. 0表示不限制"
+        },
+        "endTime": {
+          "type": "string",
+          "format": "int64",
+          "title": "结束时间, 秒级时间戳. 0表示不限制"
+        },
+        "opUser": {
+          "type": "string",
+          "title": "操作人"
+        },
+        "bizType": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "title": "业务类型"
+        },
+        "page": {
+          "type": "integer",
+          "format": "int32",
+          "title": "页号, 从1开始"
+        },
+        "pageSize": {
+          "type": "integer",
+          "format": "int32",
+          "title": "每页返回数量, 最少返回5条"
+        }
+      }
+    },
+    "batch_jobQueryJobListRsp": {
+      "type": "object",
+      "properties": {
+        "total": {
+          "type": "integer",
+          "format": "int32",
+          "title": "总条数"
+        },
+        "pageSize": {
+          "type": "integer",
+          "format": "int32",
+          "title": "当前分一页预期返回条数"
+        },
+        "line": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/batch_jobBaseInfoA"
+          },
+          "title": "基础任务信息"
+        }
+      }
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  }
+}
