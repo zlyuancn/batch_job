@@ -147,7 +147,7 @@ message BaseInfoA {
   string biz_data = 3; // 业务数据
   int64 process_data_total = 4; // 业务中需要处理数据总数
   int64 processed_count = 5; // 已处理过的数据量, 无论成功还是失败
-  int64 fail_count = 6; // 失败数
+  int64 err_log_count = 6; // 错误日志数
   int32 status = 7; // 任务状态 0=未进行 1=等待业务启动 2=进行中 3=已完成 4=已取消/已停止
   int64 create_time = 8; // 创建时间秒级时间戳
   OpInfoA op = 9; // 操作信息

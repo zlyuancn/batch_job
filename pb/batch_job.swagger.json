@@ -554,10 +554,10 @@
           "format": "int64",
           "title": "已处理过的数据量, 无论成功还是失败"
         },
-        "failCount": {
+        "errLogCount": {
           "type": "string",
           "format": "int64",
-          "title": "失败数"
+          "title": "错误日志数"
         },
         "status": {
           "type": "integer",

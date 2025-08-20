@@ -24,7 +24,7 @@ CREATE TABLE `batch_job`
     `biz_data`           varchar(10240)     NOT NULL DEFAULT '' COMMENT '业务数据',
     `process_data_total` bigint unsigned    NOT NULL DEFAULT 0 COMMENT '需要处理数据总数',
     `processed_count`    bigint unsigned    NOT NULL DEFAULT 0 COMMENT '已处理过的数据量, 无论成功还是失败. 如果任务在运行中, 则真实进度存在于redis',
-    `fail_count`         bigint unsigned    NOT NULL DEFAULT 0 COMMENT '失败数',
+    `err_log_count`      bigint unsigned    NOT NULL DEFAULT 0 COMMENT '错误日志数',
     `status`             tinyint unsigned   NOT NULL DEFAULT 0 COMMENT '任务状态 0=已创建 1=等待业务主动启动 2=运行中 3=已完成 4=正在停止 5=已停止',
     `create_time`        datetime           NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `update_time`        datetime           NOT NULL DEFAULT CURRENT_TIMESTAMP,
