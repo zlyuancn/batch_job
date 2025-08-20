@@ -1,11 +1,14 @@
 CREATE TABLE `batch_job_type`
 (
-    `id`          int unsigned       NOT NULL AUTO_INCREMENT,
-    `biz_type`    mediumint unsigned NOT NULL COMMENT '业务类型',
-    `biz_name`    varchar(32)        NOT NULL COMMENT '业务名',
-    `remark`      varchar(4096)      NOT NULL DEFAULT '' COMMENT '备注',
-    `rate_sec`    int unsigned       NOT NULL DEFAULT 0 COMMENT '每秒处理速率. 0表示不限制',
-    `create_time` datetime           NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `id`               int unsigned       NOT NULL AUTO_INCREMENT,
+    `biz_type`         mediumint unsigned NOT NULL COMMENT '业务类型',
+    `biz_name`         varchar(32)        NOT NULL COMMENT '业务名',
+    `remark`           varchar(4096)      NOT NULL DEFAULT '' COMMENT '备注',
+    `rate_sec`         int unsigned       NOT NULL DEFAULT 0 COMMENT '每秒处理速率. 0表示不限制',
+    `cb_before_create` varchar(256)       NOT NULL DEFAULT '' COMMENT '创建任务回调url',
+    `cb_before_run`    varchar(256)       NOT NULL DEFAULT '' COMMENT '启动前回调. 一旦配置, 则任务必须由业务主动调用 BizStartJob 执行任务. 否则任务将一直处于 JobStatus.WaitBizRun 状态',
+    `cb_process`       varchar(256)       NOT NULL COMMENT '处理任务回调. 必填',
+    `create_time`      datetime           NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     UNIQUE KEY `batch_job_type_biz_type` (`biz_type`),
     KEY `batch_job_type_create_time` (`create_time` DESC)
@@ -18,7 +21,7 @@ CREATE TABLE `batch_job`
     `id`                 int unsigned       NOT NULL COMMENT '任务id',
     `job_id`             int unsigned       NOT NULL COMMENT '任务号',
     `biz_type`           mediumint unsigned NOT NULL COMMENT '业务类型',
-    `biz_data`           varchar(10240)     NOT NULL DEFAULT '{}' COMMENT '业务数据',
+    `biz_data`           varchar(10240)     NOT NULL DEFAULT '' COMMENT '业务数据',
     `process_data_total` bigint unsigned    NOT NULL DEFAULT 0 COMMENT '需要处理数据总数',
     `processed_count`    bigint unsigned    NOT NULL DEFAULT 0 COMMENT '已处理过的数据量, 无论成功还是失败. 如果任务在运行中, 则真实进度存在于redis',
     `fail_count`         bigint unsigned    NOT NULL DEFAULT 0 COMMENT '失败数',
@@ -32,9 +35,10 @@ CREATE TABLE `batch_job`
     `op_history`         json               NOT NULL COMMENT '操作历史信息',
     `biz_process_data`   mediumtext         NOT NULL COMMENT '业务中需要处理的数据',
     PRIMARY KEY (`id`),
-    KEY `batch_job_create_time_biz_type_index` (`create_time` DESC, `biz_type`),
-    KEY `batch_job_update_time_biz_type_index` (`update_time` DESC, `biz_type`),
-    KEY `batch_job_last_op_user_id_create_time_index` (`last_op_user_id`, `create_time` DESC)
+    UNIQUE KEY `batch_job_job_id` (`job_id`),
+    KEY `batch_job_job_id_create_time_biz_type_index` (`job_id`, `create_time` DESC, `biz_type`),
+    KEY `batch_job_job_id_update_time_biz_type_index` (`job_id`, `update_time` DESC, `biz_type`),
+    KEY `batch_job_job_id_last_op_user_id_create_time_index` (`job_id`, `last_op_user_id`, `create_time` DESC)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT ='批量任务信息';
