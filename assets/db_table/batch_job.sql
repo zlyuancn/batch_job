@@ -4,7 +4,6 @@ CREATE TABLE `batch_job_type`
     `biz_type`    mediumint unsigned NOT NULL COMMENT '业务类型',
     `biz_name`    varchar(32)        NOT NULL COMMENT '业务名',
     `remark`      varchar(4096)      NOT NULL DEFAULT '' COMMENT '备注',
-    `extend`      varchar(4096)      NOT NULL DEFAULT '' COMMENT '扩展数据',
     `rate_sec`    int unsigned       NOT NULL DEFAULT 0 COMMENT '每秒处理速率. 0表示不限制',
     `create_time` datetime           NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
@@ -16,8 +15,8 @@ CREATE TABLE `batch_job_type`
 
 CREATE TABLE `batch_job`
 (
-    `id`                 bigint unsigned    NOT NULL COMMENT '任务id',
-    `job_id`             bigint unsigned    NOT NULL COMMENT '任务号',
+    `id`                 int unsigned       NOT NULL COMMENT '任务id',
+    `job_id`             int unsigned       NOT NULL COMMENT '任务号',
     `biz_type`           mediumint unsigned NOT NULL COMMENT '业务类型',
     `biz_data`           varchar(10240)     NOT NULL DEFAULT '{}' COMMENT '业务数据',
     `process_data_total` bigint unsigned    NOT NULL DEFAULT 0 COMMENT '需要处理数据总数',
@@ -42,8 +41,8 @@ CREATE TABLE `batch_job`
 
 CREATE TABLE `batch_job_log`
 (
-    `id`          bigint unsigned  NOT NULL AUTO_INCREMENT,
-    `job_id`      bigint unsigned  NOT NULL COMMENT '任务号',
+    `id`          int unsigned     NOT NULL AUTO_INCREMENT,
+    `job_id`      int unsigned     NOT NULL COMMENT '任务号',
     `data_id`     varchar(256)     NOT NULL COMMENT '数据id',
     `remark`      varchar(4096)    NOT NULL DEFAULT '' COMMENT '备注',
     `extend`      varchar(4096)    NOT NULL DEFAULT '' COMMENT '扩展数据',

@@ -98,15 +98,18 @@ service CommonButtonService{
 
 message AdminRegistryBizReq {
   int32 biz_type = 1 [(validate.rules).int32.gt = 0]; // 业务类型. 必填
-  string cb_before_create = 2 [(validate.rules).string = {
+  string biz_name = 2 [(validate.rules).string.min_len = 1]; // 业务名
+  string remark = 3; // 备注
+  int32 rate_sec = 4; // 每秒处理速率. 0表示不限制
+  string cb_before_create = 5 [(validate.rules).string = {
     ignore_empty: true,
     uri: true, // 必须是一个有效的绝对uri地址
   }]; // 创建任务回调url
-  string cb_before_run = 3 [(validate.rules).string = {
+  string cb_before_run = 6 [(validate.rules).string = {
     ignore_empty: true,
     uri: true, // 必须是一个有效的绝对uri地址
   }]; // 启动前回调. 一旦配置, 则任务必须由业务主动调用 BizStartJob 执行任务. 否则任务将一直处于 JobStatus.WaitBizRun 状态
-  string cb_process = 4 [(validate.rules).string = {
+  string cb_process = 7 [(validate.rules).string = {
     uri: true, // 必须是一个有效的绝对uri地址
   }]; // 处理任务回调. 必填
 }
@@ -142,9 +145,9 @@ message BaseInfoA {
   int32 job_id = 1; // 任务id
   int32 biz_type = 2; // 业务类型
   string biz_data = 3; // 业务数据
-  int32 process_data_total = 4; // 业务中需要处理数据总数
-  int32 processed_count = 5; // 已处理过的数据量, 无论成功还是失败
-  int32 fail_count = 6; // 失败数
+  int64 process_data_total = 4; // 业务中需要处理数据总数
+  int64 processed_count = 5; // 已处理过的数据量, 无论成功还是失败
+  int64 fail_count = 6; // 失败数
   int32 status = 7; // 任务状态 0=未进行 1=等待业务启动 2=进行中 3=已完成 4=已取消/已停止
   int64 create_time = 8; // 创建时间秒级时间戳
   OpInfoA op = 9; // 操作信息
@@ -180,7 +183,7 @@ message AdminCreateJobReq {
   int32 biz_type = 1 [(validate.rules).int32.gt = 0]; // 业务类型. 必填
   string biz_data = 2; // 业务数据
   string biz_process_data = 3; // 业务中需要处理的数据
-  int32 process_data_total = 4; // 需要处理数据总数
+  int64 process_data_total = 4; // 需要处理数据总数
   bool start_now = 5; // 创建后是否立即启动
   OpInfoQ op = 6; // 操作信息
 }
@@ -255,14 +258,14 @@ message BizUpdateBizDataReq {
   int32 job_id = 1 [(validate.rules).int32.gt = 0]; // 创建的任务id. 必填
   string biz_data = 2; // 业务数据. 空值则不会更新这个数据
   string biz_process_data = 3; // 业务中需要处理的数据. 空值则不会更新这个数据
-  int32 process_data_total = 4; // 需要处理数据总数. 空值则不会更新这个数据
-  int32 processed_count = 5; // 已处理过的数据量, 无论成功还是失败. 空值则不会更新这个数据
+  int64 process_data_total = 4; // 需要处理数据总数. 空值则不会更新这个数据
+  int64 processed_count = 5; // 已处理过的数据量, 无论成功还是失败. 空值则不会更新这个数据
 }
 message BizUpdateBizDataRsp {}
 
 message BizIncrProcessedNumReq {
   int32 job_id = 1 [(validate.rules).int32.gt = 0]; // 创建的任务id. 必填
-  int32 num = 2 [(validate.rules).int32.gt = 0]; // 增加数量. 必填
+  int64 num = 2 [(validate.rules).int64.gt = 0]; // 增加数量. 必填
 }
 message BizIncrProcessedNumRsp {}
 
