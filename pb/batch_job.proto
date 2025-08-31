@@ -36,6 +36,21 @@ service CommonButtonService{
     };
   }
 
+
+  // 查询业务信息
+  rpc QueryBizInfo(QueryBizInfoReq) returns (QueryBizInfoRsp) {
+    option (google.api.http) = {
+      post: "/BatchJob/QueryBizInfo",
+      body: "*",
+    };
+  }
+  // 查询业务列表
+  rpc QueryBizList(QueryBizListReq) returns (QueryBizListRsp) {
+    option (google.api.http) = {
+      post: "/BatchJob/QueryBizList",
+      body: "*",
+    };
+  }
   // 查询任务基本信息
   rpc QueryJobBaseInfo(QueryJobBaseInfoReq) returns (QueryJobBaseInfoRsp) {
     option (google.api.http) = {
@@ -102,6 +117,12 @@ enum RateType {
   Serialization = 1; // 串行化
 }
 
+// 执行类型
+enum ExecType {
+  Callback = 0; // 回调
+  BizLocal = 1; // 业务本地
+}
+
 message AdminRegistryBizReq {
   int32 biz_type = 1 [(validate.rules).int32.gt = 0]; // 业务类型. 必填
   string biz_name = 2 [(validate.rules).string.min_len = 1]; // 业务名
@@ -122,6 +143,7 @@ message AdminRegistryBizReq {
   int32 cb_process_timeout = 9 [(validate.rules).int32.gte = 0]; // 启动前回调超时秒数
   int32 rate_sec = 10; // 每秒处理速率. 0表示不限制
   RateType rate_type = 11; // 速率类型
+  ExecType exec_type = 12; // 执行类型
 }
 message AdminRegistryBizRsp {}
 
@@ -148,6 +170,22 @@ enum JobStatus {
   Finished = 3; // 已完成
   Stopping = 4; // 正在停止
   Stopped = 5; // 已停止
+}
+
+// 业务信息-响应
+message BizInfoA {
+  int32 biz_type = 1; // 业务类型. 必填
+  string biz_name = 2; // 业务名
+  string remark = 3; // 备注
+  string cb_before_create = 4; // 创建任务回调url
+  string cb_before_run = 5; // 启动前回调. 一旦配置, 则任务必须由业务主动调用 BizStartJob 执行任务. 否则任务将一直处于 JobStatus.WaitBizRun 状态
+  string cb_process = 6; // 处理任务回调. 必填
+  int32 cb_before_create_timeout = 7; // 启动前回调超时秒数
+  int32 cb_before_run_timeout = 8; // 启动前回调超时秒数
+  int32 cb_process_timeout = 9; // 启动前回调超时秒数
+  int32 rate_sec = 10; // 每秒处理速率. 0表示不限制
+  RateType rate_type = 11; // 速率类型
+  ExecType exec_type = 12; // 执行类型
 }
 
 // 任务基础信息-响应
@@ -212,6 +250,26 @@ message AdminStopJobReq {
   OpInfoQ op = 2; // 操作信息
 }
 message AdminStopJobRsp {}
+
+message QueryBizInfoReq {
+  int32 biz_type = 1 [(validate.rules).int32.gt = 0]; // 创建的业务类型. 必填
+}
+message QueryBizInfoRsp {
+  BizInfoA line = 1; // 业务信息
+}
+
+message QueryBizListReq {
+  int64 start_time = 1; // 开始时间, 秒级时间戳. 0表示不限制
+  int64 end_time = 2; // 结束时间, 秒级时间戳. 0表示不限制
+  string op_user = 3; // 操作人
+  int32 page = 4 [(validate.rules).int32.gt = 0]; // 页号, 从1开始
+  int32 page_size = 5 [(validate.rules).int32.gte = 5]; // 每页返回数量, 最少返回5条
+}
+message QueryBizListRsp {
+  int32 total = 1; // 总条数
+  int32 page_size = 2; // 当前分一页预期返回条数
+  repeated BizInfoA line = 3; // 业务信息
+}
 
 message QueryJobBaseInfoReq {
   int32 job_id = 1 [(validate.rules).int32.gt = 0]; // 创建的任务id. 必填
