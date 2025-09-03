@@ -23,6 +23,8 @@ const (
 	CommonButtonService_AdminCreateJob_FullMethodName      = "/batch_job.CommonButtonService/AdminCreateJob"
 	CommonButtonService_AdminStartJob_FullMethodName       = "/batch_job.CommonButtonService/AdminStartJob"
 	CommonButtonService_AdminStopJob_FullMethodName        = "/batch_job.CommonButtonService/AdminStopJob"
+	CommonButtonService_QueryBizInfo_FullMethodName        = "/batch_job.CommonButtonService/QueryBizInfo"
+	CommonButtonService_QueryBizList_FullMethodName        = "/batch_job.CommonButtonService/QueryBizList"
 	CommonButtonService_QueryJobBaseInfo_FullMethodName    = "/batch_job.CommonButtonService/QueryJobBaseInfo"
 	CommonButtonService_QueryJobList_FullMethodName        = "/batch_job.CommonButtonService/QueryJobList"
 	CommonButtonService_QueryJobDataLog_FullMethodName     = "/batch_job.CommonButtonService/QueryJobDataLog"
@@ -45,6 +47,10 @@ type CommonButtonServiceClient interface {
 	AdminStartJob(ctx context.Context, in *AdminStartJobReq, opts ...grpc.CallOption) (*AdminStartJobRsp, error)
 	// 停止任务
 	AdminStopJob(ctx context.Context, in *AdminStopJobReq, opts ...grpc.CallOption) (*AdminStopJobRsp, error)
+	// 查询业务信息
+	QueryBizInfo(ctx context.Context, in *QueryBizInfoReq, opts ...grpc.CallOption) (*QueryBizInfoRsp, error)
+	// 查询业务列表
+	QueryBizList(ctx context.Context, in *QueryBizListReq, opts ...grpc.CallOption) (*QueryBizListRsp, error)
 	// 查询任务基本信息
 	QueryJobBaseInfo(ctx context.Context, in *QueryJobBaseInfoReq, opts ...grpc.CallOption) (*QueryJobBaseInfoRsp, error)
 	// 查询任务列表
@@ -55,7 +61,7 @@ type CommonButtonServiceClient interface {
 	BizStartJob(ctx context.Context, in *BizStartJobReq, opts ...grpc.CallOption) (*BizStartJobRsp, error)
 	// 要求业务停止运行. 一般为业务判断任务无法继续的时候
 	BizStopJob(ctx context.Context, in *BizStopJobReq, opts ...grpc.CallOption) (*BizStopJobRsp, error)
-	// 更新业务数据
+	// 更新业务数据. 要求任务必须处于 JobStatus.WaitBizRun 状态或者串行化速率类型的任务可以使用
 	BizUpdateBizData(ctx context.Context, in *BizUpdateBizDataReq, opts ...grpc.CallOption) (*BizUpdateBizDataRsp, error)
 	// 增加已处理数
 	BizIncrProcessedNum(ctx context.Context, in *BizIncrProcessedNumReq, opts ...grpc.CallOption) (*BizIncrProcessedNumRsp, error)
@@ -101,6 +107,24 @@ func (c *commonButtonServiceClient) AdminStartJob(ctx context.Context, in *Admin
 func (c *commonButtonServiceClient) AdminStopJob(ctx context.Context, in *AdminStopJobReq, opts ...grpc.CallOption) (*AdminStopJobRsp, error) {
 	out := new(AdminStopJobRsp)
 	err := c.cc.Invoke(ctx, CommonButtonService_AdminStopJob_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *commonButtonServiceClient) QueryBizInfo(ctx context.Context, in *QueryBizInfoReq, opts ...grpc.CallOption) (*QueryBizInfoRsp, error) {
+	out := new(QueryBizInfoRsp)
+	err := c.cc.Invoke(ctx, CommonButtonService_QueryBizInfo_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *commonButtonServiceClient) QueryBizList(ctx context.Context, in *QueryBizListReq, opts ...grpc.CallOption) (*QueryBizListRsp, error) {
+	out := new(QueryBizListRsp)
+	err := c.cc.Invoke(ctx, CommonButtonService_QueryBizList_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -191,6 +215,10 @@ type CommonButtonServiceServer interface {
 	AdminStartJob(context.Context, *AdminStartJobReq) (*AdminStartJobRsp, error)
 	// 停止任务
 	AdminStopJob(context.Context, *AdminStopJobReq) (*AdminStopJobRsp, error)
+	// 查询业务信息
+	QueryBizInfo(context.Context, *QueryBizInfoReq) (*QueryBizInfoRsp, error)
+	// 查询业务列表
+	QueryBizList(context.Context, *QueryBizListReq) (*QueryBizListRsp, error)
 	// 查询任务基本信息
 	QueryJobBaseInfo(context.Context, *QueryJobBaseInfoReq) (*QueryJobBaseInfoRsp, error)
 	// 查询任务列表
@@ -201,7 +229,7 @@ type CommonButtonServiceServer interface {
 	BizStartJob(context.Context, *BizStartJobReq) (*BizStartJobRsp, error)
 	// 要求业务停止运行. 一般为业务判断任务无法继续的时候
 	BizStopJob(context.Context, *BizStopJobReq) (*BizStopJobRsp, error)
-	// 更新业务数据
+	// 更新业务数据. 要求任务必须处于 JobStatus.WaitBizRun 状态或者串行化速率类型的任务可以使用
 	BizUpdateBizData(context.Context, *BizUpdateBizDataReq) (*BizUpdateBizDataRsp, error)
 	// 增加已处理数
 	BizIncrProcessedNum(context.Context, *BizIncrProcessedNumReq) (*BizIncrProcessedNumRsp, error)
@@ -225,6 +253,12 @@ func (UnimplementedCommonButtonServiceServer) AdminStartJob(context.Context, *Ad
 }
 func (UnimplementedCommonButtonServiceServer) AdminStopJob(context.Context, *AdminStopJobReq) (*AdminStopJobRsp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AdminStopJob not implemented")
+}
+func (UnimplementedCommonButtonServiceServer) QueryBizInfo(context.Context, *QueryBizInfoReq) (*QueryBizInfoRsp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method QueryBizInfo not implemented")
+}
+func (UnimplementedCommonButtonServiceServer) QueryBizList(context.Context, *QueryBizListReq) (*QueryBizListRsp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method QueryBizList not implemented")
 }
 func (UnimplementedCommonButtonServiceServer) QueryJobBaseInfo(context.Context, *QueryJobBaseInfoReq) (*QueryJobBaseInfoRsp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method QueryJobBaseInfo not implemented")
@@ -331,6 +365,42 @@ func _CommonButtonService_AdminStopJob_Handler(srv interface{}, ctx context.Cont
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CommonButtonServiceServer).AdminStopJob(ctx, req.(*AdminStopJobReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CommonButtonService_QueryBizInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryBizInfoReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CommonButtonServiceServer).QueryBizInfo(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CommonButtonService_QueryBizInfo_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CommonButtonServiceServer).QueryBizInfo(ctx, req.(*QueryBizInfoReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CommonButtonService_QueryBizList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryBizListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CommonButtonServiceServer).QueryBizList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CommonButtonService_QueryBizList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CommonButtonServiceServer).QueryBizList(ctx, req.(*QueryBizListReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -501,6 +571,14 @@ var CommonButtonService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AdminStopJob",
 			Handler:    _CommonButtonService_AdminStopJob_Handler,
+		},
+		{
+			MethodName: "QueryBizInfo",
+			Handler:    _CommonButtonService_QueryBizInfo_Handler,
+		},
+		{
+			MethodName: "QueryBizList",
+			Handler:    _CommonButtonService_QueryBizList_Handler,
 		},
 		{
 			MethodName: "QueryJobBaseInfo",

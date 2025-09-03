@@ -282,7 +282,7 @@
     },
     "/BatchJob/BizUpdateBizData": {
       "post": {
-        "summary": "更新业务数据",
+        "summary": "更新业务数据. 要求任务必须处于 JobStatus.WaitBizRun 状态或者串行化速率类型的任务可以使用",
         "operationId": "CommonButtonService_BizUpdateBizData",
         "responses": {
           "200": {
@@ -305,6 +305,72 @@
             "required": true,
             "schema": {
               "$ref": "#/definitions/batch_jobBizUpdateBizDataReq"
+            }
+          }
+        ],
+        "tags": [
+          "CommonButtonService"
+        ]
+      }
+    },
+    "/BatchJob/QueryBizInfo": {
+      "post": {
+        "summary": "查询业务信息",
+        "operationId": "CommonButtonService_QueryBizInfo",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/batch_jobQueryBizInfoRsp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/batch_jobQueryBizInfoReq"
+            }
+          }
+        ],
+        "tags": [
+          "CommonButtonService"
+        ]
+      }
+    },
+    "/BatchJob/QueryBizList": {
+      "post": {
+        "summary": "查询业务列表",
+        "operationId": "CommonButtonService_QueryBizList",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/batch_jobQueryBizListRsp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/batch_jobQueryBizListReq"
             }
           }
         ],
@@ -471,11 +537,6 @@
           "type": "string",
           "title": "备注"
         },
-        "rateSec": {
-          "type": "integer",
-          "format": "int32",
-          "title": "每秒处理速率. 0表示不限制"
-        },
         "cbBeforeCreate": {
           "type": "string",
           "title": "创建任务回调url"
@@ -487,6 +548,38 @@
         "cbProcess": {
           "type": "string",
           "title": "处理任务回调. 必填"
+        },
+        "cbProcessFinish": {
+          "type": "string",
+          "title": "处理任务完成回调. 用于业务方做一些清理. 选填"
+        },
+        "cbBeforeCreateTimeout": {
+          "type": "integer",
+          "format": "int32",
+          "title": "启动前回调超时秒数"
+        },
+        "cbBeforeRunTimeout": {
+          "type": "integer",
+          "format": "int32",
+          "title": "启动前回调超时秒数"
+        },
+        "cbProcessTimeout": {
+          "type": "integer",
+          "format": "int32",
+          "title": "启动前回调超时秒数"
+        },
+        "rateSec": {
+          "type": "integer",
+          "format": "int32",
+          "title": "每秒处理速率. 0表示不限制"
+        },
+        "rateType": {
+          "$ref": "#/definitions/batch_jobRateType",
+          "title": "速率类型"
+        },
+        "execType": {
+          "$ref": "#/definitions/batch_jobExecType",
+          "title": "执行类型"
         }
       }
     },
@@ -619,6 +712,65 @@
     "batch_jobBizIncrProcessedNumRsp": {
       "type": "object"
     },
+    "batch_jobBizInfoA": {
+      "type": "object",
+      "properties": {
+        "bizType": {
+          "type": "integer",
+          "format": "int32",
+          "title": "业务类型. 必填"
+        },
+        "bizName": {
+          "type": "string",
+          "title": "业务名"
+        },
+        "remark": {
+          "type": "string",
+          "title": "备注"
+        },
+        "cbBeforeCreate": {
+          "type": "string",
+          "title": "创建任务回调url"
+        },
+        "cbBeforeRun": {
+          "type": "string",
+          "title": "启动前回调. 一旦配置, 则任务必须由业务主动调用 BizStartJob 执行任务. 否则任务将一直处于 JobStatus.WaitBizRun 状态"
+        },
+        "cbProcess": {
+          "type": "string",
+          "title": "处理任务回调. 必填"
+        },
+        "cbBeforeCreateTimeout": {
+          "type": "integer",
+          "format": "int32",
+          "title": "启动前回调超时秒数"
+        },
+        "cbBeforeRunTimeout": {
+          "type": "integer",
+          "format": "int32",
+          "title": "启动前回调超时秒数"
+        },
+        "cbProcessTimeout": {
+          "type": "integer",
+          "format": "int32",
+          "title": "启动前回调超时秒数"
+        },
+        "rateSec": {
+          "type": "integer",
+          "format": "int32",
+          "title": "每秒处理速率. 0表示不限制"
+        },
+        "rateType": {
+          "$ref": "#/definitions/batch_jobRateType",
+          "title": "速率类型"
+        },
+        "execType": {
+          "$ref": "#/definitions/batch_jobExecType",
+          "title": "执行类型"
+        }
+      },
+      "title": "业务信息-响应"
+    },
     "batch_jobBizStartJobReq": {
       "type": "object",
       "properties": {
@@ -737,6 +889,16 @@
       "description": "- Debug: 调试\n - Info: 信息\n - Warn: 警告\n - Err: 错误",
       "title": "数据的日志类型"
     },
+    "batch_jobExecType": {
+      "type": "string",
+      "enum": [
+        "Callback",
+        "BizLocal"
+      ],
+      "default": "Callback",
+      "description": "- Callback: 回调\n - BizLocal: 业务本地",
+      "title": "执行类型"
+    },
     "batch_jobOpInfoA": {
       "type": "object",
       "properties": {
@@ -777,6 +939,77 @@
         }
       },
       "title": "操作信息-请求"
+    },
+    "batch_jobQueryBizInfoReq": {
+      "type": "object",
+      "properties": {
+        "bizType": {
+          "type": "integer",
+          "format": "int32",
+          "title": "创建的业务类型. 必填"
+        }
+      }
+    },
+    "batch_jobQueryBizInfoRsp": {
+      "type": "object",
+      "properties": {
+        "line": {
+          "$ref": "#/definitions/batch_jobBizInfoA",
+          "title": "业务信息"
+        }
+      }
+    },
+    "batch_jobQueryBizListReq": {
+      "type": "object",
+      "properties": {
+        "startTime": {
+          "type": "string",
+          "format": "int64",
+          "title": "开始时间, 秒级时间戳. 0表示不限制"
+        },
+        "endTime": {
+          "type": "string",
+          "format": "int64",
+          "title": "结束时间, 秒级时间戳. 0表示不限制"
+        },
+        "opUser": {
+          "type": "string",
+          "title": "操作人"
+        },
+        "page": {
+          "type": "integer",
+          "format": "int32",
+          "title": "页号, 从1开始"
+        },
+        "pageSize": {
+          "type": "integer",
+          "format": "int32",
+          "title": "每页返回数量, 最少返回5条"
+        }
+      }
+    },
+    "batch_jobQueryBizListRsp": {
+      "type": "object",
+      "properties": {
+        "total": {
+          "type": "integer",
+          "format": "int32",
+          "title": "总条数"
+        },
+        "pageSize": {
+          "type": "integer",
+          "format": "int32",
+          "title": "当前分一页预期返回条数"
+        },
+        "line": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/batch_jobBizInfoA"
+          },
+          "title": "业务信息"
+        }
+      }
     },
     "batch_jobQueryJobBaseInfoReq": {
       "type": "object",
@@ -903,6 +1136,16 @@
           "title": "基础任务信息"
         }
       }
+    },
+    "batch_jobRateType": {
+      "type": "string",
+      "enum": [
+        "RateSec",
+        "Serialization"
+      ],
+      "default": "RateSec",
+      "description": "- RateSec: 每秒限速\n - Serialization: 串行化",
+      "title": "速率类型"
     },
     "protobufAny": {
       "type": "object",
