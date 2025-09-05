@@ -490,11 +490,11 @@
         },
         "bizData": {
           "type": "string",
-          "title": "业务数据"
+          "title": "业务任务数据, 让业务知道应该做什么"
         },
         "bizProcessData": {
           "type": "string",
-          "title": "业务中需要处理的数据"
+          "title": "业务中需要处理的批量数据"
         },
         "processDataTotal": {
           "type": "string",
@@ -566,7 +566,12 @@
         "cbProcessTimeout": {
           "type": "integer",
           "format": "int32",
-          "title": "启动前回调超时秒数"
+          "title": "处理任务回调超时秒数"
+        },
+        "cbProcessFinishTimeout": {
+          "type": "integer",
+          "format": "int32",
+          "title": "处理任务完成回调超时秒数"
         },
         "rateSec": {
           "type": "integer",
@@ -635,7 +640,7 @@
         },
         "bizData": {
           "type": "string",
-          "title": "业务数据"
+          "title": "业务任务数据, 让业务知道应该做什么"
         },
         "processDataTotal": {
           "type": "string",
@@ -738,7 +743,11 @@
         },
         "cbProcess": {
           "type": "string",
-          "title": "处理任务回调. 必填"
+          "title": "处理任务回调"
+        },
+        "cbProcessFinish": {
+          "type": "string",
+          "title": "处理任务完成回调. 用于业务方做一些清理"
         },
         "cbBeforeCreateTimeout": {
           "type": "integer",
@@ -753,7 +762,12 @@
         "cbProcessTimeout": {
           "type": "integer",
           "format": "int32",
-          "title": "启动前回调超时秒数"
+          "title": "处理任务回调超时秒数"
+        },
+        "cbProcessFinishTimeout": {
+          "type": "integer",
+          "format": "int32",
+          "title": "处理任务完成回调超时秒数"
         },
         "rateSec": {
           "type": "integer",
@@ -807,11 +821,11 @@
         },
         "bizData": {
           "type": "string",
-          "title": "业务数据. 空值则不会更新这个数据"
+          "title": "业务任务数据, 让业务知道应该做什么. 空值则不会更新这个数据"
         },
         "bizProcessData": {
           "type": "string",
-          "title": "业务中需要处理的数据. 空值则不会更新这个数据"
+          "title": "业务中需要处理的批量数据. 空值则不会更新这个数据"
         },
         "processDataTotal": {
           "type": "string",
