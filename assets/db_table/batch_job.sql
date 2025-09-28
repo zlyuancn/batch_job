@@ -23,7 +23,7 @@ CREATE TABLE `batch_job_type`
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT ='批量任务类型';
 
-CREATE TABLE `batch_job`
+CREATE TABLE `batch_job_list`
 (
     `id`                 int unsigned       NOT NULL AUTO_INCREMENT,
     `job_id`             int unsigned       NOT NULL COMMENT '任务号',
@@ -49,7 +49,7 @@ CREATE TABLE `batch_job`
     KEY `batch_job_job_id_last_op_user_id_create_time_index` (`job_id`, `last_op_user_id`, `create_time` DESC)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_general_ci COMMENT ='批量任务信息';
+  COLLATE = utf8mb4_general_ci COMMENT ='批量任务列表';
 
 CREATE TABLE `batch_job_log`
 (
