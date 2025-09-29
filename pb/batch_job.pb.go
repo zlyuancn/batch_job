@@ -230,23 +230,23 @@ func (DataLogType) EnumDescriptor() ([]byte, []int) {
 }
 
 type AdminRegistryBizReq struct {
-	state                  protoimpl.MessageState `protogen:"open.v1"`
-	BizType                int32                  `protobuf:"varint,1,opt,name=biz_type,json=bizType,proto3" json:"biz_type,omitempty"`                                                   // 业务类型. 必填
-	BizName                string                 `protobuf:"bytes,2,opt,name=biz_name,json=bizName,proto3" json:"biz_name,omitempty"`                                                    // 业务名
-	Remark                 string                 `protobuf:"bytes,3,opt,name=remark,proto3" json:"remark,omitempty"`                                                                     // 备注
-	CbBeforeCreate         string                 `protobuf:"bytes,4,opt,name=cb_before_create,json=cbBeforeCreate,proto3" json:"cb_before_create,omitempty"`                             // 创建任务回调url
-	CbBeforeRun            string                 `protobuf:"bytes,5,opt,name=cb_before_run,json=cbBeforeRun,proto3" json:"cb_before_run,omitempty"`                                      // 启动前回调. 一旦配置, 则任务必须由业务主动调用 BizStartJob 执行任务. 否则任务将一直处于 JobStatus.WaitBizRun 状态
-	CbProcess              string                 `protobuf:"bytes,6,opt,name=cb_process,json=cbProcess,proto3" json:"cb_process,omitempty"`                                              // 处理任务回调. 必填
-	CbProcessFinish        string                 `protobuf:"bytes,7,opt,name=cb_process_finish,json=cbProcessFinish,proto3" json:"cb_process_finish,omitempty"`                          // 处理任务完成回调. 用于业务方做一些清理. 选填
-	CbBeforeCreateTimeout  int32                  `protobuf:"varint,8,opt,name=cb_before_create_timeout,json=cbBeforeCreateTimeout,proto3" json:"cb_before_create_timeout,omitempty"`     // 启动前回调超时秒数
-	CbBeforeRunTimeout     int32                  `protobuf:"varint,9,opt,name=cb_before_run_timeout,json=cbBeforeRunTimeout,proto3" json:"cb_before_run_timeout,omitempty"`              // 启动前回调超时秒数
-	CbProcessTimeout       int32                  `protobuf:"varint,10,opt,name=cb_process_timeout,json=cbProcessTimeout,proto3" json:"cb_process_timeout,omitempty"`                     // 处理任务回调超时秒数
-	CbProcessFinishTimeout int32                  `protobuf:"varint,11,opt,name=cb_process_finish_timeout,json=cbProcessFinishTimeout,proto3" json:"cb_process_finish_timeout,omitempty"` // 处理任务完成回调超时秒数
-	RateSec                int32                  `protobuf:"varint,12,opt,name=rate_sec,json=rateSec,proto3" json:"rate_sec,omitempty"`                                                  // 每秒处理速率. 0表示不限制
-	RateType               RateType               `protobuf:"varint,13,opt,name=rate_type,json=rateType,proto3,enum=batch_job.RateType" json:"rate_type,omitempty"`                       // 速率类型
-	ExecType               ExecType               `protobuf:"varint,14,opt,name=exec_type,json=execType,proto3,enum=batch_job.ExecType" json:"exec_type,omitempty"`                       // 执行类型
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
+	state                 protoimpl.MessageState `protogen:"open.v1"`
+	BizType               int32                  `protobuf:"varint,1,opt,name=biz_type,json=bizType,proto3" json:"biz_type,omitempty"`                                               // 业务类型. 必填
+	BizName               string                 `protobuf:"bytes,2,opt,name=biz_name,json=bizName,proto3" json:"biz_name,omitempty"`                                                // 业务名
+	Remark                string                 `protobuf:"bytes,3,opt,name=remark,proto3" json:"remark,omitempty"`                                                                 // 备注
+	CbBeforeCreate        string                 `protobuf:"bytes,4,opt,name=cb_before_create,json=cbBeforeCreate,proto3" json:"cb_before_create,omitempty"`                         // 创建任务回调url
+	CbBeforeRun           string                 `protobuf:"bytes,5,opt,name=cb_before_run,json=cbBeforeRun,proto3" json:"cb_before_run,omitempty"`                                  // 启动前回调. 一旦配置, 则任务必须由业务主动调用 BizStartJob 执行任务. 否则任务将一直处于 JobStatus.WaitBizRun 状态
+	CbProcess             string                 `protobuf:"bytes,6,opt,name=cb_process,json=cbProcess,proto3" json:"cb_process,omitempty"`                                          // 处理任务回调. 必填
+	CbProcessStop         string                 `protobuf:"bytes,7,opt,name=cb_process_stop,json=cbProcessStop,proto3" json:"cb_process_stop,omitempty"`                            // 处理任务停止回调. 用于业务方做一些清理. 选填
+	CbBeforeCreateTimeout int32                  `protobuf:"varint,8,opt,name=cb_before_create_timeout,json=cbBeforeCreateTimeout,proto3" json:"cb_before_create_timeout,omitempty"` // 启动前回调超时秒数
+	CbBeforeRunTimeout    int32                  `protobuf:"varint,9,opt,name=cb_before_run_timeout,json=cbBeforeRunTimeout,proto3" json:"cb_before_run_timeout,omitempty"`          // 启动前回调超时秒数
+	CbProcessTimeout      int32                  `protobuf:"varint,10,opt,name=cb_process_timeout,json=cbProcessTimeout,proto3" json:"cb_process_timeout,omitempty"`                 // 处理任务回调超时秒数
+	CbProcessStopTimeout  int32                  `protobuf:"varint,11,opt,name=cb_process_stop_timeout,json=cbProcessStopTimeout,proto3" json:"cb_process_stop_timeout,omitempty"`   // 处理任务停止回调超时秒数
+	RateSec               int32                  `protobuf:"varint,12,opt,name=rate_sec,json=rateSec,proto3" json:"rate_sec,omitempty"`                                              // 每秒处理速率. 0表示不限制
+	RateType              RateType               `protobuf:"varint,13,opt,name=rate_type,json=rateType,proto3,enum=batch_job.RateType" json:"rate_type,omitempty"`                   // 速率类型
+	ExecType              ExecType               `protobuf:"varint,14,opt,name=exec_type,json=execType,proto3,enum=batch_job.ExecType" json:"exec_type,omitempty"`                   // 执行类型
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
 }
 
 func (x *AdminRegistryBizReq) Reset() {
@@ -321,9 +321,9 @@ func (x *AdminRegistryBizReq) GetCbProcess() string {
 	return ""
 }
 
-func (x *AdminRegistryBizReq) GetCbProcessFinish() string {
+func (x *AdminRegistryBizReq) GetCbProcessStop() string {
 	if x != nil {
-		return x.CbProcessFinish
+		return x.CbProcessStop
 	}
 	return ""
 }
@@ -349,9 +349,9 @@ func (x *AdminRegistryBizReq) GetCbProcessTimeout() int32 {
 	return 0
 }
 
-func (x *AdminRegistryBizReq) GetCbProcessFinishTimeout() int32 {
+func (x *AdminRegistryBizReq) GetCbProcessStopTimeout() int32 {
 	if x != nil {
-		return x.CbProcessFinishTimeout
+		return x.CbProcessStopTimeout
 	}
 	return 0
 }
@@ -545,23 +545,23 @@ func (x *OpInfoA) GetOpTime() int64 {
 
 // 业务信息-响应
 type BizInfoA struct {
-	state                  protoimpl.MessageState `protogen:"open.v1"`
-	BizType                int32                  `protobuf:"varint,1,opt,name=biz_type,json=bizType,proto3" json:"biz_type,omitempty"`                                                   // 业务类型. 必填
-	BizName                string                 `protobuf:"bytes,2,opt,name=biz_name,json=bizName,proto3" json:"biz_name,omitempty"`                                                    // 业务名
-	Remark                 string                 `protobuf:"bytes,3,opt,name=remark,proto3" json:"remark,omitempty"`                                                                     // 备注
-	CbBeforeCreate         string                 `protobuf:"bytes,4,opt,name=cb_before_create,json=cbBeforeCreate,proto3" json:"cb_before_create,omitempty"`                             // 创建任务回调url
-	CbBeforeRun            string                 `protobuf:"bytes,5,opt,name=cb_before_run,json=cbBeforeRun,proto3" json:"cb_before_run,omitempty"`                                      // 启动前回调. 一旦配置, 则任务必须由业务主动调用 BizStartJob 执行任务. 否则任务将一直处于 JobStatus.WaitBizRun 状态
-	CbProcess              string                 `protobuf:"bytes,6,opt,name=cb_process,json=cbProcess,proto3" json:"cb_process,omitempty"`                                              // 处理任务回调
-	CbProcessFinish        string                 `protobuf:"bytes,7,opt,name=cb_process_finish,json=cbProcessFinish,proto3" json:"cb_process_finish,omitempty"`                          // 处理任务完成回调. 用于业务方做一些清理
-	CbBeforeCreateTimeout  int32                  `protobuf:"varint,8,opt,name=cb_before_create_timeout,json=cbBeforeCreateTimeout,proto3" json:"cb_before_create_timeout,omitempty"`     // 启动前回调超时秒数
-	CbBeforeRunTimeout     int32                  `protobuf:"varint,9,opt,name=cb_before_run_timeout,json=cbBeforeRunTimeout,proto3" json:"cb_before_run_timeout,omitempty"`              // 启动前回调超时秒数
-	CbProcessTimeout       int32                  `protobuf:"varint,10,opt,name=cb_process_timeout,json=cbProcessTimeout,proto3" json:"cb_process_timeout,omitempty"`                     // 处理任务回调超时秒数
-	CbProcessFinishTimeout int32                  `protobuf:"varint,11,opt,name=cb_process_finish_timeout,json=cbProcessFinishTimeout,proto3" json:"cb_process_finish_timeout,omitempty"` // 处理任务完成回调超时秒数
-	RateSec                int32                  `protobuf:"varint,12,opt,name=rate_sec,json=rateSec,proto3" json:"rate_sec,omitempty"`                                                  // 每秒处理速率. 0表示不限制
-	RateType               RateType               `protobuf:"varint,13,opt,name=rate_type,json=rateType,proto3,enum=batch_job.RateType" json:"rate_type,omitempty"`                       // 速率类型
-	ExecType               ExecType               `protobuf:"varint,14,opt,name=exec_type,json=execType,proto3,enum=batch_job.ExecType" json:"exec_type,omitempty"`                       // 执行类型
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
+	state                 protoimpl.MessageState `protogen:"open.v1"`
+	BizType               int32                  `protobuf:"varint,1,opt,name=biz_type,json=bizType,proto3" json:"biz_type,omitempty"`                                               // 业务类型. 必填
+	BizName               string                 `protobuf:"bytes,2,opt,name=biz_name,json=bizName,proto3" json:"biz_name,omitempty"`                                                // 业务名
+	Remark                string                 `protobuf:"bytes,3,opt,name=remark,proto3" json:"remark,omitempty"`                                                                 // 备注
+	CbBeforeCreate        string                 `protobuf:"bytes,4,opt,name=cb_before_create,json=cbBeforeCreate,proto3" json:"cb_before_create,omitempty"`                         // 创建任务回调url
+	CbBeforeRun           string                 `protobuf:"bytes,5,opt,name=cb_before_run,json=cbBeforeRun,proto3" json:"cb_before_run,omitempty"`                                  // 启动前回调. 一旦配置, 则任务必须由业务主动调用 BizStartJob 执行任务. 否则任务将一直处于 JobStatus.WaitBizRun 状态
+	CbProcess             string                 `protobuf:"bytes,6,opt,name=cb_process,json=cbProcess,proto3" json:"cb_process,omitempty"`                                          // 处理任务回调
+	CbProcessStop         string                 `protobuf:"bytes,7,opt,name=cb_process_stop,json=cbProcessStop,proto3" json:"cb_process_stop,omitempty"`                            // 处理任务停止回调. 用于业务方做一些清理
+	CbBeforeCreateTimeout int32                  `protobuf:"varint,8,opt,name=cb_before_create_timeout,json=cbBeforeCreateTimeout,proto3" json:"cb_before_create_timeout,omitempty"` // 启动前回调超时秒数
+	CbBeforeRunTimeout    int32                  `protobuf:"varint,9,opt,name=cb_before_run_timeout,json=cbBeforeRunTimeout,proto3" json:"cb_before_run_timeout,omitempty"`          // 启动前回调超时秒数
+	CbProcessTimeout      int32                  `protobuf:"varint,10,opt,name=cb_process_timeout,json=cbProcessTimeout,proto3" json:"cb_process_timeout,omitempty"`                 // 处理任务回调超时秒数
+	CbProcessStopTimeout  int32                  `protobuf:"varint,11,opt,name=cb_process_stop_timeout,json=cbProcessStopTimeout,proto3" json:"cb_process_stop_timeout,omitempty"`   // 处理任务停止回调超时秒数
+	RateSec               int32                  `protobuf:"varint,12,opt,name=rate_sec,json=rateSec,proto3" json:"rate_sec,omitempty"`                                              // 每秒处理速率. 0表示不限制
+	RateType              RateType               `protobuf:"varint,13,opt,name=rate_type,json=rateType,proto3,enum=batch_job.RateType" json:"rate_type,omitempty"`                   // 速率类型
+	ExecType              ExecType               `protobuf:"varint,14,opt,name=exec_type,json=execType,proto3,enum=batch_job.ExecType" json:"exec_type,omitempty"`                   // 执行类型
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
 }
 
 func (x *BizInfoA) Reset() {
@@ -636,9 +636,9 @@ func (x *BizInfoA) GetCbProcess() string {
 	return ""
 }
 
-func (x *BizInfoA) GetCbProcessFinish() string {
+func (x *BizInfoA) GetCbProcessStop() string {
 	if x != nil {
-		return x.CbProcessFinish
+		return x.CbProcessStop
 	}
 	return ""
 }
@@ -664,9 +664,9 @@ func (x *BizInfoA) GetCbProcessTimeout() int32 {
 	return 0
 }
 
-func (x *BizInfoA) GetCbProcessFinishTimeout() int32 {
+func (x *BizInfoA) GetCbProcessStopTimeout() int32 {
 	if x != nil {
-		return x.CbProcessFinishTimeout
+		return x.CbProcessStopTimeout
 	}
 	return 0
 }
@@ -699,9 +699,9 @@ type BaseInfoA struct {
 	BizType          int32                  `protobuf:"varint,2,opt,name=biz_type,json=bizType,proto3" json:"biz_type,omitempty"`                              // 业务类型
 	BizData          string                 `protobuf:"bytes,3,opt,name=biz_data,json=bizData,proto3" json:"biz_data,omitempty"`                               // 业务任务数据, 让业务知道应该做什么
 	ProcessDataTotal int64                  `protobuf:"varint,4,opt,name=process_data_total,json=processDataTotal,proto3" json:"process_data_total,omitempty"` // 业务中需要处理数据总数
-	ProcessedCount   int64                  `protobuf:"varint,5,opt,name=processed_count,json=processedCount,proto3" json:"processed_count,omitempty"`         // 已处理过的数据量, 无论成功还是失败
-	ErrLogCount      int64                  `protobuf:"varint,6,opt,name=err_log_count,json=errLogCount,proto3" json:"err_log_count,omitempty"`                // 错误日志数
-	Status           int32                  `protobuf:"varint,7,opt,name=status,proto3" json:"status,omitempty"`                                               // 任务状态 0=未进行 1=等待业务启动 2=进行中 3=已完成 4=已取消/已停止
+	ProcessedNum     int64                  `protobuf:"varint,5,opt,name=processed_num,json=processedNum,proto3" json:"processed_num,omitempty"`               // 已处理过的数据量, 无论成功还是失败
+	ErrLogNum        int64                  `protobuf:"varint,6,opt,name=err_log_num,json=errLogNum,proto3" json:"err_log_num,omitempty"`                      // 错误日志数
+	Status           JobStatus              `protobuf:"varint,7,opt,name=status,proto3,enum=batch_job.JobStatus" json:"status,omitempty"`                      // 任务状态
 	CreateTime       int64                  `protobuf:"varint,8,opt,name=create_time,json=createTime,proto3" json:"create_time,omitempty"`                     // 创建时间秒级时间戳
 	Op               *OpInfoA               `protobuf:"bytes,9,opt,name=op,proto3" json:"op,omitempty"`                                                        // 操作信息
 	StatusInfo       string                 `protobuf:"bytes,10,opt,name=status_info,json=statusInfo,proto3" json:"status_info,omitempty"`                     // 状态信息
@@ -767,25 +767,25 @@ func (x *BaseInfoA) GetProcessDataTotal() int64 {
 	return 0
 }
 
-func (x *BaseInfoA) GetProcessedCount() int64 {
+func (x *BaseInfoA) GetProcessedNum() int64 {
 	if x != nil {
-		return x.ProcessedCount
+		return x.ProcessedNum
 	}
 	return 0
 }
 
-func (x *BaseInfoA) GetErrLogCount() int64 {
+func (x *BaseInfoA) GetErrLogNum() int64 {
 	if x != nil {
-		return x.ErrLogCount
+		return x.ErrLogNum
 	}
 	return 0
 }
 
-func (x *BaseInfoA) GetStatus() int32 {
+func (x *BaseInfoA) GetStatus() JobStatus {
 	if x != nil {
 		return x.Status
 	}
-	return 0
+	return JobStatus_Created
 }
 
 func (x *BaseInfoA) GetCreateTime() int64 {
@@ -2009,7 +2009,7 @@ type BizUpdateBizDataReq struct {
 	BizData          string                 `protobuf:"bytes,2,opt,name=biz_data,json=bizData,proto3" json:"biz_data,omitempty"`                               // 业务任务数据, 让业务知道应该做什么. 空值则不会更新这个数据
 	BizProcessData   string                 `protobuf:"bytes,3,opt,name=biz_process_data,json=bizProcessData,proto3" json:"biz_process_data,omitempty"`        // 业务中需要处理的批量数据. 空值则不会更新这个数据
 	ProcessDataTotal int64                  `protobuf:"varint,4,opt,name=process_data_total,json=processDataTotal,proto3" json:"process_data_total,omitempty"` // 需要处理数据总数. 空值则不会更新这个数据
-	ProcessedCount   int64                  `protobuf:"varint,5,opt,name=processed_count,json=processedCount,proto3" json:"processed_count,omitempty"`         // 已处理过的数据量, 无论成功还是失败. 空值则不会更新这个数据
+	ProcessedNum     int64                  `protobuf:"varint,5,opt,name=processed_num,json=processedNum,proto3" json:"processed_num,omitempty"`               // 已处理过的数据量, 无论成功还是失败. 空值则不会更新这个数据
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -2072,9 +2072,9 @@ func (x *BizUpdateBizDataReq) GetProcessDataTotal() int64 {
 	return 0
 }
 
-func (x *BizUpdateBizDataReq) GetProcessedCount() int64 {
+func (x *BizUpdateBizDataReq) GetProcessedNum() int64 {
 	if x != nil {
-		return x.ProcessedCount
+		return x.ProcessedNum
 	}
 	return 0
 }
@@ -2295,7 +2295,7 @@ var File_batch_job_proto protoreflect.FileDescriptor
 
 const file_batch_job_proto_rawDesc = "" +
 	"\n" +
-	"\x0fbatch_job.proto\x12\tbatch_job\x1a\x1cgoogle/api/annotations.proto\x1a\x17validate/validate.proto\"\xae\x05\n" +
+	"\x0fbatch_job.proto\x12\tbatch_job\x1a\x1cgoogle/api/annotations.proto\x1a\x17validate/validate.proto\"\xa6\x05\n" +
 	"\x13AdminRegistryBizReq\x12\"\n" +
 	"\bbiz_type\x18\x01 \x01(\x05B\a\xfaB\x04\x1a\x02 \x00R\abizType\x12\"\n" +
 	"\bbiz_name\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\abizName\x12\x16\n" +
@@ -2303,13 +2303,13 @@ const file_batch_job_proto_rawDesc = "" +
 	"\x10cb_before_create\x18\x04 \x01(\tB\b\xfaB\x05r\x03\x88\x01\x01R\x0ecbBeforeCreate\x12,\n" +
 	"\rcb_before_run\x18\x05 \x01(\tB\b\xfaB\x05r\x03\x88\x01\x01R\vcbBeforeRun\x12'\n" +
 	"\n" +
-	"cb_process\x18\x06 \x01(\tB\b\xfaB\x05r\x03\x88\x01\x01R\tcbProcess\x124\n" +
-	"\x11cb_process_finish\x18\a \x01(\tB\b\xfaB\x05r\x03\x88\x01\x01R\x0fcbProcessFinish\x12@\n" +
+	"cb_process\x18\x06 \x01(\tB\b\xfaB\x05r\x03\x88\x01\x01R\tcbProcess\x120\n" +
+	"\x0fcb_process_stop\x18\a \x01(\tB\b\xfaB\x05r\x03\x88\x01\x01R\rcbProcessStop\x12@\n" +
 	"\x18cb_before_create_timeout\x18\b \x01(\x05B\a\xfaB\x04\x1a\x02(\x00R\x15cbBeforeCreateTimeout\x12:\n" +
 	"\x15cb_before_run_timeout\x18\t \x01(\x05B\a\xfaB\x04\x1a\x02(\x00R\x12cbBeforeRunTimeout\x125\n" +
 	"\x12cb_process_timeout\x18\n" +
-	" \x01(\x05B\a\xfaB\x04\x1a\x02(\x00R\x10cbProcessTimeout\x12B\n" +
-	"\x19cb_process_finish_timeout\x18\v \x01(\x05B\a\xfaB\x04\x1a\x02(\x00R\x16cbProcessFinishTimeout\x12\x19\n" +
+	" \x01(\x05B\a\xfaB\x04\x1a\x02(\x00R\x10cbProcessTimeout\x12>\n" +
+	"\x17cb_process_stop_timeout\x18\v \x01(\x05B\a\xfaB\x04\x1a\x02(\x00R\x14cbProcessStopTimeout\x12\x19\n" +
 	"\brate_sec\x18\f \x01(\x05R\arateSec\x120\n" +
 	"\trate_type\x18\r \x01(\x0e2\x13.batch_job.RateTypeR\brateType\x120\n" +
 	"\texec_type\x18\x0e \x01(\x0e2\x13.batch_job.ExecTypeR\bexecType\"\x15\n" +
@@ -2324,7 +2324,7 @@ const file_batch_job_proto_rawDesc = "" +
 	"\top_userid\x18\x02 \x01(\tR\bopUserid\x12 \n" +
 	"\fop_user_name\x18\x03 \x01(\tR\n" +
 	"opUserName\x12\x17\n" +
-	"\aop_time\x18\x04 \x01(\x03R\x06opTime\"\xc5\x04\n" +
+	"\aop_time\x18\x04 \x01(\x03R\x06opTime\"\xbd\x04\n" +
 	"\bBizInfoA\x12\x19\n" +
 	"\bbiz_type\x18\x01 \x01(\x05R\abizType\x12\x19\n" +
 	"\bbiz_name\x18\x02 \x01(\tR\abizName\x12\x16\n" +
@@ -2332,24 +2332,24 @@ const file_batch_job_proto_rawDesc = "" +
 	"\x10cb_before_create\x18\x04 \x01(\tR\x0ecbBeforeCreate\x12\"\n" +
 	"\rcb_before_run\x18\x05 \x01(\tR\vcbBeforeRun\x12\x1d\n" +
 	"\n" +
-	"cb_process\x18\x06 \x01(\tR\tcbProcess\x12*\n" +
-	"\x11cb_process_finish\x18\a \x01(\tR\x0fcbProcessFinish\x127\n" +
+	"cb_process\x18\x06 \x01(\tR\tcbProcess\x12&\n" +
+	"\x0fcb_process_stop\x18\a \x01(\tR\rcbProcessStop\x127\n" +
 	"\x18cb_before_create_timeout\x18\b \x01(\x05R\x15cbBeforeCreateTimeout\x121\n" +
 	"\x15cb_before_run_timeout\x18\t \x01(\x05R\x12cbBeforeRunTimeout\x12,\n" +
 	"\x12cb_process_timeout\x18\n" +
-	" \x01(\x05R\x10cbProcessTimeout\x129\n" +
-	"\x19cb_process_finish_timeout\x18\v \x01(\x05R\x16cbProcessFinishTimeout\x12\x19\n" +
+	" \x01(\x05R\x10cbProcessTimeout\x125\n" +
+	"\x17cb_process_stop_timeout\x18\v \x01(\x05R\x14cbProcessStopTimeout\x12\x19\n" +
 	"\brate_sec\x18\f \x01(\x05R\arateSec\x120\n" +
 	"\trate_type\x18\r \x01(\x0e2\x13.batch_job.RateTypeR\brateType\x120\n" +
-	"\texec_type\x18\x0e \x01(\x0e2\x13.batch_job.ExecTypeR\bexecType\"\xd1\x02\n" +
+	"\texec_type\x18\x0e \x01(\x0e2\x13.batch_job.ExecTypeR\bexecType\"\xdf\x02\n" +
 	"\tBaseInfoA\x12\x15\n" +
 	"\x06job_id\x18\x01 \x01(\x03R\x05jobId\x12\x19\n" +
 	"\bbiz_type\x18\x02 \x01(\x05R\abizType\x12\x19\n" +
 	"\bbiz_data\x18\x03 \x01(\tR\abizData\x12,\n" +
-	"\x12process_data_total\x18\x04 \x01(\x03R\x10processDataTotal\x12'\n" +
-	"\x0fprocessed_count\x18\x05 \x01(\x03R\x0eprocessedCount\x12\"\n" +
-	"\rerr_log_count\x18\x06 \x01(\x03R\verrLogCount\x12\x16\n" +
-	"\x06status\x18\a \x01(\x05R\x06status\x12\x1f\n" +
+	"\x12process_data_total\x18\x04 \x01(\x03R\x10processDataTotal\x12#\n" +
+	"\rprocessed_num\x18\x05 \x01(\x03R\fprocessedNum\x12\x1e\n" +
+	"\verr_log_num\x18\x06 \x01(\x03R\terrLogNum\x12,\n" +
+	"\x06status\x18\a \x01(\x0e2\x14.batch_job.JobStatusR\x06status\x12\x1f\n" +
 	"\vcreate_time\x18\b \x01(\x03R\n" +
 	"createTime\x12\"\n" +
 	"\x02op\x18\t \x01(\v2\x12.batch_job.OpInfoAR\x02op\x12\x1f\n" +
@@ -2431,13 +2431,13 @@ const file_batch_job_proto_rawDesc = "" +
 	"\x0eBizStartJobRsp\"/\n" +
 	"\rBizStopJobReq\x12\x1e\n" +
 	"\x06job_id\x18\x01 \x01(\x03B\a\xfaB\x04\"\x02 \x00R\x05jobId\"\x0f\n" +
-	"\rBizStopJobRsp\"\xd1\x01\n" +
+	"\rBizStopJobRsp\"\xcd\x01\n" +
 	"\x13BizUpdateBizDataReq\x12\x1e\n" +
 	"\x06job_id\x18\x01 \x01(\x03B\a\xfaB\x04\"\x02 \x00R\x05jobId\x12\x19\n" +
 	"\bbiz_data\x18\x02 \x01(\tR\abizData\x12(\n" +
 	"\x10biz_process_data\x18\x03 \x01(\tR\x0ebizProcessData\x12,\n" +
-	"\x12process_data_total\x18\x04 \x01(\x03R\x10processDataTotal\x12'\n" +
-	"\x0fprocessed_count\x18\x05 \x01(\x03R\x0eprocessedCount\"\x15\n" +
+	"\x12process_data_total\x18\x04 \x01(\x03R\x10processDataTotal\x12#\n" +
+	"\rprocessed_num\x18\x05 \x01(\x03R\fprocessedNum\"\x15\n" +
 	"\x13BizUpdateBizDataRsp\"S\n" +
 	"\x16BizIncrProcessedNumReq\x12\x1e\n" +
 	"\x06job_id\x18\x01 \x01(\x03B\a\xfaB\x04\"\x02 \x00R\x05jobId\x12\x19\n" +
@@ -2542,52 +2542,53 @@ var file_batch_job_proto_depIdxs = []int32{
 	1,  // 1: batch_job.AdminRegistryBizReq.exec_type:type_name -> batch_job.ExecType
 	0,  // 2: batch_job.BizInfoA.rate_type:type_name -> batch_job.RateType
 	1,  // 3: batch_job.BizInfoA.exec_type:type_name -> batch_job.ExecType
-	7,  // 4: batch_job.BaseInfoA.op:type_name -> batch_job.OpInfoA
-	3,  // 5: batch_job.DataLogQ.log_type:type_name -> batch_job.DataLogType
-	3,  // 6: batch_job.DataLogA.log_type:type_name -> batch_job.DataLogType
-	6,  // 7: batch_job.AdminCreateJobReq.op:type_name -> batch_job.OpInfoQ
-	6,  // 8: batch_job.AdminStartJobReq.op:type_name -> batch_job.OpInfoQ
-	6,  // 9: batch_job.AdminStopJobReq.op:type_name -> batch_job.OpInfoQ
-	8,  // 10: batch_job.QueryBizInfoRsp.line:type_name -> batch_job.BizInfoA
-	8,  // 11: batch_job.QueryBizListRsp.line:type_name -> batch_job.BizInfoA
-	9,  // 12: batch_job.QueryJobBaseInfoRsp.base_info:type_name -> batch_job.BaseInfoA
-	9,  // 13: batch_job.QueryJobListRsp.line:type_name -> batch_job.BaseInfoA
-	3,  // 14: batch_job.QueryJobDataLogReq.log_type:type_name -> batch_job.DataLogType
-	11, // 15: batch_job.QueryJobDataLogRsp.log:type_name -> batch_job.DataLogA
-	10, // 16: batch_job.BizAddDataLogReq.log:type_name -> batch_job.DataLogQ
-	4,  // 17: batch_job.BatchJobService.AdminRegistryBiz:input_type -> batch_job.AdminRegistryBizReq
-	12, // 18: batch_job.BatchJobService.AdminCreateJob:input_type -> batch_job.AdminCreateJobReq
-	14, // 19: batch_job.BatchJobService.AdminStartJob:input_type -> batch_job.AdminStartJobReq
-	16, // 20: batch_job.BatchJobService.AdminStopJob:input_type -> batch_job.AdminStopJobReq
-	18, // 21: batch_job.BatchJobService.QueryBizInfo:input_type -> batch_job.QueryBizInfoReq
-	20, // 22: batch_job.BatchJobService.QueryBizList:input_type -> batch_job.QueryBizListReq
-	22, // 23: batch_job.BatchJobService.QueryJobBaseInfo:input_type -> batch_job.QueryJobBaseInfoReq
-	24, // 24: batch_job.BatchJobService.QueryJobList:input_type -> batch_job.QueryJobListReq
-	26, // 25: batch_job.BatchJobService.QueryJobDataLog:input_type -> batch_job.QueryJobDataLogReq
-	28, // 26: batch_job.BatchJobService.BizStartJob:input_type -> batch_job.BizStartJobReq
-	30, // 27: batch_job.BatchJobService.BizStopJob:input_type -> batch_job.BizStopJobReq
-	32, // 28: batch_job.BatchJobService.BizUpdateBizData:input_type -> batch_job.BizUpdateBizDataReq
-	34, // 29: batch_job.BatchJobService.BizIncrProcessedNum:input_type -> batch_job.BizIncrProcessedNumReq
-	36, // 30: batch_job.BatchJobService.BizAddDataLog:input_type -> batch_job.BizAddDataLogReq
-	5,  // 31: batch_job.BatchJobService.AdminRegistryBiz:output_type -> batch_job.AdminRegistryBizRsp
-	13, // 32: batch_job.BatchJobService.AdminCreateJob:output_type -> batch_job.AdminCreateJobRsp
-	15, // 33: batch_job.BatchJobService.AdminStartJob:output_type -> batch_job.AdminStartJobRsp
-	17, // 34: batch_job.BatchJobService.AdminStopJob:output_type -> batch_job.AdminStopJobRsp
-	19, // 35: batch_job.BatchJobService.QueryBizInfo:output_type -> batch_job.QueryBizInfoRsp
-	21, // 36: batch_job.BatchJobService.QueryBizList:output_type -> batch_job.QueryBizListRsp
-	23, // 37: batch_job.BatchJobService.QueryJobBaseInfo:output_type -> batch_job.QueryJobBaseInfoRsp
-	25, // 38: batch_job.BatchJobService.QueryJobList:output_type -> batch_job.QueryJobListRsp
-	27, // 39: batch_job.BatchJobService.QueryJobDataLog:output_type -> batch_job.QueryJobDataLogRsp
-	29, // 40: batch_job.BatchJobService.BizStartJob:output_type -> batch_job.BizStartJobRsp
-	31, // 41: batch_job.BatchJobService.BizStopJob:output_type -> batch_job.BizStopJobRsp
-	33, // 42: batch_job.BatchJobService.BizUpdateBizData:output_type -> batch_job.BizUpdateBizDataRsp
-	35, // 43: batch_job.BatchJobService.BizIncrProcessedNum:output_type -> batch_job.BizIncrProcessedNumRsp
-	37, // 44: batch_job.BatchJobService.BizAddDataLog:output_type -> batch_job.BizAddDataLogRsp
-	31, // [31:45] is the sub-list for method output_type
-	17, // [17:31] is the sub-list for method input_type
-	17, // [17:17] is the sub-list for extension type_name
-	17, // [17:17] is the sub-list for extension extendee
-	0,  // [0:17] is the sub-list for field type_name
+	2,  // 4: batch_job.BaseInfoA.status:type_name -> batch_job.JobStatus
+	7,  // 5: batch_job.BaseInfoA.op:type_name -> batch_job.OpInfoA
+	3,  // 6: batch_job.DataLogQ.log_type:type_name -> batch_job.DataLogType
+	3,  // 7: batch_job.DataLogA.log_type:type_name -> batch_job.DataLogType
+	6,  // 8: batch_job.AdminCreateJobReq.op:type_name -> batch_job.OpInfoQ
+	6,  // 9: batch_job.AdminStartJobReq.op:type_name -> batch_job.OpInfoQ
+	6,  // 10: batch_job.AdminStopJobReq.op:type_name -> batch_job.OpInfoQ
+	8,  // 11: batch_job.QueryBizInfoRsp.line:type_name -> batch_job.BizInfoA
+	8,  // 12: batch_job.QueryBizListRsp.line:type_name -> batch_job.BizInfoA
+	9,  // 13: batch_job.QueryJobBaseInfoRsp.base_info:type_name -> batch_job.BaseInfoA
+	9,  // 14: batch_job.QueryJobListRsp.line:type_name -> batch_job.BaseInfoA
+	3,  // 15: batch_job.QueryJobDataLogReq.log_type:type_name -> batch_job.DataLogType
+	11, // 16: batch_job.QueryJobDataLogRsp.log:type_name -> batch_job.DataLogA
+	10, // 17: batch_job.BizAddDataLogReq.log:type_name -> batch_job.DataLogQ
+	4,  // 18: batch_job.BatchJobService.AdminRegistryBiz:input_type -> batch_job.AdminRegistryBizReq
+	12, // 19: batch_job.BatchJobService.AdminCreateJob:input_type -> batch_job.AdminCreateJobReq
+	14, // 20: batch_job.BatchJobService.AdminStartJob:input_type -> batch_job.AdminStartJobReq
+	16, // 21: batch_job.BatchJobService.AdminStopJob:input_type -> batch_job.AdminStopJobReq
+	18, // 22: batch_job.BatchJobService.QueryBizInfo:input_type -> batch_job.QueryBizInfoReq
+	20, // 23: batch_job.BatchJobService.QueryBizList:input_type -> batch_job.QueryBizListReq
+	22, // 24: batch_job.BatchJobService.QueryJobBaseInfo:input_type -> batch_job.QueryJobBaseInfoReq
+	24, // 25: batch_job.BatchJobService.QueryJobList:input_type -> batch_job.QueryJobListReq
+	26, // 26: batch_job.BatchJobService.QueryJobDataLog:input_type -> batch_job.QueryJobDataLogReq
+	28, // 27: batch_job.BatchJobService.BizStartJob:input_type -> batch_job.BizStartJobReq
+	30, // 28: batch_job.BatchJobService.BizStopJob:input_type -> batch_job.BizStopJobReq
+	32, // 29: batch_job.BatchJobService.BizUpdateBizData:input_type -> batch_job.BizUpdateBizDataReq
+	34, // 30: batch_job.BatchJobService.BizIncrProcessedNum:input_type -> batch_job.BizIncrProcessedNumReq
+	36, // 31: batch_job.BatchJobService.BizAddDataLog:input_type -> batch_job.BizAddDataLogReq
+	5,  // 32: batch_job.BatchJobService.AdminRegistryBiz:output_type -> batch_job.AdminRegistryBizRsp
+	13, // 33: batch_job.BatchJobService.AdminCreateJob:output_type -> batch_job.AdminCreateJobRsp
+	15, // 34: batch_job.BatchJobService.AdminStartJob:output_type -> batch_job.AdminStartJobRsp
+	17, // 35: batch_job.BatchJobService.AdminStopJob:output_type -> batch_job.AdminStopJobRsp
+	19, // 36: batch_job.BatchJobService.QueryBizInfo:output_type -> batch_job.QueryBizInfoRsp
+	21, // 37: batch_job.BatchJobService.QueryBizList:output_type -> batch_job.QueryBizListRsp
+	23, // 38: batch_job.BatchJobService.QueryJobBaseInfo:output_type -> batch_job.QueryJobBaseInfoRsp
+	25, // 39: batch_job.BatchJobService.QueryJobList:output_type -> batch_job.QueryJobListRsp
+	27, // 40: batch_job.BatchJobService.QueryJobDataLog:output_type -> batch_job.QueryJobDataLogRsp
+	29, // 41: batch_job.BatchJobService.BizStartJob:output_type -> batch_job.BizStartJobRsp
+	31, // 42: batch_job.BatchJobService.BizStopJob:output_type -> batch_job.BizStopJobRsp
+	33, // 43: batch_job.BatchJobService.BizUpdateBizData:output_type -> batch_job.BizUpdateBizDataRsp
+	35, // 44: batch_job.BatchJobService.BizIncrProcessedNum:output_type -> batch_job.BizIncrProcessedNumRsp
+	37, // 45: batch_job.BatchJobService.BizAddDataLog:output_type -> batch_job.BizAddDataLogRsp
+	32, // [32:46] is the sub-list for method output_type
+	18, // [18:32] is the sub-list for method input_type
+	18, // [18:18] is the sub-list for extension type_name
+	18, // [18:18] is the sub-list for extension extendee
+	0,  // [0:18] is the sub-list for field type_name
 }
 
 func init() { file_batch_job_proto_init() }

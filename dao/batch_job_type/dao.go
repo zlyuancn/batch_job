@@ -128,3 +128,15 @@ func GetOne(ctx context.Context, where map[string]any) (*Model, error) {
 	}
 	return &ret, nil
 }
+
+func GetOneByBizType(ctx context.Context, bizType int32) (*Model, error) {
+	where := map[string]interface{}{
+		"biz_type": bizType,
+	}
+	v, err := GetOne(ctx, where)
+	if err != nil {
+		logger.Error(ctx, "GetOneByBizType fail.", zap.Error(err))
+		return nil, err
+	}
+	return v, nil
+}

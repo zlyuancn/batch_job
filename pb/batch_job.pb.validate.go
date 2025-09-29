@@ -144,9 +144,9 @@ func (m *AdminRegistryBizReq) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if uri, err := url.Parse(m.GetCbProcessFinish()); err != nil {
+	if uri, err := url.Parse(m.GetCbProcessStop()); err != nil {
 		err = AdminRegistryBizReqValidationError{
-			field:  "CbProcessFinish",
+			field:  "CbProcessStop",
 			reason: "value must be a valid URI",
 			cause:  err,
 		}
@@ -156,7 +156,7 @@ func (m *AdminRegistryBizReq) validate(all bool) error {
 		errors = append(errors, err)
 	} else if !uri.IsAbs() {
 		err := AdminRegistryBizReqValidationError{
-			field:  "CbProcessFinish",
+			field:  "CbProcessStop",
 			reason: "value must be absolute",
 		}
 		if !all {
@@ -198,9 +198,9 @@ func (m *AdminRegistryBizReq) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if m.GetCbProcessFinishTimeout() < 0 {
+	if m.GetCbProcessStopTimeout() < 0 {
 		err := AdminRegistryBizReqValidationError{
-			field:  "CbProcessFinishTimeout",
+			field:  "CbProcessStopTimeout",
 			reason: "value must be greater than or equal to 0",
 		}
 		if !all {
@@ -641,7 +641,7 @@ func (m *BizInfoA) validate(all bool) error {
 
 	// no validation rules for CbProcess
 
-	// no validation rules for CbProcessFinish
+	// no validation rules for CbProcessStop
 
 	// no validation rules for CbBeforeCreateTimeout
 
@@ -649,7 +649,7 @@ func (m *BizInfoA) validate(all bool) error {
 
 	// no validation rules for CbProcessTimeout
 
-	// no validation rules for CbProcessFinishTimeout
+	// no validation rules for CbProcessStopTimeout
 
 	// no validation rules for RateSec
 
@@ -764,9 +764,9 @@ func (m *BaseInfoA) validate(all bool) error {
 
 	// no validation rules for ProcessDataTotal
 
-	// no validation rules for ProcessedCount
+	// no validation rules for ProcessedNum
 
-	// no validation rules for ErrLogCount
+	// no validation rules for ErrLogNum
 
 	// no validation rules for Status
 
@@ -3619,7 +3619,7 @@ func (m *BizUpdateBizDataReq) validate(all bool) error {
 
 	// no validation rules for ProcessDataTotal
 
-	// no validation rules for ProcessedCount
+	// no validation rules for ProcessedNum
 
 	if len(errors) > 0 {
 		return BizUpdateBizDataReqMultiError(errors)

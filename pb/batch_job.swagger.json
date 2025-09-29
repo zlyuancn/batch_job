@@ -549,9 +549,9 @@
           "type": "string",
           "title": "处理任务回调. 必填"
         },
-        "cbProcessFinish": {
+        "cbProcessStop": {
           "type": "string",
-          "title": "处理任务完成回调. 用于业务方做一些清理. 选填"
+          "title": "处理任务停止回调. 用于业务方做一些清理. 选填"
         },
         "cbBeforeCreateTimeout": {
           "type": "integer",
@@ -568,10 +568,10 @@
           "format": "int32",
           "title": "处理任务回调超时秒数"
         },
-        "cbProcessFinishTimeout": {
+        "cbProcessStopTimeout": {
           "type": "integer",
           "format": "int32",
-          "title": "处理任务完成回调超时秒数"
+          "title": "处理任务停止回调超时秒数"
         },
         "rateSec": {
           "type": "integer",
@@ -647,20 +647,19 @@
           "format": "int64",
           "title": "业务中需要处理数据总数"
         },
-        "processedCount": {
+        "processedNum": {
           "type": "string",
           "format": "int64",
           "title": "已处理过的数据量, 无论成功还是失败"
         },
-        "errLogCount": {
+        "errLogNum": {
           "type": "string",
           "format": "int64",
           "title": "错误日志数"
         },
         "status": {
-          "type": "integer",
-          "format": "int32",
-          "title": "任务状态 0=未进行 1=等待业务启动 2=进行中 3=已完成 4=已取消/已停止"
+          "$ref": "#/definitions/batch_jobJobStatus",
+          "title": "任务状态"
         },
         "createTime": {
           "type": "string",
@@ -745,9 +744,9 @@
           "type": "string",
           "title": "处理任务回调"
         },
-        "cbProcessFinish": {
+        "cbProcessStop": {
           "type": "string",
-          "title": "处理任务完成回调. 用于业务方做一些清理"
+          "title": "处理任务停止回调. 用于业务方做一些清理"
         },
         "cbBeforeCreateTimeout": {
           "type": "integer",
@@ -764,10 +763,10 @@
           "format": "int32",
           "title": "处理任务回调超时秒数"
         },
-        "cbProcessFinishTimeout": {
+        "cbProcessStopTimeout": {
           "type": "integer",
           "format": "int32",
-          "title": "处理任务完成回调超时秒数"
+          "title": "处理任务停止回调超时秒数"
         },
         "rateSec": {
           "type": "integer",
@@ -832,7 +831,7 @@
           "format": "int64",
           "title": "需要处理数据总数. 空值则不会更新这个数据"
         },
-        "processedCount": {
+        "processedNum": {
           "type": "string",
           "format": "int64",
           "title": "已处理过的数据量, 无论成功还是失败. 空值则不会更新这个数据"
@@ -912,6 +911,20 @@
       "default": "Callback",
       "description": "- Callback: 回调\n - BizLocal: 业务本地",
       "title": "执行类型"
+    },
+    "batch_jobJobStatus": {
+      "type": "string",
+      "enum": [
+        "Created",
+        "WaitBizRun",
+        "Running",
+        "Finished",
+        "Stopping",
+        "Stopped"
+      ],
+      "default": "Created",
+      "description": "- Created: 已创建\n - WaitBizRun: 等待业务主动启动\n - Running: 运行中\n - Finished: 已完成\n - Stopping: 正在停止\n - Stopped: 已停止",
+      "title": "任务状态"
     },
     "batch_jobOpInfoA": {
       "type": "object",
