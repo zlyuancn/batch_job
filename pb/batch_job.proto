@@ -6,7 +6,7 @@ import "google/api/annotations.proto";  // 添加导入
 import "validate/validate.proto";
 
 // 批量任务服务
-service CommonButtonService{
+service BatchJobService{
   // 业务注册
   rpc AdminRegistryBiz(AdminRegistryBizReq) returns (AdminRegistryBizRsp) {
     option (google.api.http) = {
@@ -186,7 +186,7 @@ message BizInfoA {
 
 // 任务基础信息-响应
 message BaseInfoA {
-  int32 job_id = 1; // 任务id
+  int64 job_id = 1; // 任务id
   int32 biz_type = 2; // 业务类型
   string biz_data = 3; // 业务任务数据, 让业务知道应该做什么
   int64 process_data_total = 4; // 业务中需要处理数据总数
@@ -232,17 +232,17 @@ message AdminCreateJobReq {
   OpInfoQ op = 6; // 操作信息
 }
 message AdminCreateJobRsp {
-  int32 job_id = 1; // 创建的任务id
+  int64 job_id = 1; // 创建的任务id
 }
 
 message AdminStartJobReq {
-  int32 job_id = 1 [(validate.rules).int32.gt = 0]; // 创建的任务id. 必填
+  int64 job_id = 1 [(validate.rules).int64.gt = 0]; // 创建的任务id. 必填
   OpInfoQ op = 2; // 操作信息
 }
 message AdminStartJobRsp {}
 
 message AdminStopJobReq {
-  int32 job_id = 1 [(validate.rules).int32.gt = 0]; // 创建的任务id. 必填
+  int64 job_id = 1 [(validate.rules).int64.gt = 0]; // 创建的任务id. 必填
   OpInfoQ op = 2; // 操作信息
 }
 message AdminStopJobRsp {}
@@ -268,7 +268,7 @@ message QueryBizListRsp {
 }
 
 message QueryJobBaseInfoReq {
-  int32 job_id = 1 [(validate.rules).int32.gt = 0]; // 创建的任务id. 必填
+  int64 job_id = 1 [(validate.rules).int64.gt = 0]; // 创建的任务id. 必填
 }
 message QueryJobBaseInfoRsp {
   BaseInfoA base_info = 1; // 任务基础信息
@@ -297,7 +297,7 @@ message QueryJobListRsp {
 }
 
 message QueryJobDataLogReq {
-  int32 job_id = 1 [(validate.rules).int32.gt = 0]; // 创建的任务id. 必填
+  int64 job_id = 1 [(validate.rules).int64.gt = 0]; // 创建的任务id. 必填
   int32 page = 2 [(validate.rules).int32.gt = 0]; // 页号, 从1开始
   int32 page_size = 3 [(validate.rules).int32.gte = 5]; // 每页返回数量, 最少返回5条
   DataLogType log_type = 4; // 日志类型
@@ -309,17 +309,17 @@ message QueryJobDataLogRsp {
 }
 
 message BizStartJobReq {
-  int32 job_id = 1 [(validate.rules).int32.gt = 0]; // 创建的任务id. 必填
+  int64 job_id = 1 [(validate.rules).int64.gt = 0]; // 创建的任务id. 必填
 }
 message BizStartJobRsp {}
 
 message BizStopJobReq {
-  int32 job_id = 1 [(validate.rules).int32.gt = 0]; // 创建的任务id. 必填
+  int64 job_id = 1 [(validate.rules).int64.gt = 0]; // 创建的任务id. 必填
 }
 message BizStopJobRsp {}
 
 message BizUpdateBizDataReq {
-  int32 job_id = 1 [(validate.rules).int32.gt = 0]; // 创建的任务id. 必填
+  int64 job_id = 1 [(validate.rules).int64.gt = 0]; // 创建的任务id. 必填
   string biz_data = 2; // 业务任务数据, 让业务知道应该做什么. 空值则不会更新这个数据
   string biz_process_data = 3; // 业务中需要处理的批量数据. 空值则不会更新这个数据
   int64 process_data_total = 4; // 需要处理数据总数. 空值则不会更新这个数据
@@ -328,13 +328,13 @@ message BizUpdateBizDataReq {
 message BizUpdateBizDataRsp {}
 
 message BizIncrProcessedNumReq {
-  int32 job_id = 1 [(validate.rules).int32.gt = 0]; // 创建的任务id. 必填
+  int64 job_id = 1 [(validate.rules).int64.gt = 0]; // 创建的任务id. 必填
   int64 num = 2 [(validate.rules).int64.gt = 0]; // 增加数量. 必填
 }
 message BizIncrProcessedNumRsp {}
 
 message BizAddDataLogReq {
-  int32 job_id = 1 [(validate.rules).int32.gt = 0]; // 创建的任务id. 必填
+  int64 job_id = 1 [(validate.rules).int64.gt = 0]; // 创建的任务id. 必填
   repeated DataLogQ log = 2; // 日志内容
 }
 message BizAddDataLogRsp {}

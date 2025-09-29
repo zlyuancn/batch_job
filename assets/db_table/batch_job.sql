@@ -25,8 +25,8 @@ CREATE TABLE `batch_job_type`
 
 CREATE TABLE `batch_job_list`
 (
-    `id`                 int unsigned       NOT NULL AUTO_INCREMENT,
-    `job_id`             int unsigned       NOT NULL COMMENT '任务号',
+    `id`                 bigint unsigned    NOT NULL AUTO_INCREMENT,
+    `job_id`             bigint unsigned    NOT NULL COMMENT '任务号',
     `biz_type`           mediumint unsigned NOT NULL COMMENT '业务类型',
     `biz_data`           varchar(10240)     NOT NULL DEFAULT '' COMMENT '业务任务数据, 让业务知道应该做什么',
     `process_data_total` bigint unsigned    NOT NULL DEFAULT 0 COMMENT '需要处理数据总数',
@@ -53,8 +53,8 @@ CREATE TABLE `batch_job_list`
 
 CREATE TABLE `batch_job_log`
 (
-    `id`          int unsigned     NOT NULL AUTO_INCREMENT,
-    `job_id`      int unsigned     NOT NULL COMMENT '任务号',
+    `id`          bigint unsigned  NOT NULL AUTO_INCREMENT,
+    `job_id`      bigint unsigned  NOT NULL COMMENT '任务号',
     `data_id`     varchar(256)     NOT NULL COMMENT '数据id',
     `remark`      varchar(4096)    NOT NULL DEFAULT '' COMMENT '备注',
     `extend`      varchar(4096)    NOT NULL DEFAULT '' COMMENT '扩展数据',

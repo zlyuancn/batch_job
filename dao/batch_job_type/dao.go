@@ -1,0 +1,130 @@
+package batch_job_type
+
+import (
+	"context"
+	"errors"
+	"reflect"
+	"time"
+
+	"github.com/didi/gendry/builder"
+	"github.com/zly-app/zapp/logger"
+	"go.uber.org/zap"
+
+	"github.com/zlyuancn/batch_job/client/db"
+)
+
+var (
+	// 默认select当前表所有字段；
+	// 如果在select时候传nil，会采用select * 执行
+	// 这种方式会在库表新增字段的时候，由于两边结构字段未对齐而抛错！
+	selectField = func() []string {
+		var selectAllFields []string
+		for _, field := range reflect.
+			VisibleFields(reflect.TypeOf(Model{})) {
+			// 拿到所有db字段
+			if field.Tag.Get("db") != "" {
+				selectAllFields = append(selectAllFields, field.Tag.Get("db"))
+			}
+		}
+		return selectAllFields
+	}()
+	// selectField = []string{
+	//	"id",
+	//	"biz_type",
+	//	"biz_name",
+	//	"rate_sec",
+	//	"rate_type",
+	//	"exec_type",
+	//	"remark",
+	//	"cb_before_create",
+	//	"cb_before_run",
+	//	"cb_process",
+	//	"cb_process_finish",
+	//	"cb_before_create_timeout",
+	//	"cb_before_run_timeout",
+	//	"cb_process_timeout",
+	//	"cb_process_finish_timeout",
+	//	"create_time",
+	// }
+)
+
+const (
+	tableName = "batch_job_type"
+)
+
+type Model struct {
+	ID                     uint      `db:"id"`
+	BizType                uint      `db:"biz_type"`                  // "业务类型"
+	BizName                string    `db:"biz_name"`                  // "业务名"
+	RateSec                uint      `db:"rate_sec"`                  // "每秒处理速率. 0表示不限制"
+	RateType               byte      `db:"rate_type"`                 // "速率类型. 0=通过rate_sec限速, 1=串行化"
+	ExecType               byte      `db:"exec_type"`                 // "执行类型. 0=回调 1=业务本地"
+	Remark                 string    `db:"remark"`                    // "备注"
+	CbBeforeCreate         string    `db:"cb_before_create"`          // "创建任务回调url"
+	CbBeforeRun            string    `db:"cb_before_run"`             // "启动前回调. 一旦配置, 则任务必须由业务主动调用 BizStartJob 执行任务. 否则任务将一直处于 JobStatus.WaitBizRun 状态"
+	CbProcess              string    `db:"cb_process"`                // "处理任务回调. 必填"
+	CbProcessFinish        string    `db:"cb_process_finish"`         // "处理任务完成回调. 用于业务方做一些清理. 选填"
+	CbBeforeCreateTimeout  uint      `db:"cb_before_create_timeout"`  // "启动前回调超时秒数"
+	CbBeforeRunTimeout     uint      `db:"cb_before_run_timeout"`     // "启动前回调超时秒数"
+	CbProcessTimeout       uint      `db:"cb_process_timeout"`        // "处理任务回调超时秒数"
+	CbProcessFinishTimeout uint      `db:"cb_process_finish_timeout"` // "处理任务完成回调超时秒数"
+	CreateTime             time.Time `db:"create_time"`
+}
+
+func CreateOneModel(ctx context.Context, v *Model) (int64, error) {
+	if v == nil {
+		return 0, errors.New("CreateOneModel v is empty")
+	}
+
+	var data []map[string]any
+	data = append(data, map[string]any{
+		"biz_type":                  v.BizType,
+		"biz_name":                  v.BizName,
+		"rate_sec":                  v.RateSec,
+		"rate_type":                 v.RateType,
+		"exec_type":                 v.ExecType,
+		"remark":                    v.Remark,
+		"cb_before_create":          v.CbBeforeCreate,
+		"cb_before_run":             v.CbBeforeRun,
+		"cb_process":                v.CbProcess,
+		"cb_process_finish":         v.CbProcessFinish,
+		"cb_before_create_timeout":  v.CbBeforeCreateTimeout,
+		"cb_before_run_timeout":     v.CbBeforeRunTimeout,
+		"cb_process_timeout":        v.CbProcessTimeout,
+		"cb_process_finish_timeout": v.CbProcessFinishTimeout,
+	})
+	cond, vals, err := builder.BuildInsertIgnore(tableName, data)
+	if err != nil {
+		logger.Log.Error(ctx, "CreateOneModel BuildSelect err",
+			zap.Any("data", data),
+			zap.Error(err),
+		)
+		return 0, err
+	}
+
+	result, err := db.GetSqlx().Exec(ctx, cond, vals...)
+	if err != nil {
+		logger.Error(ctx, "CreateOneModel fail.", zap.Any("data", data), zap.Error(err))
+		return 0, err
+	}
+	return result.LastInsertId()
+}
+
+func GetOne(ctx context.Context, where map[string]any) (*Model, error) {
+	if where == nil {
+		where = map[string]any{}
+	}
+	where["_limit"] = []uint{1} // 限制只查询一条记录
+	cond, vals, err := builder.BuildSelect(tableName, where, selectField)
+	if err != nil {
+		logger.Error(ctx, "GetOne BuildSelect fail.", zap.Any("where", where), zap.Error(err))
+		return nil, err
+	}
+	ret := Model{}
+	err = db.GetSqlx().FindOne(ctx, &ret, cond, vals...)
+	if err != nil {
+		logger.Error(ctx, "GetOne FindOne fail.", zap.String("cond", cond), zap.Any("vals", vals), zap.Error(err))
+		return nil, err
+	}
+	return &ret, nil
+}

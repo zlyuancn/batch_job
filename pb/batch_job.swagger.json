@@ -6,7 +6,7 @@
   },
   "tags": [
     {
-      "name": "CommonButtonService"
+      "name": "BatchJobService"
     }
   ],
   "consumes": [
@@ -19,7 +19,7 @@
     "/BatchJob/AdminCreateJob": {
       "post": {
         "summary": "创建任务",
-        "operationId": "CommonButtonService_AdminCreateJob",
+        "operationId": "BatchJobService_AdminCreateJob",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -45,14 +45,14 @@
           }
         ],
         "tags": [
-          "CommonButtonService"
+          "BatchJobService"
         ]
       }
     },
     "/BatchJob/AdminRegistryBiz": {
       "post": {
         "summary": "业务注册",
-        "operationId": "CommonButtonService_AdminRegistryBiz",
+        "operationId": "BatchJobService_AdminRegistryBiz",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -78,14 +78,14 @@
           }
         ],
         "tags": [
-          "CommonButtonService"
+          "BatchJobService"
         ]
       }
     },
     "/BatchJob/AdminStartJob": {
       "post": {
         "summary": "启动任务",
-        "operationId": "CommonButtonService_AdminStartJob",
+        "operationId": "BatchJobService_AdminStartJob",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -111,14 +111,14 @@
           }
         ],
         "tags": [
-          "CommonButtonService"
+          "BatchJobService"
         ]
       }
     },
     "/BatchJob/AdminStopJob": {
       "post": {
         "summary": "停止任务",
-        "operationId": "CommonButtonService_AdminStopJob",
+        "operationId": "BatchJobService_AdminStopJob",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -144,14 +144,14 @@
           }
         ],
         "tags": [
-          "CommonButtonService"
+          "BatchJobService"
         ]
       }
     },
     "/BatchJob/BizAddDataLog": {
       "post": {
         "summary": "增加数据日志",
-        "operationId": "CommonButtonService_BizAddDataLog",
+        "operationId": "BatchJobService_BizAddDataLog",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -177,14 +177,14 @@
           }
         ],
         "tags": [
-          "CommonButtonService"
+          "BatchJobService"
         ]
       }
     },
     "/BatchJob/BizIncrProcessedNum": {
       "post": {
         "summary": "增加已处理数",
-        "operationId": "CommonButtonService_BizIncrProcessedNum",
+        "operationId": "BatchJobService_BizIncrProcessedNum",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -210,14 +210,14 @@
           }
         ],
         "tags": [
-          "CommonButtonService"
+          "BatchJobService"
         ]
       }
     },
     "/BatchJob/BizStartJob": {
       "post": {
         "summary": "业务启动. 要求任务必须处于 JobStatus.WaitBizRun 状态",
-        "operationId": "CommonButtonService_BizStartJob",
+        "operationId": "BatchJobService_BizStartJob",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -243,14 +243,14 @@
           }
         ],
         "tags": [
-          "CommonButtonService"
+          "BatchJobService"
         ]
       }
     },
     "/BatchJob/BizStopJob": {
       "post": {
         "summary": "要求业务停止运行. 一般为业务判断任务无法继续的时候",
-        "operationId": "CommonButtonService_BizStopJob",
+        "operationId": "BatchJobService_BizStopJob",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -276,14 +276,14 @@
           }
         ],
         "tags": [
-          "CommonButtonService"
+          "BatchJobService"
         ]
       }
     },
     "/BatchJob/BizUpdateBizData": {
       "post": {
         "summary": "更新业务数据. 要求任务必须处于 JobStatus.WaitBizRun 状态或者串行化速率类型的任务可以使用",
-        "operationId": "CommonButtonService_BizUpdateBizData",
+        "operationId": "BatchJobService_BizUpdateBizData",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -309,14 +309,14 @@
           }
         ],
         "tags": [
-          "CommonButtonService"
+          "BatchJobService"
         ]
       }
     },
     "/BatchJob/QueryBizInfo": {
       "post": {
         "summary": "查询业务信息",
-        "operationId": "CommonButtonService_QueryBizInfo",
+        "operationId": "BatchJobService_QueryBizInfo",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -342,14 +342,14 @@
           }
         ],
         "tags": [
-          "CommonButtonService"
+          "BatchJobService"
         ]
       }
     },
     "/BatchJob/QueryBizList": {
       "post": {
         "summary": "查询业务列表",
-        "operationId": "CommonButtonService_QueryBizList",
+        "operationId": "BatchJobService_QueryBizList",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -375,14 +375,14 @@
           }
         ],
         "tags": [
-          "CommonButtonService"
+          "BatchJobService"
         ]
       }
     },
     "/BatchJob/QueryJobBaseInfo": {
       "post": {
         "summary": "查询任务基本信息",
-        "operationId": "CommonButtonService_QueryJobBaseInfo",
+        "operationId": "BatchJobService_QueryJobBaseInfo",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -408,14 +408,14 @@
           }
         ],
         "tags": [
-          "CommonButtonService"
+          "BatchJobService"
         ]
       }
     },
     "/BatchJob/QueryJobDataLog": {
       "post": {
         "summary": "查询任务的数据日志",
-        "operationId": "CommonButtonService_QueryJobDataLog",
+        "operationId": "BatchJobService_QueryJobDataLog",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -441,14 +441,14 @@
           }
         ],
         "tags": [
-          "CommonButtonService"
+          "BatchJobService"
         ]
       }
     },
     "/BatchJob/QueryJobList": {
       "post": {
         "summary": "查询任务列表",
-        "operationId": "CommonButtonService_QueryJobList",
+        "operationId": "BatchJobService_QueryJobList",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -474,7 +474,7 @@
           }
         ],
         "tags": [
-          "CommonButtonService"
+          "BatchJobService"
         ]
       }
     }
@@ -515,8 +515,8 @@
       "type": "object",
       "properties": {
         "jobId": {
-          "type": "integer",
-          "format": "int32",
+          "type": "string",
+          "format": "int64",
           "title": "创建的任务id"
         }
       }
@@ -595,8 +595,8 @@
       "type": "object",
       "properties": {
         "jobId": {
-          "type": "integer",
-          "format": "int32",
+          "type": "string",
+          "format": "int64",
           "title": "创建的任务id. 必填"
         },
         "op": {
@@ -612,8 +612,8 @@
       "type": "object",
       "properties": {
         "jobId": {
-          "type": "integer",
-          "format": "int32",
+          "type": "string",
+          "format": "int64",
           "title": "创建的任务id. 必填"
         },
         "op": {
@@ -629,8 +629,8 @@
       "type": "object",
       "properties": {
         "jobId": {
-          "type": "integer",
-          "format": "int32",
+          "type": "string",
+          "format": "int64",
           "title": "任务id"
         },
         "bizType": {
@@ -682,8 +682,8 @@
       "type": "object",
       "properties": {
         "jobId": {
-          "type": "integer",
-          "format": "int32",
+          "type": "string",
+          "format": "int64",
           "title": "创建的任务id. 必填"
         },
         "log": {
@@ -703,8 +703,8 @@
       "type": "object",
       "properties": {
         "jobId": {
-          "type": "integer",
-          "format": "int32",
+          "type": "string",
+          "format": "int64",
           "title": "创建的任务id. 必填"
         },
         "num": {
@@ -789,8 +789,8 @@
       "type": "object",
       "properties": {
         "jobId": {
-          "type": "integer",
-          "format": "int32",
+          "type": "string",
+          "format": "int64",
           "title": "创建的任务id. 必填"
         }
       }
@@ -802,8 +802,8 @@
       "type": "object",
       "properties": {
         "jobId": {
-          "type": "integer",
-          "format": "int32",
+          "type": "string",
+          "format": "int64",
           "title": "创建的任务id. 必填"
         }
       }
@@ -815,8 +815,8 @@
       "type": "object",
       "properties": {
         "jobId": {
-          "type": "integer",
-          "format": "int32",
+          "type": "string",
+          "format": "int64",
           "title": "创建的任务id. 必填"
         },
         "bizData": {
@@ -1029,8 +1029,8 @@
       "type": "object",
       "properties": {
         "jobId": {
-          "type": "integer",
-          "format": "int32",
+          "type": "string",
+          "format": "int64",
           "title": "创建的任务id. 必填"
         }
       }
@@ -1048,8 +1048,8 @@
       "type": "object",
       "properties": {
         "jobId": {
-          "type": "integer",
-          "format": "int32",
+          "type": "string",
+          "format": "int64",
           "title": "创建的任务id. 必填"
         },
         "page": {
