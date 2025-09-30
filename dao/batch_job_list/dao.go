@@ -141,7 +141,7 @@ func GetOneByJobId(ctx context.Context, jobId int64) (*Model, error) {
 }
 
 // 更新状态和操作人
-func UpdateStatus(ctx context.Context, jobId int64, status byte, opSource, opUserId, opUserName, statusInfo, historyOpInfo string) (int64, error) {
+func UpdateStatus(ctx context.Context, jobId int64, oldStatus, status byte, opSource, opUserId, opUserName, statusInfo, historyOpInfo string) (int64, error) {
 	const cond = `
 update batch_job_list
 set status=?,
@@ -152,6 +152,7 @@ set status=?,
     history_op_info=json_array_insert(history_op_info, '$[0]', json_extract(?, '$')),
     status_info=?
 where job_id = ?
+    and oldStatus = ?
 limit 1;`
 	vals := []interface{}{
 		status,
@@ -161,6 +162,7 @@ limit 1;`
 		historyOpInfo,
 		statusInfo,
 		jobId,
+		oldStatus,
 	}
 	result, err := db.GetSqlx().Exec(ctx, cond, vals...)
 	if nil != err {

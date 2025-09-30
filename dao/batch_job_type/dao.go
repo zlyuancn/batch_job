@@ -39,11 +39,11 @@ var (
 	//	"cb_before_create",
 	//	"cb_before_run",
 	//	"cb_process",
-	//	"cb_process_finish",
+	//	"cb_process_stop",
 	//	"cb_before_create_timeout",
 	//	"cb_before_run_timeout",
 	//	"cb_process_timeout",
-	//	"cb_process_finish_timeout",
+	//	"cb_process_stop_timeout",
 	//	"create_time",
 	// }
 )
@@ -53,22 +53,22 @@ const (
 )
 
 type Model struct {
-	ID                     uint      `db:"id"`
-	BizType                uint      `db:"biz_type"`                  // "业务类型"
-	BizName                string    `db:"biz_name"`                  // "业务名"
-	RateSec                uint      `db:"rate_sec"`                  // "每秒处理速率. 0表示不限制"
-	RateType               byte      `db:"rate_type"`                 // "速率类型. 0=通过rate_sec限速, 1=串行化"
-	ExecType               byte      `db:"exec_type"`                 // "执行类型. 0=回调 1=业务本地"
-	Remark                 string    `db:"remark"`                    // "备注"
-	CbBeforeCreate         string    `db:"cb_before_create"`          // "创建任务回调url"
-	CbBeforeRun            string    `db:"cb_before_run"`             // "启动前回调. 一旦配置, 则任务必须由业务主动调用 BizStartJob 执行任务. 否则任务将一直处于 JobStatus.WaitBizRun 状态"
-	CbProcess              string    `db:"cb_process"`                // "处理任务回调. 必填"
-	CbProcessFinish        string    `db:"cb_process_finish"`         // "处理任务完成回调. 用于业务方做一些清理. 选填"
-	CbBeforeCreateTimeout  uint      `db:"cb_before_create_timeout"`  // "启动前回调超时秒数"
-	CbBeforeRunTimeout     uint      `db:"cb_before_run_timeout"`     // "启动前回调超时秒数"
-	CbProcessTimeout       uint      `db:"cb_process_timeout"`        // "处理任务回调超时秒数"
-	CbProcessFinishTimeout uint      `db:"cb_process_finish_timeout"` // "处理任务完成回调超时秒数"
-	CreateTime             time.Time `db:"create_time"`
+	ID                    uint      `db:"id"`
+	BizType               uint      `db:"biz_type"`                 // "业务类型"
+	BizName               string    `db:"biz_name"`                 // "业务名"
+	RateSec               uint      `db:"rate_sec"`                 // "每秒处理速率. 0表示不限制"
+	RateType              byte      `db:"rate_type"`                // "速率类型. 0=通过rate_sec限速, 1=串行化"
+	ExecType              byte      `db:"exec_type"`                // "执行类型. 0=回调 1=业务本地"
+	Remark                string    `db:"remark"`                   // "备注"
+	CbBeforeCreate        string    `db:"cb_before_create"`         // "创建任务回调url"
+	CbBeforeRun           string    `db:"cb_before_run"`            // "启动前回调. 一旦配置, 则任务必须由业务主动调用 BizStartJob 执行任务. 否则任务将一直处于 JobStatus.WaitBizRun 状态"
+	CbProcess             string    `db:"cb_process"`               // "处理任务回调. 必填"
+	CbProcessStop         string    `db:"cb_process_stop"`          // "处理任务完成回调. 用于业务方做一些清理. 选填"
+	CbBeforeCreateTimeout uint      `db:"cb_before_create_timeout"` // "启动前回调超时秒数"
+	CbBeforeRunTimeout    uint      `db:"cb_before_run_timeout"`    // "启动前回调超时秒数"
+	CbProcessTimeout      uint      `db:"cb_process_timeout"`       // "处理任务回调超时秒数"
+	CbProcessStopTimeout  uint      `db:"cb_process_stop_timeout"`  // "处理任务完成回调超时秒数"
+	CreateTime            time.Time `db:"create_time"`
 }
 
 func CreateOneModel(ctx context.Context, v *Model) (int64, error) {
@@ -78,20 +78,20 @@ func CreateOneModel(ctx context.Context, v *Model) (int64, error) {
 
 	var data []map[string]any
 	data = append(data, map[string]any{
-		"biz_type":                  v.BizType,
-		"biz_name":                  v.BizName,
-		"rate_sec":                  v.RateSec,
-		"rate_type":                 v.RateType,
-		"exec_type":                 v.ExecType,
-		"remark":                    v.Remark,
-		"cb_before_create":          v.CbBeforeCreate,
-		"cb_before_run":             v.CbBeforeRun,
-		"cb_process":                v.CbProcess,
-		"cb_process_finish":         v.CbProcessFinish,
-		"cb_before_create_timeout":  v.CbBeforeCreateTimeout,
-		"cb_before_run_timeout":     v.CbBeforeRunTimeout,
-		"cb_process_timeout":        v.CbProcessTimeout,
-		"cb_process_finish_timeout": v.CbProcessFinishTimeout,
+		"biz_type":                 v.BizType,
+		"biz_name":                 v.BizName,
+		"rate_sec":                 v.RateSec,
+		"rate_type":                v.RateType,
+		"exec_type":                v.ExecType,
+		"remark":                   v.Remark,
+		"cb_before_create":         v.CbBeforeCreate,
+		"cb_before_run":            v.CbBeforeRun,
+		"cb_process":               v.CbProcess,
+		"cb_process_stop":          v.CbProcessStop,
+		"cb_before_create_timeout": v.CbBeforeCreateTimeout,
+		"cb_before_run_timeout":    v.CbBeforeRunTimeout,
+		"cb_process_timeout":       v.CbProcessTimeout,
+		"cb_process_stop_timeout":  v.CbProcessStopTimeout,
 	})
 	cond, vals, err := builder.BuildInsertIgnore(tableName, data)
 	if err != nil {

@@ -23,20 +23,20 @@ import (
 // 业务注册
 func (*BatchJob) AdminRegistryBiz(ctx context.Context, req *pb.AdminRegistryBizReq) (*pb.AdminRegistryBizRsp, error) {
 	v := &batch_job_type.Model{
-		BizType:                uint(req.GetBizType()),
-		BizName:                req.GetBizName(),
-		RateSec:                uint(req.GetRateSec()),
-		RateType:               byte(req.GetRateType()),
-		ExecType:               byte(req.GetExecType()),
-		Remark:                 req.GetRemark(),
-		CbBeforeCreate:         req.GetCbBeforeCreate(),
-		CbBeforeRun:            req.GetCbBeforeRun(),
-		CbProcess:              req.GetCbProcess(),
-		CbProcessFinish:        req.GetCbProcessFinish(),
-		CbBeforeCreateTimeout:  uint(req.GetCbBeforeCreateTimeout()),
-		CbBeforeRunTimeout:     uint(req.GetCbBeforeRunTimeout()),
-		CbProcessTimeout:       uint(req.GetCbProcessTimeout()),
-		CbProcessFinishTimeout: uint(req.GetCbProcessFinishTimeout()),
+		BizType:               uint(req.GetBizType()),
+		BizName:               req.GetBizName(),
+		RateSec:               uint(req.GetRateSec()),
+		RateType:              byte(req.GetRateType()),
+		ExecType:              byte(req.GetExecType()),
+		Remark:                req.GetRemark(),
+		CbBeforeCreate:        req.GetCbBeforeCreate(),
+		CbBeforeRun:           req.GetCbBeforeRun(),
+		CbProcess:             req.GetCbProcess(),
+		CbProcessStop:         req.GetCbProcessStop(),
+		CbBeforeCreateTimeout: uint(req.GetCbBeforeCreateTimeout()),
+		CbBeforeRunTimeout:    uint(req.GetCbBeforeRunTimeout()),
+		CbProcessTimeout:      uint(req.GetCbProcessTimeout()),
+		CbProcessStopTimeout:  uint(req.GetCbProcessStopTimeout()),
 	}
 	_, err := batch_job_type.CreateOneModel(ctx, v)
 	if err != nil {
@@ -48,8 +48,15 @@ func (*BatchJob) AdminRegistryBiz(ctx context.Context, req *pb.AdminRegistryBizR
 
 // 创建任务
 func (*BatchJob) AdminCreateJob(ctx context.Context, req *pb.AdminCreateJobReq) (*pb.AdminCreateJobRsp, error) {
+	// 获取业务信息
+	bizInfo, err := batch_job_type.GetOneByBizType(ctx, req.GetBizType())
+	if err != nil {
+		logger.Error(ctx, "AdminStartJob call batch_job_type.GetOneByBizType fail.", zap.Error(err))
+		return nil, err
+	}
+
 	// 获取业务
-	b, err := module.GetBizByBizType(ctx, req.GetBizType())
+	b, err := module.GetBizByDbModel(ctx, bizInfo)
 	if err != nil {
 		logger.Error(ctx, "AdminCreateJob call GetBiz fail.", zap.Int32("bizType", req.GetBizType()), zap.Error(err))
 		return nil, err
@@ -93,7 +100,6 @@ func (*BatchJob) AdminCreateJob(ctx context.Context, req *pb.AdminCreateJobReq) 
 
 	// 写入数据库
 	v := &batch_job_list.Model{
-		ID:               0,
 		JobID:            uint64(jobId),
 		BizType:          uint(req.GetBizType()),
 		BizData:          req.GetBizData(),
@@ -118,7 +124,7 @@ func (*BatchJob) AdminCreateJob(ctx context.Context, req *pb.AdminCreateJobReq) 
 
 	// 立即启动
 	if req.StartNow {
-		// todo 启动
+		module.Job.CreateLauncherByData(ctx, bizInfo, v)
 	}
 
 	return &pb.AdminCreateJobRsp{JobId: jobId}, nil
@@ -180,13 +186,14 @@ func (*BatchJob) AdminStartJob(ctx context.Context, req *pb.AdminStartJobReq) (*
 		OpTime:     time.Now().Unix(),
 		Remark:     model.StatusInfo_UserOp,
 	}
-	err = module.Job.UpdateJobStatus(ctx, req.GetJobId(), status, opInfo)
+	err = module.Job.UpdateJobStatus(ctx, req.GetJobId(), pb.JobStatus(jobInfo.Status), status, opInfo)
 	if err != nil {
 		logger.Error(ctx, "AdminStartJob call UpdateJobStatus fail.", zap.Error(err))
 		return nil, err
 	}
 
-	// todo 启动
+	// 启动
+	module.Job.CreateLauncherByData(ctx, bizInfo, jobInfo)
 
 	return &pb.AdminStartJobRsp{}, nil
 }
@@ -216,6 +223,13 @@ func (*BatchJob) AdminStopJob(ctx context.Context, req *pb.AdminStopJobReq) (*pb
 		return &pb.AdminStopJobRsp{}, nil
 	}
 
+	// 写入停止标记
+	err = module.Job.SetStopFlag(ctx, req.GetJobId(), true)
+	if err != nil {
+		logger.Error(ctx, "AdminStopJob call SetStopFlag fail.", zap.Error(err))
+		return nil, err
+	}
+
 	// 更新状态
 	opInfo := &model.HistoryOpInfo{
 		OpSource:   req.GetOp().GetOpSource(),
@@ -226,16 +240,9 @@ func (*BatchJob) AdminStopJob(ctx context.Context, req *pb.AdminStopJobReq) (*pb
 		OpTime:     time.Now().Unix(),
 		Remark:     model.StatusInfo_UserOp,
 	}
-	err = module.Job.UpdateJobStatus(ctx, req.GetJobId(), pb.JobStatus_Stopping, opInfo)
+	err = module.Job.UpdateJobStatus(ctx, req.GetJobId(), pb.JobStatus(jobInfo.Status), pb.JobStatus_Stopping, opInfo)
 	if err != nil {
 		logger.Error(ctx, "AdminStopJob call UpdateJobStatus fail.", zap.Error(err))
-		return nil, err
-	}
-
-	// 写入停止标记
-	err = module.Job.SetStopFlag(ctx, req.GetJobId(), true)
-	if err != nil {
-		logger.Error(ctx, "AdminStopJob call SetStopFlag fail.", zap.Error(err))
 		return nil, err
 	}
 
