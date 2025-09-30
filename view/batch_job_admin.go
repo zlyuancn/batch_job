@@ -88,7 +88,7 @@ func (*BatchJob) AdminCreateJob(ctx context.Context, req *pb.AdminCreateJobReq) 
 	}
 	if req.GetStartNow() {
 		hop.OpStatus = byte(pb.JobStatus_Running)
-		hop.Remark = "create and start"
+		hop.Remark = model.StatusInfo_UserCreateAndRun
 	}
 
 	history := model.HistoryOpInfos{hop}
@@ -113,8 +113,12 @@ func (*BatchJob) AdminCreateJob(ctx context.Context, req *pb.AdminCreateJobReq) 
 		OpHistory:        historyText,
 		BizProcessData:   req.GetBizProcessData(),
 	}
-	if b.HasBeforeRunCallback() {
-		v.Status = byte(pb.JobStatus_WaitBizRun)
+	if req.GetStartNow() {
+		v.Status = byte(pb.JobStatus_Running)
+		if b.HasBeforeRunCallback() {
+			v.Status = byte(pb.JobStatus_WaitBizRun)
+		}
+		v.StatusInfo = model.StatusInfo_UserCreateAndRun
 	}
 	_, err = batch_job_list.CreateOneModel(ctx, v)
 	if err != nil {
@@ -134,7 +138,7 @@ func (*BatchJob) AdminCreateJob(ctx context.Context, req *pb.AdminCreateJobReq) 
 func (*BatchJob) AdminStartJob(ctx context.Context, req *pb.AdminStartJobReq) (*pb.AdminStartJobRsp, error) {
 	// 加锁
 	lockKey := conf.Conf.JobOpLockKeyPrefix + strconv.Itoa(int(req.GetJobId()))
-	unlock, err := redis.Lock(ctx, db.GetRedis(), lockKey, time.Second*10)
+	unlock, _, err := redis.Lock(ctx, lockKey, time.Second*10)
 	if err != nil {
 		logger.Error(ctx, "AdminStartJob call Lock fail.", zap.Error(err))
 		return nil, err
@@ -202,7 +206,7 @@ func (*BatchJob) AdminStartJob(ctx context.Context, req *pb.AdminStartJobReq) (*
 func (*BatchJob) AdminStopJob(ctx context.Context, req *pb.AdminStopJobReq) (*pb.AdminStopJobRsp, error) {
 	// 加锁
 	lockKey := conf.Conf.JobOpLockKeyPrefix + strconv.Itoa(int(req.GetJobId()))
-	unlock, err := redis.Lock(ctx, db.GetRedis(), lockKey, time.Second*10)
+	unlock, _, err := redis.Lock(ctx, lockKey, time.Second*10)
 	if err != nil {
 		logger.Error(ctx, "AdminStopJob call Lock fail.", zap.Error(err))
 		return nil, err

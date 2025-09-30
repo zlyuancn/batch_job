@@ -6,15 +6,18 @@ import (
 
 	"github.com/zly-app/zapp/logger"
 
+	"github.com/zlyuancn/batch_job/dao/batch_job_list"
 	"github.com/zlyuancn/batch_job/dao/batch_job_type"
 	"github.com/zlyuancn/batch_job/pb"
 )
 
 type Biz interface {
-	// 创建业务回调
-	BeforeCreate(ctx context.Context, req *pb.AdminCreateJobReq, jobId int64) (*pb.AdminCreateJobReq, error)
 	// 是否存在启动前回调
 	HasBeforeRunCallback() bool
+	// 创建业务回调
+	BeforeCreate(ctx context.Context, createJobReq *pb.AdminCreateJobReq, jobId int64) (*pb.AdminCreateJobReq, error)
+	// 业务启动前回调
+	BeforeRun(ctx context.Context, bizInfo *batch_job_type.Model, jobInfo *batch_job_list.Model)
 }
 
 // 获取业务

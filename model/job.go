@@ -33,5 +33,6 @@ type HistoryOpInfos []HistoryOpInfo
 
 // 操作信息
 const (
-	StatusInfo_UserOp = "user op"
+	StatusInfo_UserOp           = "user op"
+	StatusInfo_UserCreateAndRun = "user create and run"
 )

@@ -13,7 +13,6 @@ import (
 	"github.com/zlyuancn/batch_job/client/db"
 	"github.com/zlyuancn/batch_job/conf"
 	"github.com/zlyuancn/batch_job/dao/batch_job_list"
-	"github.com/zlyuancn/batch_job/dao/batch_job_type"
 	"github.com/zlyuancn/batch_job/model"
 	"github.com/zlyuancn/batch_job/pb"
 )
@@ -21,15 +20,6 @@ import (
 var Job = &jobCli{}
 
 type jobCli struct{}
-
-// 创建启动器
-func (j *jobCli) CreateLauncherByData(ctx context.Context, bizInfo *batch_job_type.Model, jobInfo *batch_job_list.Model) {
-	go j.createLauncherByData(ctx, bizInfo, jobInfo)
-}
-
-func (*jobCli) createLauncherByData(ctx context.Context, bizInfo *batch_job_type.Model, jobInfo *batch_job_list.Model) {
-
-}
 
 // 更新任务状态
 func (*jobCli) UpdateJobStatus(ctx context.Context, jobId int64, oldStatus, status pb.JobStatus, opInfo *model.HistoryOpInfo) error {

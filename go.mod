@@ -12,6 +12,7 @@ require (
 	github.com/zly-app/grpc v0.5.2
 	github.com/zly-app/uapp v0.0.0-20250721063824-0fef763876af
 	github.com/zly-app/zapp v1.3.21
+	github.com/zlyuancn/sliding_window v0.0.0-20250930091512-134c4ffd3184
 	go.uber.org/zap v1.27.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20250818200422-3122310a409c
 	google.golang.org/grpc v1.74.2
@@ -130,7 +131,7 @@ require (
 	golang.org/x/net v0.40.0 // indirect
 	golang.org/x/sys v0.33.0 // indirect
 	golang.org/x/text v0.26.0 // indirect
-	golang.org/x/time v0.0.0-20200630173020-3af7569d3a1e // indirect
+	golang.org/x/time v0.12.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250811230008-5f3141c8851a // indirect
 	gopkg.in/ini.v1 v1.62.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
