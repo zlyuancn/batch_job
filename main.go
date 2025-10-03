@@ -8,8 +8,8 @@ import (
 	"github.com/zly-app/zapp/config"
 
 	"github.com/zlyuancn/batch_job/conf"
+	"github.com/zlyuancn/batch_job/logic"
 	"github.com/zlyuancn/batch_job/pb"
-	"github.com/zlyuancn/batch_job/view"
 )
 
 func main() {
@@ -24,7 +24,7 @@ func main() {
 	client := pb.NewBatchJobServiceClient(grpc.GetGatewayClientConn("batch_job"))
 	_ = pb.RegisterBatchJobServiceHandlerClient(context.Background(), grpc.GetGatewayMux(), client)
 
-	pb.RegisterBatchJobServiceServer(grpc.Server("batch_job"), view.NewServer())
+	pb.RegisterBatchJobServiceServer(grpc.Server("batch_job"), logic.NewServer())
 
 	app.Run()
 }

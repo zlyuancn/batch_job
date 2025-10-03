@@ -5,7 +5,7 @@ CREATE TABLE `batch_job_type`
     `biz_name`                 varchar(32)        NOT NULL COMMENT '业务名',
     `rate_sec`                 int unsigned       NOT NULL DEFAULT 0 COMMENT '每秒处理速率. 0表示不限制',
     `rate_type`                tinyint unsigned   NOT NULL DEFAULT 0 COMMENT '速率类型. 0=通过rate_sec限速, 1=串行化',
-    `exec_type`                tinyint unsigned   NOT NULL DEFAULT 0 COMMENT '执行类型. 0=回调 1=业务本地',
+    `exec_type`                tinyint unsigned   NOT NULL DEFAULT 0 COMMENT '执行类型',
     `remark`                   varchar(4096)      NOT NULL DEFAULT '' COMMENT '备注',
     `cb_before_create`         varchar(256)       NOT NULL DEFAULT '' COMMENT '创建任务回调url',
     `cb_before_run`            varchar(256)       NOT NULL DEFAULT '' COMMENT '启动前回调. 一旦配置, 则任务必须由业务主动调用 BizStartJob 执行任务. 否则任务将一直处于 JobStatus.WaitBizRun 状态',

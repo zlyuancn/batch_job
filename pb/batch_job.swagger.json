@@ -905,11 +905,11 @@
     "batch_jobExecType": {
       "type": "string",
       "enum": [
-        "Callback",
-        "BizLocal"
+        "None",
+        "HttpCallback"
       ],
-      "default": "Callback",
-      "description": "- Callback: 回调\n - BizLocal: 业务本地",
+      "default": "None",
+      "description": "- HttpCallback: http回调",
       "title": "执行类型"
     },
     "batch_jobJobStatus": {

@@ -58,7 +58,7 @@ type Model struct {
 	BizName               string    `db:"biz_name"`                 // "业务名"
 	RateSec               uint      `db:"rate_sec"`                 // "每秒处理速率. 0表示不限制"
 	RateType              byte      `db:"rate_type"`                // "速率类型. 0=通过rate_sec限速, 1=串行化"
-	ExecType              byte      `db:"exec_type"`                // "执行类型. 0=回调 1=业务本地"
+	ExecType              byte      `db:"exec_type"`                // "执行类型"
 	Remark                string    `db:"remark"`                   // "备注"
 	CbBeforeCreate        string    `db:"cb_before_create"`         // "创建任务回调url"
 	CbBeforeRun           string    `db:"cb_before_run"`            // "启动前回调. 一旦配置, 则任务必须由业务主动调用 BizStartJob 执行任务. 否则任务将一直处于 JobStatus.WaitBizRun 状态"

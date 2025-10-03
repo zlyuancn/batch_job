@@ -119,8 +119,8 @@ enum RateType {
 
 // 执行类型
 enum ExecType {
-  Callback = 0; // 回调
-  BizLocal = 1; // 业务本地
+  None = 0;
+  HttpCallback = 1; // http回调
 }
 
 message AdminRegistryBizReq {

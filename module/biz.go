@@ -35,8 +35,8 @@ func GetBizByBizType(ctx context.Context, bizType int32) (Biz, error) {
 // 获取业务
 func GetBizByDbModel(ctx context.Context, v *batch_job_type.Model) (Biz, error) {
 	switch v.ExecType {
-	case byte(pb.ExecType_Callback): // 回调
-		return newCallbackBiz(ctx, v)
+	case byte(pb.ExecType_HttpCallback): // http回调
+		return newHttpCallbackBiz(ctx, v)
 	}
 
 	return nil, fmt.Errorf("biz type %d not support", v.ExecType)

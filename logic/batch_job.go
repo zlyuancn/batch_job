@@ -1,4 +1,4 @@
-package view
+package logic
 
 import (
 	"github.com/zlyuancn/batch_job/pb"
