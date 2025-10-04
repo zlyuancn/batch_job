@@ -113,8 +113,8 @@ service BatchJobService{
 
 // 速率类型
 enum RateType {
-  RateSec = 0; // 每秒限速
-  Serialization = 1; // 串行化
+  RateSec = 0; // 标准限速
+  Serialization = 1; // 串行化限速
 }
 
 // 执行类型
@@ -127,17 +127,19 @@ message AdminRegistryBizReq {
   int32 biz_type = 1 [(validate.rules).int32.gt = 0]; // 业务类型. 必填
   string biz_name = 2 [(validate.rules).string.min_len = 1]; // 业务名
   string remark = 3; // 备注
-  string cb_before_create = 4 [(validate.rules).string = {uri: true}]; // 创建任务回调url
-  string cb_before_run = 5 [(validate.rules).string = {uri: true}]; // 启动前回调. 一旦配置, 则任务必须由业务主动调用 BizStartJob 执行任务. 否则任务将一直处于 JobStatus.WaitBizRun 状态
-  string cb_process = 6 [(validate.rules).string = {uri: true}]; // 处理任务回调. 必填
-  string cb_process_stop = 7 [(validate.rules).string = {uri: true}]; // 处理任务停止回调. 用于业务方做一些清理. 选填
-  int32 cb_before_create_timeout = 8 [(validate.rules).int32.gte = 0]; // 启动前回调超时秒数
-  int32 cb_before_run_timeout = 9 [(validate.rules).int32.gte = 0]; // 启动前回调超时秒数
-  int32 cb_process_timeout = 10 [(validate.rules).int32.gte = 0]; // 处理任务回调超时秒数
-  int32 cb_process_stop_timeout = 11 [(validate.rules).int32.gte = 0]; // 处理任务停止回调超时秒数
-  int32 rate_sec = 12; // 每秒处理速率. 0表示不限制
+
+  ExecType exec_type = 4; // 执行类型
+  string cb_before_create = 5 [(validate.rules).string = {uri: true, ignore_empty: true}]; // 创建任务回调url
+  string cb_before_run = 6 [(validate.rules).string = {uri: true, ignore_empty: true}]; // 启动前回调. 一旦配置, 则任务必须由业务主动调用 BizStartJob 执行任务. 否则任务将一直处于 JobStatus.WaitBizRun 状态
+  string cb_process = 7 [(validate.rules).string = {uri: true}]; // 处理任务回调. 必填
+  string cb_process_stop = 8 [(validate.rules).string = {uri: true, ignore_empty: true}]; // 任务停止回调. 用于业务方做一些清理. 选填
+  int32 cb_before_create_timeout = 9 [(validate.rules).int32.gte = 0]; // 启动前回调超时秒数
+  int32 cb_before_run_timeout = 10 [(validate.rules).int32.gte = 0]; // 启动前回调超时秒数
+  int32 cb_process_timeout = 11 [(validate.rules).int32.gte = 0]; // 处理任务回调超时秒数
+  int32 cb_process_stop_timeout = 12 [(validate.rules).int32.gte = 0]; // 处理任务停止回调超时秒数
+
   RateType rate_type = 13; // 速率类型
-  ExecType exec_type = 14; // 执行类型
+  int32 rate_sec = 14; // 每秒处理速率. 0表示不限制
 }
 message AdminRegistryBizRsp {}
 

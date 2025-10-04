@@ -81,46 +81,56 @@ func (m *AdminRegistryBizReq) validate(all bool) error {
 
 	// no validation rules for Remark
 
-	if uri, err := url.Parse(m.GetCbBeforeCreate()); err != nil {
-		err = AdminRegistryBizReqValidationError{
-			field:  "CbBeforeCreate",
-			reason: "value must be a valid URI",
-			cause:  err,
+	// no validation rules for ExecType
+
+	if m.GetCbBeforeCreate() != "" {
+
+		if uri, err := url.Parse(m.GetCbBeforeCreate()); err != nil {
+			err = AdminRegistryBizReqValidationError{
+				field:  "CbBeforeCreate",
+				reason: "value must be a valid URI",
+				cause:  err,
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		} else if !uri.IsAbs() {
+			err := AdminRegistryBizReqValidationError{
+				field:  "CbBeforeCreate",
+				reason: "value must be absolute",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
 		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	} else if !uri.IsAbs() {
-		err := AdminRegistryBizReqValidationError{
-			field:  "CbBeforeCreate",
-			reason: "value must be absolute",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
+
 	}
 
-	if uri, err := url.Parse(m.GetCbBeforeRun()); err != nil {
-		err = AdminRegistryBizReqValidationError{
-			field:  "CbBeforeRun",
-			reason: "value must be a valid URI",
-			cause:  err,
+	if m.GetCbBeforeRun() != "" {
+
+		if uri, err := url.Parse(m.GetCbBeforeRun()); err != nil {
+			err = AdminRegistryBizReqValidationError{
+				field:  "CbBeforeRun",
+				reason: "value must be a valid URI",
+				cause:  err,
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		} else if !uri.IsAbs() {
+			err := AdminRegistryBizReqValidationError{
+				field:  "CbBeforeRun",
+				reason: "value must be absolute",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
 		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	} else if !uri.IsAbs() {
-		err := AdminRegistryBizReqValidationError{
-			field:  "CbBeforeRun",
-			reason: "value must be absolute",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
+
 	}
 
 	if uri, err := url.Parse(m.GetCbProcess()); err != nil {
@@ -144,25 +154,29 @@ func (m *AdminRegistryBizReq) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if uri, err := url.Parse(m.GetCbProcessStop()); err != nil {
-		err = AdminRegistryBizReqValidationError{
-			field:  "CbProcessStop",
-			reason: "value must be a valid URI",
-			cause:  err,
+	if m.GetCbProcessStop() != "" {
+
+		if uri, err := url.Parse(m.GetCbProcessStop()); err != nil {
+			err = AdminRegistryBizReqValidationError{
+				field:  "CbProcessStop",
+				reason: "value must be a valid URI",
+				cause:  err,
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		} else if !uri.IsAbs() {
+			err := AdminRegistryBizReqValidationError{
+				field:  "CbProcessStop",
+				reason: "value must be absolute",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
 		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	} else if !uri.IsAbs() {
-		err := AdminRegistryBizReqValidationError{
-			field:  "CbProcessStop",
-			reason: "value must be absolute",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
+
 	}
 
 	if m.GetCbBeforeCreateTimeout() < 0 {
@@ -209,11 +223,9 @@ func (m *AdminRegistryBizReq) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	// no validation rules for RateSec
-
 	// no validation rules for RateType
 
-	// no validation rules for ExecType
+	// no validation rules for RateSec
 
 	if len(errors) > 0 {
 		return AdminRegistryBizReqMultiError(errors)

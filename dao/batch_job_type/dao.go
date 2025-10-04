@@ -93,7 +93,7 @@ func CreateOneModel(ctx context.Context, v *Model) (int64, error) {
 		"cb_process_timeout":       v.CbProcessTimeout,
 		"cb_process_stop_timeout":  v.CbProcessStopTimeout,
 	})
-	cond, vals, err := builder.BuildInsertIgnore(tableName, data)
+	cond, vals, err := builder.BuildInsert(tableName, data)
 	if err != nil {
 		logger.Log.Error(ctx, "CreateOneModel BuildSelect err",
 			zap.Any("data", data),

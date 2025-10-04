@@ -92,7 +92,7 @@ func CreateOneModel(ctx context.Context, v *Model) (int64, error) {
 		"op_history":         v.OpHistory,
 		"biz_process_data":   v.BizProcessData,
 	})
-	cond, vals, err := builder.BuildInsertIgnore(tableName, data)
+	cond, vals, err := builder.BuildInsert(tableName, data)
 	if err != nil {
 		logger.Log.Error(ctx, "CreateOneModel BuildSelect err",
 			zap.Any("data", data),

@@ -537,6 +537,10 @@
           "type": "string",
           "title": "备注"
         },
+        "execType": {
+          "$ref": "#/definitions/batch_jobExecType",
+          "title": "执行类型"
+        },
         "cbBeforeCreate": {
           "type": "string",
           "title": "创建任务回调url"
@@ -551,7 +555,7 @@
         },
         "cbProcessStop": {
           "type": "string",
-          "title": "处理任务停止回调. 用于业务方做一些清理. 选填"
+          "title": "任务停止回调. 用于业务方做一些清理. 选填"
         },
         "cbBeforeCreateTimeout": {
           "type": "integer",
@@ -573,18 +577,14 @@
           "format": "int32",
           "title": "处理任务停止回调超时秒数"
         },
-        "rateSec": {
-          "type": "integer",
-          "format": "int32",
-          "title": "每秒处理速率. 0表示不限制"
-        },
         "rateType": {
           "$ref": "#/definitions/batch_jobRateType",
           "title": "速率类型"
         },
-        "execType": {
-          "$ref": "#/definitions/batch_jobExecType",
-          "title": "执行类型"
+        "rateSec": {
+          "type": "integer",
+          "format": "int32",
+          "title": "每秒处理速率. 0表示不限制"
         }
       }
     },
@@ -1171,7 +1171,7 @@
         "Serialization"
       ],
       "default": "RateSec",
-      "description": "- RateSec: 每秒限速\n - Serialization: 串行化",
+      "description": "- RateSec: 标准限速\n - Serialization: 串行化限速",
       "title": "速率类型"
     },
     "protobufAny": {
