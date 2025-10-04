@@ -16,6 +16,39 @@
     "application/json"
   ],
   "paths": {
+    "/BatchJob/AdminChangeBiz": {
+      "post": {
+        "summary": "修改业务",
+        "operationId": "BatchJobService_AdminChangeBiz",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/batch_jobAdminRegistryBizRsp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/batch_jobAdminRegistryBizReq"
+            }
+          }
+        ],
+        "tags": [
+          "BatchJobService"
+        ]
+      }
+    },
     "/BatchJob/AdminCreateJob": {
       "post": {
         "summary": "创建任务",

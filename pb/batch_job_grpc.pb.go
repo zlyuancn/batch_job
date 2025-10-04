@@ -20,6 +20,7 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	BatchJobService_AdminRegistryBiz_FullMethodName    = "/batch_job.BatchJobService/AdminRegistryBiz"
+	BatchJobService_AdminChangeBiz_FullMethodName      = "/batch_job.BatchJobService/AdminChangeBiz"
 	BatchJobService_AdminCreateJob_FullMethodName      = "/batch_job.BatchJobService/AdminCreateJob"
 	BatchJobService_AdminStartJob_FullMethodName       = "/batch_job.BatchJobService/AdminStartJob"
 	BatchJobService_AdminStopJob_FullMethodName        = "/batch_job.BatchJobService/AdminStopJob"
@@ -43,6 +44,8 @@ const (
 type BatchJobServiceClient interface {
 	// 业务注册
 	AdminRegistryBiz(ctx context.Context, in *AdminRegistryBizReq, opts ...grpc.CallOption) (*AdminRegistryBizRsp, error)
+	// 修改业务
+	AdminChangeBiz(ctx context.Context, in *AdminRegistryBizReq, opts ...grpc.CallOption) (*AdminRegistryBizRsp, error)
 	// 创建任务
 	AdminCreateJob(ctx context.Context, in *AdminCreateJobReq, opts ...grpc.CallOption) (*AdminCreateJobRsp, error)
 	// 启动任务
@@ -83,6 +86,16 @@ func (c *batchJobServiceClient) AdminRegistryBiz(ctx context.Context, in *AdminR
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(AdminRegistryBizRsp)
 	err := c.cc.Invoke(ctx, BatchJobService_AdminRegistryBiz_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *batchJobServiceClient) AdminChangeBiz(ctx context.Context, in *AdminRegistryBizReq, opts ...grpc.CallOption) (*AdminRegistryBizRsp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AdminRegistryBizRsp)
+	err := c.cc.Invoke(ctx, BatchJobService_AdminChangeBiz_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -227,6 +240,8 @@ func (c *batchJobServiceClient) BizAddDataLog(ctx context.Context, in *BizAddDat
 type BatchJobServiceServer interface {
 	// 业务注册
 	AdminRegistryBiz(context.Context, *AdminRegistryBizReq) (*AdminRegistryBizRsp, error)
+	// 修改业务
+	AdminChangeBiz(context.Context, *AdminRegistryBizReq) (*AdminRegistryBizRsp, error)
 	// 创建任务
 	AdminCreateJob(context.Context, *AdminCreateJobReq) (*AdminCreateJobRsp, error)
 	// 启动任务
@@ -265,6 +280,9 @@ type UnimplementedBatchJobServiceServer struct{}
 
 func (UnimplementedBatchJobServiceServer) AdminRegistryBiz(context.Context, *AdminRegistryBizReq) (*AdminRegistryBizRsp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AdminRegistryBiz not implemented")
+}
+func (UnimplementedBatchJobServiceServer) AdminChangeBiz(context.Context, *AdminRegistryBizReq) (*AdminRegistryBizRsp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminChangeBiz not implemented")
 }
 func (UnimplementedBatchJobServiceServer) AdminCreateJob(context.Context, *AdminCreateJobReq) (*AdminCreateJobRsp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AdminCreateJob not implemented")
@@ -340,6 +358,24 @@ func _BatchJobService_AdminRegistryBiz_Handler(srv interface{}, ctx context.Cont
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(BatchJobServiceServer).AdminRegistryBiz(ctx, req.(*AdminRegistryBizReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BatchJobService_AdminChangeBiz_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminRegistryBizReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BatchJobServiceServer).AdminChangeBiz(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BatchJobService_AdminChangeBiz_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BatchJobServiceServer).AdminChangeBiz(ctx, req.(*AdminRegistryBizReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -588,6 +624,10 @@ var BatchJobService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AdminRegistryBiz",
 			Handler:    _BatchJobService_AdminRegistryBiz_Handler,
+		},
+		{
+			MethodName: "AdminChangeBiz",
+			Handler:    _BatchJobService_AdminChangeBiz_Handler,
 		},
 		{
 			MethodName: "AdminCreateJob",
