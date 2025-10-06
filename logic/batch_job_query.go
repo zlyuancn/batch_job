@@ -2,6 +2,7 @@ package logic
 
 import (
 	"context"
+	"math"
 
 	"github.com/bytedance/sonic"
 	"github.com/zly-app/zapp/logger"
@@ -13,21 +14,51 @@ import (
 )
 
 // 查询业务信息
-func (*BatchJob) QueryBizInfo(ctx context.Context, req *pb.QueryBizInfoReq) (*pb.QueryBizInfoRsp, error) {
+func (b *BatchJob) QueryBizInfo(ctx context.Context, req *pb.QueryBizInfoReq) (*pb.QueryBizInfoRsp, error) {
 	line, err := batch_job_biz.GetOneByBizType(ctx, req.GetBizType())
 	if err != nil {
 		logger.Error(ctx, "QueryBizInfo call batch_job_biz.GetOneByBizType fail.", zap.Error(err))
 		return nil, err
 	}
 
-	remark := ""
-	hop := model.BizHistoryOpInfos{}
-	_ = sonic.UnmarshalString(line.OpHistory, &hop)
-	if len(hop) > 0 {
-		op := hop[0]
-		remark = op.OpRemark
+	ret := b.bizDbModel2Pb(line)
+	return &pb.QueryBizInfoRsp{Line: ret}, nil
+}
+
+// 查询业务列表
+func (b *BatchJob) QueryBizList(ctx context.Context, req *pb.QueryBizListReq) (*pb.QueryBizListRsp, error) {
+	where := map[string]interface{}{}
+
+	total, err := batch_job_biz.Count(ctx, where)
+	if err != nil {
+		logger.Error(ctx, "QueryBizList call batch_job_biz.Count", zap.Error(err))
+		return nil, err
 	}
 
+	page, pageSize := req.GetPage(), req.GetPageSize()
+	page = int32(math.Max(float64(page), 1))
+	pageSize = int32(math.Max(float64(pageSize), 20))
+	where["_orderby"] = "id desc"
+	where["_limit"] = []uint{uint(page-1) * uint(pageSize), uint(pageSize)}
+
+	lines, err := batch_job_biz.MultiGet(ctx, where)
+	if err != nil {
+		logger.Error(ctx, "QueryBizList call batch_job_biz.MultiGet", zap.Error(err))
+		return nil, err
+	}
+
+	ret := make([]*pb.BizInfoA, 0, len(lines))
+	for _, line := range lines {
+		ret = append(ret, b.bizDbModel2Pb(line))
+	}
+	return &pb.QueryBizListRsp{
+		Total:    int32(total),
+		PageSize: pageSize,
+		Line:     ret,
+	}, nil
+}
+
+func (*BatchJob) bizDbModel2Pb(line *batch_job_biz.Model) *pb.BizInfoA {
 	ret := &pb.BizInfoA{
 		BizType:               int32(line.BizType),
 		BizName:               line.BizName,
@@ -47,9 +78,16 @@ func (*BatchJob) QueryBizInfo(ctx context.Context, req *pb.QueryBizInfoReq) (*pb
 			OpSource:   line.LastOpSource,
 			OpUserid:   line.LastOpUserID,
 			OpUserName: line.LastOpUserName,
-			OpRemark:   remark,
 			OpTime:     line.UpdateTime.Unix(),
 		},
 	}
-	return &pb.QueryBizInfoRsp{Line: ret}, nil
+
+	hop := model.BizHistoryOpInfos{}
+	_ = sonic.UnmarshalString(line.OpHistory, &hop)
+	if len(hop) > 0 {
+		op := hop[0]
+		ret.Op.OpRemark = op.OpRemark
+	}
+
+	return ret
 }

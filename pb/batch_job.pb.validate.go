@@ -2166,12 +2166,6 @@ func (m *QueryBizListReq) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for StartTime
-
-	// no validation rules for EndTime
-
-	// no validation rules for OpUser
-
 	if m.GetPage() <= 0 {
 		err := QueryBizListReqValidationError{
 			field:  "Page",
@@ -2193,6 +2187,8 @@ func (m *QueryBizListReq) validate(all bool) error {
 		}
 		errors = append(errors, err)
 	}
+
+	// no validation rules for OpUser
 
 	if len(errors) > 0 {
 		return QueryBizListReqMultiError(errors)

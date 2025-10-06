@@ -269,11 +269,9 @@ message QueryBizInfoRsp {
 }
 
 message QueryBizListReq {
-  int64 startTime = 1; // 开始时间, 秒级时间戳. 0表示不限制
-  int64 endTime = 2; // 结束时间, 秒级时间戳. 0表示不限制
+  int32 page = 1 [(validate.rules).int32.gt = 0]; // 页号, 从1开始
+  int32 pageSize = 2 [(validate.rules).int32.gte = 5]; // 每页返回数量, 最少返回5条
   string opUser = 3; // 操作人
-  int32 page = 4 [(validate.rules).int32.gt = 0]; // 页号, 从1开始
-  int32 pageSize = 5 [(validate.rules).int32.gte = 5]; // 每页返回数量, 最少返回5条
 }
 message QueryBizListRsp {
   int32 total = 1; // 总条数

@@ -1038,20 +1038,6 @@
     "batch_jobQueryBizListReq": {
       "type": "object",
       "properties": {
-        "startTime": {
-          "type": "string",
-          "format": "int64",
-          "title": "开始时间, 秒级时间戳. 0表示不限制"
-        },
-        "endTime": {
-          "type": "string",
-          "format": "int64",
-          "title": "结束时间, 秒级时间戳. 0表示不限制"
-        },
-        "opUser": {
-          "type": "string",
-          "title": "操作人"
-        },
         "page": {
           "type": "integer",
           "format": "int32",
@@ -1061,6 +1047,10 @@
           "type": "integer",
           "format": "int32",
           "title": "每页返回数量, 最少返回5条"
+        },
+        "opUser": {
+          "type": "string",
+          "title": "操作人"
         }
       }
     },
