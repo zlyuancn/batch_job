@@ -20,6 +20,7 @@ CREATE TABLE `batch_job_biz`
     `last_op_source`           varchar(32)        NOT NULL DEFAULT '' COMMENT '最后操作来源',
     `last_op_user_id`          varchar(32)        NOT NULL DEFAULT '' COMMENT '最后操作用户id',
     `last_op_user_name`        varchar(32)        NOT NULL DEFAULT '' COMMENT '最后操作用户名',
+    `last_op_remark`           varchar(1024)      NOT NULL DEFAULT '' COMMENT '最后操作备注',
     `op_history`               json               NOT NULL COMMENT '操作历史信息',
     `status`                   tinyint unsigned   NOT NULL DEFAULT 0 COMMENT '状态 0=正常 1=隐藏',
     PRIMARY KEY (`id`),

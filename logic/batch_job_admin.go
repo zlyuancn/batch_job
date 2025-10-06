@@ -60,6 +60,7 @@ func (*BatchJob) AdminRegistryBiz(ctx context.Context, req *pb.AdminRegistryBizR
 	v.LastOpSource = req.GetOp().GetOpSource()
 	v.LastOpUserID = req.GetOp().GetOpUserid()
 	v.LastOpUserName = req.GetOp().GetOpUserName()
+	v.LastOpRemark = req.GetOp().GetOpRemark()
 	v.OpHistory = historyText
 
 	_, err = batch_job_biz.CreateOneModel(ctx, v)
@@ -106,6 +107,7 @@ func (*BatchJob) AdminChangeBiz(ctx context.Context, req *pb.AdminRegistryBizReq
 	v.LastOpSource = req.GetOp().GetOpSource()
 	v.LastOpUserID = req.GetOp().GetOpUserid()
 	v.LastOpUserName = req.GetOp().GetOpUserName()
+	v.LastOpRemark = req.GetOp().GetOpRemark()
 	v.OpHistory = historyText
 
 	count, err := batch_job_biz.UpdateOneModel(ctx, v)

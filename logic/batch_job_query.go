@@ -4,12 +4,10 @@ import (
 	"context"
 	"math"
 
-	"github.com/bytedance/sonic"
 	"github.com/zly-app/zapp/logger"
 	"go.uber.org/zap"
 
 	"github.com/zlyuancn/batch_job/dao/batch_job_biz"
-	"github.com/zlyuancn/batch_job/model"
 	"github.com/zlyuancn/batch_job/pb"
 )
 
@@ -29,6 +27,16 @@ func (b *BatchJob) QueryBizInfo(ctx context.Context, req *pb.QueryBizInfoReq) (*
 func (b *BatchJob) QueryBizList(ctx context.Context, req *pb.QueryBizListReq) (*pb.QueryBizListRsp, error) {
 	where := map[string]interface{}{
 		"status": int(req.GetStatus()),
+	}
+	if req.GetOpUser() != "" {
+		where["_or"] = []map[string]interface{}{
+			{
+				"last_op_user_id like": req.GetOpUser() + "%",
+			},
+			{
+				"last_op_user_name like": req.GetOpUser() + "%",
+			},
+		}
 	}
 
 	total, err := batch_job_biz.Count(ctx, where)
@@ -80,17 +88,10 @@ func (*BatchJob) bizDbModel2Pb(line *batch_job_biz.Model) *pb.BizInfoA {
 			OpSource:   line.LastOpSource,
 			OpUserid:   line.LastOpUserID,
 			OpUserName: line.LastOpUserName,
+			OpRemark:   line.LastOpRemark,
 			OpTime:     line.UpdateTime.Unix(),
 		},
 		Status: pb.BizStatus(line.Status),
 	}
-
-	hop := model.BizHistoryOpInfos{}
-	_ = sonic.UnmarshalString(line.OpHistory, &hop)
-	if len(hop) > 0 {
-		op := hop[0]
-		ret.Op.OpRemark = op.OpRemark
-	}
-
 	return ret
 }

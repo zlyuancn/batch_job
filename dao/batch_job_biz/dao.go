@@ -28,30 +28,29 @@ var (
 		}
 		return selectAllFields
 	}()
-	// selectField = []string{
-	//	"id",
-	//	"biz_type",
-	//	"biz_name",
-	//	"rate_sec",
-	//	"rate_type",
-	//	"exec_type",
-	//	"remark",
-	//	"cb_before_create",
-	//	"cb_before_run",
-	//	"cb_process",
-	//	"cb_process_stop",
-	//	"cb_before_create_timeout",
-	//	"cb_before_run_timeout",
-	//	"cb_process_timeout",
-	//	"cb_process_stop_timeout",
-	//	"create_time",
-	//	"update_time",
-	//	"last_op_source",
-	//	"last_op_user_id",
-	//	"last_op_user_name",
-	//	"op_history",
-	//	"status",
-	// }
+
+	selectMultiField = []string{
+		"biz_type",
+		"biz_name",
+		"rate_sec",
+		"rate_type",
+		"exec_type",
+		"remark",
+		"cb_before_create",
+		"cb_before_run",
+		"cb_process",
+		"cb_process_stop",
+		"cb_before_create_timeout",
+		"cb_before_run_timeout",
+		"cb_process_timeout",
+		"cb_process_stop_timeout",
+		"update_time",
+		"last_op_source",
+		"last_op_user_id",
+		"last_op_user_name",
+		"last_op_remark",
+		"status",
+	}
 )
 
 const (
@@ -59,7 +58,7 @@ const (
 )
 
 type Model struct {
-	ID                    uint      `db:"id"`
+	ID                    uint      `db:"id" json:"-"`
 	BizType               uint      `db:"biz_type"`                 // "业务类型"
 	BizName               string    `db:"biz_name"`                 // "业务名"
 	RateSec               uint      `db:"rate_sec"`                 // "每秒处理速率. 0表示不限制"
@@ -74,13 +73,14 @@ type Model struct {
 	CbBeforeRunTimeout    uint      `db:"cb_before_run_timeout"`    // "启动前回调超时秒数"
 	CbProcessTimeout      uint      `db:"cb_process_timeout"`       // "处理任务回调超时秒数"
 	CbProcessStopTimeout  uint      `db:"cb_process_stop_timeout"`  // "处理任务完成回调超时秒数"
-	CreateTime            time.Time `db:"create_time"`
-	UpdateTime            time.Time `db:"update_time"`
-	LastOpSource          string    `db:"last_op_source"`    // "最后操作来源"
-	LastOpUserID          string    `db:"last_op_user_id"`   // "最后操作用户id"
-	LastOpUserName        string    `db:"last_op_user_name"` // "最后操作用户名"
-	OpHistory             string    `db:"op_history"`        // "操作历史信息"
-	Status                byte      `db:"status"`            // "状态 0=正常 1=隐藏"
+	CreateTime            time.Time `db:"create_time" json:"-"`
+	UpdateTime            time.Time `db:"update_time" json:"-"`
+	LastOpSource          string    `db:"last_op_source" json:"-"`    // "最后操作来源"
+	LastOpUserID          string    `db:"last_op_user_id" json:"-"`   // "最后操作用户id"
+	LastOpUserName        string    `db:"last_op_user_name" json:"-"` // "最后操作用户名"
+	LastOpRemark          string    `db:"last_op_remark" json:"-"`    // "最后操作备注"
+	OpHistory             string    `db:"op_history" json:"-"`        // "操作历史信息"
+	Status                byte      `db:"status"`                     // "状态 0=正常 1=隐藏"
 }
 
 func CreateOneModel(ctx context.Context, v *Model) (int64, error) {
@@ -107,6 +107,7 @@ func CreateOneModel(ctx context.Context, v *Model) (int64, error) {
 		"last_op_source":           v.LastOpSource,
 		"last_op_user_id":          v.LastOpUserID,
 		"last_op_user_name":        v.LastOpUserName,
+		"last_op_remark":           v.LastOpRemark,
 		"op_history":               v.OpHistory,
 	})
 	cond, vals, err := builder.BuildInsert(tableName, data)
@@ -152,6 +153,7 @@ set
     last_op_source=?,
     last_op_user_id=?,
     last_op_user_name=?,
+    last_op_remark=?,
     op_history=json_array_insert(op_history, '$[0]', json_extract(?, '$')),
     status=?
 where biz_type = ?
@@ -173,6 +175,7 @@ limit 1;`
 		v.LastOpSource,
 		v.LastOpUserID,
 		v.LastOpUserName,
+		v.LastOpRemark,
 		v.OpHistory,
 		v.Status,
 		v.BizType,
@@ -205,7 +208,7 @@ func GetOne(ctx context.Context, where map[string]any) (*Model, error) {
 }
 
 func MultiGet(ctx context.Context, where map[string]any) ([]*Model, error) {
-	cond, vals, err := builder.BuildSelect(tableName, where, selectField)
+	cond, vals, err := builder.BuildSelect(tableName, where, selectMultiField)
 	if err != nil {
 		logger.Log.Error(ctx, "MultiGet BuildSelect err",
 			zap.Any("where", where),

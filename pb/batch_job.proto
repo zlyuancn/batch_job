@@ -176,6 +176,12 @@ message OpInfoA {
   int64 opTime = 5; // 操作秒级时间戳
 }
 
+// 业务操作历史-响应
+message BizOpHistoryA {
+  OpInfoA op = 1; // 操作信息
+  BizInfoA info = 2; // 相关数据
+}
+
 // 任务状态
 enum JobStatus {
   Created = 0; // 已创建
