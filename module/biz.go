@@ -6,34 +6,38 @@ import (
 
 	"github.com/zly-app/zapp/logger"
 
+	"github.com/zlyuancn/batch_job/dao/batch_job_biz"
 	"github.com/zlyuancn/batch_job/dao/batch_job_list"
-	"github.com/zlyuancn/batch_job/dao/batch_job_type"
 	"github.com/zlyuancn/batch_job/pb"
 )
 
-type Biz interface {
+type Business interface {
 	// 是否存在启动前回调
 	HasBeforeRunCallback() bool
 	// 创建业务回调
 	BeforeCreate(ctx context.Context, createJobReq *pb.AdminCreateJobReq, jobId int64) (*pb.AdminCreateJobReq, error)
 	// 业务启动前回调
-	BeforeRun(ctx context.Context, bizInfo *batch_job_type.Model, jobInfo *batch_job_list.Model)
+	BeforeRun(ctx context.Context, bizInfo *batch_job_biz.Model, jobInfo *batch_job_list.Model)
 }
 
+var Biz = &bizCli{}
+
+type bizCli struct{}
+
 // 获取业务
-func GetBizByBizType(ctx context.Context, bizType int32) (Biz, error) {
+func (b *bizCli) GetBizByBizType(ctx context.Context, bizType int32) (Business, error) {
 	// 从db加载biz信息
-	v, err := batch_job_type.GetOneByBizType(ctx, bizType)
+	v, err := batch_job_biz.GetOneByBizType(ctx, bizType)
 	if err != nil {
 		logger.Error(ctx, "GetBiz error: %v", err)
 		return nil, err
 	}
 
-	return GetBizByDbModel(ctx, v)
+	return b.GetBizByDbModel(ctx, v)
 }
 
 // 获取业务
-func GetBizByDbModel(ctx context.Context, v *batch_job_type.Model) (Biz, error) {
+func (*bizCli) GetBizByDbModel(ctx context.Context, v *batch_job_biz.Model) (Business, error) {
 	switch v.ExecType {
 	case byte(pb.ExecType_HttpCallback): // http回调
 		return newHttpCallbackBiz(ctx, v)

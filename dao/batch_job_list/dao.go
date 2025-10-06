@@ -141,7 +141,7 @@ func GetOneByJobId(ctx context.Context, jobId int64) (*Model, error) {
 }
 
 // 更新状态和操作人
-func UpdateStatus(ctx context.Context, jobId int64, oldStatus, status byte, opSource, opUserId, opUserName, statusInfo, historyOpInfo string) (int64, error) {
+func UpdateStatus(ctx context.Context, jobId int64, oldStatus, status byte, opSource, opUserId, opUserName, statusInfo, opHistory string) (int64, error) {
 	const cond = `
 update batch_job_list
 set status=?,
@@ -149,7 +149,7 @@ set status=?,
     last_op_user_id=?,
     last_op_user_name=?,
     update_time=now(),
-    history_op_info=json_array_insert(history_op_info, '$[0]', json_extract(?, '$')),
+    op_history=json_array_insert(op_history, '$[0]', json_extract(?, '$')),
     status_info=?
 where job_id = ?
     and oldStatus = ?
@@ -159,7 +159,7 @@ limit 1;`
 		opSource,
 		opUserId,
 		opUserName,
-		historyOpInfo,
+		opHistory,
 		statusInfo,
 		jobId,
 		oldStatus,

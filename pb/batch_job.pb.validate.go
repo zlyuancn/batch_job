@@ -227,6 +227,35 @@ func (m *AdminRegistryBizReq) validate(all bool) error {
 
 	// no validation rules for RateSec
 
+	if all {
+		switch v := interface{}(m.GetOp()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, AdminRegistryBizReqValidationError{
+					field:  "Op",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, AdminRegistryBizReqValidationError{
+					field:  "Op",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetOp()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return AdminRegistryBizReqValidationError{
+				field:  "Op",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	if len(errors) > 0 {
 		return AdminRegistryBizReqMultiError(errors)
 	}
@@ -436,6 +465,8 @@ func (m *OpInfoQ) validate(all bool) error {
 
 	// no validation rules for OpUserName
 
+	// no validation rules for OpRemark
+
 	if len(errors) > 0 {
 		return OpInfoQMultiError(errors)
 	}
@@ -539,6 +570,8 @@ func (m *OpInfoA) validate(all bool) error {
 	// no validation rules for OpUserid
 
 	// no validation rules for OpUserName
+
+	// no validation rules for OpRemark
 
 	// no validation rules for OpTime
 
@@ -647,6 +680,8 @@ func (m *BizInfoA) validate(all bool) error {
 
 	// no validation rules for Remark
 
+	// no validation rules for ExecType
+
 	// no validation rules for CbBeforeCreate
 
 	// no validation rules for CbBeforeRun
@@ -663,11 +698,38 @@ func (m *BizInfoA) validate(all bool) error {
 
 	// no validation rules for CbProcessStopTimeout
 
-	// no validation rules for RateSec
-
 	// no validation rules for RateType
 
-	// no validation rules for ExecType
+	// no validation rules for RateSec
+
+	if all {
+		switch v := interface{}(m.GetOp()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, BizInfoAValidationError{
+					field:  "Op",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, BizInfoAValidationError{
+					field:  "Op",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetOp()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return BizInfoAValidationError{
+				field:  "Op",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
 
 	if len(errors) > 0 {
 		return BizInfoAMultiError(errors)

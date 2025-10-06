@@ -22,15 +22,15 @@ var Job = &jobCli{}
 type jobCli struct{}
 
 // 更新任务状态
-func (*jobCli) UpdateJobStatus(ctx context.Context, jobId int64, oldStatus, status pb.JobStatus, opInfo *model.HistoryOpInfo) error {
-	historyOpInfoText, err := sonic.MarshalString(opInfo)
+func (*jobCli) UpdateJobStatus(ctx context.Context, jobId int64, oldStatus, status pb.JobStatus, opInfo *model.JobHistoryOpInfo) error {
+	historyText, err := sonic.MarshalString(opInfo)
 	if err != nil {
 		logger.Error(ctx, "UpdateJobStatus call MarshalString opInfo fail.", zap.Error(err))
 		return err
 	}
 
 	count, err := batch_job_list.UpdateStatus(ctx, jobId, byte(oldStatus), byte(status), opInfo.OpSource, opInfo.OpUserId,
-		opInfo.OpUserName, opInfo.Remark, historyOpInfoText)
+		opInfo.OpUserName, opInfo.OpRemark, historyText)
 	if err != nil {
 		logger.Error(ctx, "UpdateJobStatus call batch_job_list.UpdateStatus fail.", zap.Error(err))
 		return err

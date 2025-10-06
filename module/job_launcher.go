@@ -12,21 +12,21 @@ import (
 	"golang.org/x/time/rate"
 
 	"github.com/zlyuancn/batch_job/conf"
+	"github.com/zlyuancn/batch_job/dao/batch_job_biz"
 	"github.com/zlyuancn/batch_job/dao/batch_job_list"
-	"github.com/zlyuancn/batch_job/dao/batch_job_type"
 	"github.com/zlyuancn/batch_job/dao/redis"
 	"github.com/zlyuancn/batch_job/pb"
 )
 
 // 创建启动器
-func (j *jobCli) CreateLauncherByData(ctx context.Context, bizInfo *batch_job_type.Model, jobInfo *batch_job_list.Model) {
+func (j *jobCli) CreateLauncherByData(ctx context.Context, bizInfo *batch_job_biz.Model, jobInfo *batch_job_list.Model) {
 	ctx = utils.Ctx.CloneContext(ctx)
 	go j.createLauncher(ctx, bizInfo, jobInfo)
 }
 
-func (*jobCli) createLauncher(ctx context.Context, bizInfo *batch_job_type.Model, jobInfo *batch_job_list.Model) {
+func (*jobCli) createLauncher(ctx context.Context, bizInfo *batch_job_biz.Model, jobInfo *batch_job_list.Model) {
 	// 获取业务
-	b, err := GetBizByDbModel(ctx, bizInfo)
+	b, err := Biz.GetBizByDbModel(ctx, bizInfo)
 	if err != nil {
 		logger.Error("createLauncher call GetBizByDbModel fail.", zap.Error(err))
 		return
@@ -69,7 +69,7 @@ type jobLauncher struct {
 	ctx    context.Context
 	cancel context.CancelFunc
 
-	bizInfo       *batch_job_type.Model
+	bizInfo       *batch_job_biz.Model
 	jobInfo       *batch_job_list.Model
 	lockKeyUnlock redis.KeyUnlock   // 任务运行锁解锁方法
 	lockKeyRenew  redis.KeyTtlRenew // 任务运行锁续期方法
@@ -79,7 +79,7 @@ type jobLauncher struct {
 	sw         *sliding_window.SlidingWindow // 滑动窗口. 注意. 数据编号从0开始
 }
 
-func newJobLauncher(bizInfo *batch_job_type.Model, jobInfo *batch_job_list.Model,
+func newJobLauncher(bizInfo *batch_job_biz.Model, jobInfo *batch_job_list.Model,
 	unlock redis.KeyUnlock, renew redis.KeyTtlRenew) *jobLauncher {
 
 	j := &jobLauncher{

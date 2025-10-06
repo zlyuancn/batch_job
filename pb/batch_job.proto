@@ -131,38 +131,42 @@ enum ExecType {
 }
 
 message AdminRegistryBizReq {
-  int32 biz_type = 1 [(validate.rules).int32.gt = 0]; // 业务类型. 必填
-  string biz_name = 2 [(validate.rules).string.min_len = 1]; // 业务名
+  int32 bizType = 1 [(validate.rules).int32.gt = 0]; // 业务类型. 必填
+  string bizName = 2 [(validate.rules).string.min_len = 1]; // 业务名
   string remark = 3; // 备注
 
-  ExecType exec_type = 4; // 执行类型
-  string cb_before_create = 5 [(validate.rules).string = {uri: true, ignore_empty: true}]; // 创建任务回调url
-  string cb_before_run = 6 [(validate.rules).string = {uri: true, ignore_empty: true}]; // 启动前回调. 一旦配置, 则任务必须由业务主动调用 BizStartJob 执行任务. 否则任务将一直处于 JobStatus.WaitBizRun 状态
-  string cb_process = 7 [(validate.rules).string = {uri: true}]; // 处理任务回调. 必填
-  string cb_process_stop = 8 [(validate.rules).string = {uri: true, ignore_empty: true}]; // 任务停止回调. 用于业务方做一些清理. 选填
-  int32 cb_before_create_timeout = 9 [(validate.rules).int32.gte = 0]; // 启动前回调超时秒数
-  int32 cb_before_run_timeout = 10 [(validate.rules).int32.gte = 0]; // 启动前回调超时秒数
-  int32 cb_process_timeout = 11 [(validate.rules).int32.gte = 0]; // 处理任务回调超时秒数
-  int32 cb_process_stop_timeout = 12 [(validate.rules).int32.gte = 0]; // 处理任务停止回调超时秒数
+  ExecType execType = 4; // 执行类型
+  string cbBeforeCreate = 5 [(validate.rules).string = {uri: true, ignore_empty: true}]; // 创建任务回调url
+  string cbBeforeRun = 6 [(validate.rules).string = {uri: true, ignore_empty: true}]; // 启动前回调. 一旦配置, 则任务必须由业务主动调用 BizStartJob 执行任务. 否则任务将一直处于 JobStatus.WaitBizRun 状态
+  string cbProcess = 7 [(validate.rules).string = {uri: true}]; // 处理任务回调. 必填
+  string cbProcessStop = 8 [(validate.rules).string = {uri: true, ignore_empty: true}]; // 任务停止回调. 用于业务方做一些清理. 选填
+  int32 cbBeforeCreateTimeout = 9 [(validate.rules).int32.gte = 0]; // 启动前回调超时秒数
+  int32 cbBeforeRunTimeout = 10 [(validate.rules).int32.gte = 0]; // 启动前回调超时秒数
+  int32 cbProcessTimeout = 11 [(validate.rules).int32.gte = 0]; // 处理任务回调超时秒数
+  int32 cbProcessStopTimeout = 12 [(validate.rules).int32.gte = 0]; // 处理任务停止回调超时秒数
 
-  RateType rate_type = 13; // 速率类型
-  int32 rate_sec = 14; // 每秒处理速率. 0表示不限制
+  RateType rateType = 13; // 速率类型
+  int32 rateSec = 14; // 每秒处理速率. 0表示不限制
+
+  OpInfoQ op = 15; // 操作信息
 }
 message AdminRegistryBizRsp {}
 
 // 操作信息-请求
 message OpInfoQ {
-  string op_source = 1; // 操作来源
-  string op_userid = 2; // 操作用户id
-  string op_user_name = 3; // 操作用户名
+  string opSource = 1; // 操作来源
+  string opUserid = 2; // 操作用户id
+  string opUserName = 3; // 操作用户名
+  string opRemark = 4; // 操作备注
 }
 
 // 操作信息-响应
 message OpInfoA {
-  string op_source = 1; // 操作来源
-  string op_userid = 2; // 操作用户id
-  string op_user_name = 3; // 操作用户名
-  int64 op_time = 4; // 操作秒级时间戳
+  string opSource = 1; // 操作来源
+  string opUserid = 2; // 操作用户id
+  string opUserName = 3; // 操作用户名
+  string opRemark = 4; // 操作描述
+  int64 opTime = 5; // 操作秒级时间戳
 }
 
 // 任务状态
@@ -177,34 +181,35 @@ enum JobStatus {
 
 // 业务信息-响应
 message BizInfoA {
-  int32 biz_type = 1; // 业务类型. 必填
-  string biz_name = 2; // 业务名
+  int32 bizType = 1; // 业务类型. 必填
+  string bizName = 2; // 业务名
   string remark = 3; // 备注
-  string cb_before_create = 4; // 创建任务回调url
-  string cb_before_run = 5; // 启动前回调. 一旦配置, 则任务必须由业务主动调用 BizStartJob 执行任务. 否则任务将一直处于 JobStatus.WaitBizRun 状态
-  string cb_process = 6; // 处理任务回调
-  string cb_process_stop = 7; // 处理任务停止回调. 用于业务方做一些清理
-  int32 cb_before_create_timeout = 8; // 启动前回调超时秒数
-  int32 cb_before_run_timeout = 9; // 启动前回调超时秒数
-  int32 cb_process_timeout = 10; // 处理任务回调超时秒数
-  int32 cb_process_stop_timeout = 11; // 处理任务停止回调超时秒数
-  int32 rate_sec = 12; // 每秒处理速率. 0表示不限制
-  RateType rate_type = 13; // 速率类型
-  ExecType exec_type = 14; // 执行类型
+  ExecType execType = 4; // 执行类型
+  string cbBeforeCreate = 5; // 创建任务回调url
+  string cbBeforeRun = 6; // 启动前回调. 一旦配置, 则任务必须由业务主动调用 BizStartJob 执行任务. 否则任务将一直处于 JobStatus.WaitBizRun 状态
+  string cbProcess = 7; // 处理任务回调
+  string cbProcessStop = 8; // 处理任务停止回调. 用于业务方做一些清理
+  int32 cbBeforeCreateTimeout = 9; // 启动前回调超时秒数
+  int32 cbBeforeRunTimeout = 10; // 启动前回调超时秒数
+  int32 cbProcessTimeout = 11; // 处理任务回调超时秒数
+  int32 cbProcessStopTimeout = 12; // 处理任务停止回调超时秒数
+  RateType rateType = 13; // 速率类型
+  int32 rateSec = 14; // 每秒处理速率. 0表示不限制
+  OpInfoA op = 15; // 操作信息
 }
 
 // 任务基础信息-响应
 message BaseInfoA {
-  int64 job_id = 1; // 任务id
-  int32 biz_type = 2; // 业务类型
-  string biz_data = 3; // 业务任务数据, 让业务知道应该做什么
-  int64 process_data_total = 4; // 业务中需要处理数据总数
-  int64 processed_num = 5; // 已处理过的数据量, 无论成功还是失败
-  int64 err_log_num = 6; // 错误日志数
+  int64 jobId = 1; // 任务id
+  int32 bizType = 2; // 业务类型
+  string bizData = 3; // 业务任务数据, 让业务知道应该做什么
+  int64 processDataTotal = 4; // 业务中需要处理数据总数
+  int64 processedNum = 5; // 已处理过的数据量, 无论成功还是失败
+  int64 errLogNum = 6; // 错误日志数
   JobStatus status = 7; // 任务状态
-  int64 create_time = 8; // 创建时间秒级时间戳
+  int64 createTime = 8; // 创建时间秒级时间戳
   OpInfoA op = 9; // 操作信息
-  string status_info = 10; // 状态信息
+  string statusInfo = 10; // 状态信息
 }
 
 // 数据的日志类型
@@ -217,77 +222,77 @@ enum DataLogType {
 
 // 日志-请求
 message DataLogQ {
-  string data_id = 1; // 数据id
+  string dataId = 1; // 数据id
   string remark = 2; // 备注
   string extend = 3; // 扩展数据
-  DataLogType log_type = 4; // 日志类型
+  DataLogType logType = 4; // 日志类型
 }
 
 // 日志-响应
 message DataLogA {
-  string data_id = 1; // 数据id
+  string dataId = 1; // 数据id
   string remark = 2; // 备注
   string extend = 3; // 扩展数据
-  DataLogType log_type = 4; // 日志类型
-  int64 create_time = 5; // 创建时间秒级时间戳
+  DataLogType logType = 4; // 日志类型
+  int64 createTime = 5; // 创建时间秒级时间戳
 }
 
 message AdminCreateJobReq {
-  int32 biz_type = 1 [(validate.rules).int32.gt = 0]; // 业务类型. 必填
-  string biz_data = 2; // 业务任务数据, 让业务知道应该做什么
-  string biz_process_data = 3; // 业务中需要处理的批量数据
-  int64 process_data_total = 4; // 需要处理数据总数
-  bool start_now = 5; // 创建后是否立即启动
+  int32 bizType = 1 [(validate.rules).int32.gt = 0]; // 业务类型. 必填
+  string bizData = 2; // 业务任务数据, 让业务知道应该做什么
+  string bizProcessData = 3; // 业务中需要处理的批量数据
+  int64 processDataTotal = 4; // 需要处理数据总数
+  bool startNow = 5; // 创建后是否立即启动
   OpInfoQ op = 6; // 操作信息
 }
 message AdminCreateJobRsp {
-  int64 job_id = 1; // 创建的任务id
+  int64 jobId = 1; // 创建的任务id
 }
 
 message AdminStartJobReq {
-  int64 job_id = 1 [(validate.rules).int64.gt = 0]; // 创建的任务id. 必填
+  int64 jobId = 1 [(validate.rules).int64.gt = 0]; // 创建的任务id. 必填
   OpInfoQ op = 2; // 操作信息
 }
 message AdminStartJobRsp {}
 
 message AdminStopJobReq {
-  int64 job_id = 1 [(validate.rules).int64.gt = 0]; // 创建的任务id. 必填
+  int64 jobId = 1 [(validate.rules).int64.gt = 0]; // 创建的任务id. 必填
   OpInfoQ op = 2; // 操作信息
 }
 message AdminStopJobRsp {}
 
 message QueryBizInfoReq {
-  int32 biz_type = 1 [(validate.rules).int32.gt = 0]; // 创建的业务类型. 必填
+  int32 bizType = 1 [(validate.rules).int32.gt = 0]; // 创建的业务类型. 必填
 }
 message QueryBizInfoRsp {
   BizInfoA line = 1; // 业务信息
 }
 
 message QueryBizListReq {
-  int64 start_time = 1; // 开始时间, 秒级时间戳. 0表示不限制
-  int64 end_time = 2; // 结束时间, 秒级时间戳. 0表示不限制
-  string op_user = 3; // 操作人
+  int64 startTime = 1; // 开始时间, 秒级时间戳. 0表示不限制
+  int64 endTime = 2; // 结束时间, 秒级时间戳. 0表示不限制
+  string opUser = 3; // 操作人
   int32 page = 4 [(validate.rules).int32.gt = 0]; // 页号, 从1开始
-  int32 page_size = 5 [(validate.rules).int32.gte = 5]; // 每页返回数量, 最少返回5条
+  int32 pageSize = 5 [(validate.rules).int32.gte = 5]; // 每页返回数量, 最少返回5条
 }
 message QueryBizListRsp {
   int32 total = 1; // 总条数
-  int32 page_size = 2; // 当前分一页预期返回条数
+  int32 pageSize = 2; // 当前分一页预期返回条数
   repeated BizInfoA line = 3; // 业务信息
 }
 
 message QueryJobBaseInfoReq {
-  int64 job_id = 1 [(validate.rules).int64.gt = 0]; // 创建的任务id. 必填
+  int64 jobId = 1 [(validate.rules).int64.gt = 0]; // 创建的任务id. 必填
 }
 message QueryJobBaseInfoRsp {
-  BaseInfoA base_info = 1; // 任务基础信息
+  BaseInfoA baseInfo = 1; // 任务基础信息
 }
 
 message QueryJobListReq {
-  int64 start_time = 1; // 开始时间, 秒级时间戳. 0表示不限制
-  int64 end_time = 2; // 结束时间, 秒级时间戳. 0表示不限制
-  string op_user = 3; // 操作人
-  repeated int32 biz_type = 4 [(validate.rules).repeated = {
+  int64 startTime = 1; // 开始时间, 秒级时间戳. 0表示不限制
+  int64 endTime = 2; // 结束时间, 秒级时间戳. 0表示不限制
+  string opUser = 3; // 操作人
+  repeated int32 bizType = 4 [(validate.rules).repeated = {
     unique: true, // 内部数据不允许重复
     ignore_empty: true, // 允许空数据
     items : {
@@ -297,53 +302,53 @@ message QueryJobListReq {
     }
   }]; // 业务类型
   int32 page = 5 [(validate.rules).int32.gt = 0]; // 页号, 从1开始
-  int32 page_size = 6 [(validate.rules).int32.gte = 5]; // 每页返回数量, 最少返回5条
+  int32 pageSize = 6 [(validate.rules).int32.gte = 5]; // 每页返回数量, 最少返回5条
 }
 message QueryJobListRsp {
   int32 total = 1; // 总条数
-  int32 page_size = 2; // 当前分一页预期返回条数
+  int32 pageSize = 2; // 当前分一页预期返回条数
   repeated BaseInfoA line = 3; // 基础任务信息
 }
 
 message QueryJobDataLogReq {
-  int64 job_id = 1 [(validate.rules).int64.gt = 0]; // 创建的任务id. 必填
+  int64 jobId = 1 [(validate.rules).int64.gt = 0]; // 创建的任务id. 必填
   int32 page = 2 [(validate.rules).int32.gt = 0]; // 页号, 从1开始
-  int32 page_size = 3 [(validate.rules).int32.gte = 5]; // 每页返回数量, 最少返回5条
-  DataLogType log_type = 4; // 日志类型
+  int32 pageSize = 3 [(validate.rules).int32.gte = 5]; // 每页返回数量, 最少返回5条
+  DataLogType logType = 4; // 日志类型
 }
 message QueryJobDataLogRsp {
   int32 total = 1; // 总条数
-  int32 page_size = 2; // 当前分一页预期返回条数
+  int32 pageSize = 2; // 当前分一页预期返回条数
   repeated DataLogA log = 3; // 日志
 }
 
 message BizStartJobReq {
-  int64 job_id = 1 [(validate.rules).int64.gt = 0]; // 创建的任务id. 必填
+  int64 jobId = 1 [(validate.rules).int64.gt = 0]; // 创建的任务id. 必填
 }
 message BizStartJobRsp {}
 
 message BizStopJobReq {
-  int64 job_id = 1 [(validate.rules).int64.gt = 0]; // 创建的任务id. 必填
+  int64 jobId = 1 [(validate.rules).int64.gt = 0]; // 创建的任务id. 必填
 }
 message BizStopJobRsp {}
 
 message BizUpdateBizDataReq {
-  int64 job_id = 1 [(validate.rules).int64.gt = 0]; // 创建的任务id. 必填
-  string biz_data = 2; // 业务任务数据, 让业务知道应该做什么. 空值则不会更新这个数据
-  string biz_process_data = 3; // 业务中需要处理的批量数据. 空值则不会更新这个数据
-  int64 process_data_total = 4; // 需要处理数据总数. 空值则不会更新这个数据
-  int64 processed_num = 5; // 已处理过的数据量, 无论成功还是失败. 空值则不会更新这个数据
+  int64 jobId = 1 [(validate.rules).int64.gt = 0]; // 创建的任务id. 必填
+  string bizData = 2; // 业务任务数据, 让业务知道应该做什么. 空值则不会更新这个数据
+  string bizProcessData = 3; // 业务中需要处理的批量数据. 空值则不会更新这个数据
+  int64 processDataTotal = 4; // 需要处理数据总数. 空值则不会更新这个数据
+  int64 processedNum = 5; // 已处理过的数据量, 无论成功还是失败. 空值则不会更新这个数据
 }
 message BizUpdateBizDataRsp {}
 
 message BizIncrProcessedNumReq {
-  int64 job_id = 1 [(validate.rules).int64.gt = 0]; // 创建的任务id. 必填
+  int64 jobId = 1 [(validate.rules).int64.gt = 0]; // 创建的任务id. 必填
   int64 num = 2 [(validate.rules).int64.gt = 0]; // 增加数量. 必填
 }
 message BizIncrProcessedNumRsp {}
 
 message BizAddDataLogReq {
-  int64 job_id = 1 [(validate.rules).int64.gt = 0]; // 创建的任务id. 必填
+  int64 jobId = 1 [(validate.rules).int64.gt = 0]; // 创建的任务id. 必填
   repeated DataLogQ log = 2; // 日志内容
 }
 message BizAddDataLogRsp {}

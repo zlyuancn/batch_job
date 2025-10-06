@@ -3,13 +3,13 @@ package module
 import (
 	"context"
 
+	"github.com/zlyuancn/batch_job/dao/batch_job_biz"
 	"github.com/zlyuancn/batch_job/dao/batch_job_list"
-	"github.com/zlyuancn/batch_job/dao/batch_job_type"
 	"github.com/zlyuancn/batch_job/pb"
 )
 
 type httpCallbackBiz struct {
-	v *batch_job_type.Model
+	v *batch_job_biz.Model
 }
 
 func (h *httpCallbackBiz) HasBeforeRunCallback() bool {
@@ -25,7 +25,7 @@ func (h *httpCallbackBiz) BeforeCreate(ctx context.Context, req *pb.AdminCreateJ
 	return req, nil
 }
 
-func (h *httpCallbackBiz) BeforeRun(ctx context.Context, bizInfo *batch_job_type.Model, jobInfo *batch_job_list.Model) {
+func (h *httpCallbackBiz) BeforeRun(ctx context.Context, bizInfo *batch_job_biz.Model, jobInfo *batch_job_list.Model) {
 	if h.v.CbBeforeRun == "" {
 		return
 	}
@@ -34,7 +34,7 @@ func (h *httpCallbackBiz) BeforeRun(ctx context.Context, bizInfo *batch_job_type
 	return
 }
 
-func newHttpCallbackBiz(ctx context.Context, v *batch_job_type.Model) (Biz, error) {
+func newHttpCallbackBiz(ctx context.Context, v *batch_job_biz.Model) (Business, error) {
 	h := &httpCallbackBiz{v: v}
 	return h, nil
 }

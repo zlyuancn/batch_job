@@ -1,4 +1,4 @@
-CREATE TABLE `batch_job_type`
+CREATE TABLE `batch_job_biz`
 (
     `id`                       int unsigned       NOT NULL AUTO_INCREMENT,
     `biz_type`                 mediumint unsigned NOT NULL COMMENT '业务类型',
@@ -14,11 +14,16 @@ CREATE TABLE `batch_job_type`
     `cb_process_timeout`       int unsigned       NOT NULL DEFAULT 30 COMMENT '处理任务回调超时秒数',
     `cb_process_stop_timeout`  int unsigned       NOT NULL DEFAULT 30 COMMENT '任务停止回调超时秒数',
     `create_time`              datetime           NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `update_time`              datetime           NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     `rate_type`                tinyint unsigned   NOT NULL DEFAULT 0 COMMENT '速率类型. 0=通过rate_sec限速, 1=串行化',
     `rate_sec`                 int unsigned       NOT NULL DEFAULT 0 COMMENT '每秒处理速率. 0表示不限制',
+    `last_op_source`           varchar(32)        NOT NULL DEFAULT '' COMMENT '最后操作来源',
+    `last_op_user_id`          varchar(32)        NOT NULL DEFAULT '' COMMENT '最后操作用户id',
+    `last_op_user_name`        varchar(32)        NOT NULL DEFAULT '' COMMENT '最后操作用户名',
+    `op_history`               json               NOT NULL COMMENT '操作历史信息',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `batch_job_type_biz_type` (`biz_type`),
-    KEY `batch_job_type_create_time` (`create_time` DESC)
+    UNIQUE KEY `batch_job_biz_biz_type` (`biz_type`),
+    KEY `batch_job_biz_create_time` (`create_time` DESC)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT ='批量任务类型';
@@ -34,7 +39,7 @@ CREATE TABLE `batch_job_list`
     `err_log_count`      bigint unsigned    NOT NULL DEFAULT 0 COMMENT '错误日志数',
     `status`             tinyint unsigned   NOT NULL DEFAULT 0 COMMENT '任务状态 0=已创建 1=等待业务主动启动 2=运行中 3=已完成 4=正在停止 5=已停止',
     `create_time`        datetime           NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `update_time`        datetime           NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `update_time`        datetime           NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     `last_op_source`     varchar(32)        NOT NULL DEFAULT '' COMMENT '最后操作来源',
     `last_op_user_id`    varchar(32)        NOT NULL DEFAULT '' COMMENT '最后操作用户id',
     `last_op_user_name`  varchar(32)        NOT NULL DEFAULT '' COMMENT '最后操作用户名',

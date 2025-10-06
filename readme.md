@@ -106,10 +106,10 @@ opt 业务停止. 一般为业务判断任务无法继续推进的时候
   b ->> f: ok
 end
 
-opt 更新业务数据. 要求任务必须处于 JobStatus.WaitBizRun 状态或者串行化速率类型的任务可以使用
+opt 更新业务数据. 要求任务必须处于非运行状态
   f ->> b: 更新业务数据
   b ->> d: 获取业务数据信息
-  alt 对于非 JobStatus.WaitBizRun 状态且非串行化速率类型的任务
+  alt 对于运行中的任务
     b ->> f: err
   end
   b ->> d: 更新数据

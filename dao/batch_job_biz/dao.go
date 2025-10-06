@@ -1,4 +1,4 @@
-package batch_job_type
+package batch_job_biz
 
 import (
 	"context"
@@ -45,11 +45,16 @@ var (
 	//	"cb_process_timeout",
 	//	"cb_process_stop_timeout",
 	//	"create_time",
+	//	"update_time",
+	//	"last_op_source",
+	//	"last_op_user_id",
+	//	"last_op_user_name",
+	//	"op_history",
 	// }
 )
 
 const (
-	tableName = "batch_job_type"
+	tableName = "batch_job_biz"
 )
 
 type Model struct {
@@ -69,6 +74,11 @@ type Model struct {
 	CbProcessTimeout      uint      `db:"cb_process_timeout"`       // "处理任务回调超时秒数"
 	CbProcessStopTimeout  uint      `db:"cb_process_stop_timeout"`  // "处理任务完成回调超时秒数"
 	CreateTime            time.Time `db:"create_time"`
+	UpdateTime            time.Time `db:"update_time"`
+	LastOpSource          string    `db:"last_op_source"`    // "最后操作来源"
+	LastOpUserID          string    `db:"last_op_user_id"`   // "最后操作用户id"
+	LastOpUserName        string    `db:"last_op_user_name"` // "最后操作用户名"
+	OpHistory             string    `db:"op_history"`        // "操作历史信息"
 }
 
 func CreateOneModel(ctx context.Context, v *Model) (int64, error) {
@@ -92,6 +102,10 @@ func CreateOneModel(ctx context.Context, v *Model) (int64, error) {
 		"cb_before_run_timeout":    v.CbBeforeRunTimeout,
 		"cb_process_timeout":       v.CbProcessTimeout,
 		"cb_process_stop_timeout":  v.CbProcessStopTimeout,
+		"last_op_source":           v.LastOpSource,
+		"last_op_user_id":          v.LastOpUserID,
+		"last_op_user_name":        v.LastOpUserName,
+		"op_history":               v.OpHistory,
 	})
 	cond, vals, err := builder.BuildInsert(tableName, data)
 	if err != nil {
@@ -108,6 +122,63 @@ func CreateOneModel(ctx context.Context, v *Model) (int64, error) {
 		return 0, err
 	}
 	return result.LastInsertId()
+}
+
+func UpdateOneModel(ctx context.Context, v *Model) (int64, error) {
+	if v == nil {
+		return 0, errors.New("UpdateOneModel v is empty")
+	}
+	if v.BizType == 0 {
+		return 0, errors.New("UpdateOneModel BizType is empty")
+	}
+	const cond = `
+update batch_job_biz
+set 
+    biz_name=?,
+    rate_sec=?,
+    rate_type=?,
+    exec_type=?,
+    remark=?,
+    cb_before_create=?,
+    cb_before_run=?,
+    cb_process=?,
+    cb_process_stop=?,
+    cb_before_create_timeout=?,
+    cb_before_run_timeout=?,
+    cb_process_timeout=?,
+    cb_process_stop_timeout=?,
+    last_op_source=?,
+    last_op_user_id=?,
+    last_op_user_name=?,
+    op_history=json_array_insert(op_history, '$[0]', json_extract(?, '$'))
+where biz_type = ?
+limit 1;`
+	vals := []interface{}{
+		v.BizName,
+		v.RateSec,
+		v.RateType,
+		v.ExecType,
+		v.Remark,
+		v.CbBeforeCreate,
+		v.CbBeforeRun,
+		v.CbProcess,
+		v.CbProcessStop,
+		v.CbBeforeCreateTimeout,
+		v.CbBeforeRunTimeout,
+		v.CbProcessTimeout,
+		v.CbProcessStopTimeout,
+		v.LastOpSource,
+		v.LastOpUserID,
+		v.LastOpUserName,
+		v.OpHistory,
+		v.BizType,
+	}
+	result, err := db.GetSqlx().Exec(ctx, cond, vals...)
+	if nil != err {
+		logger.Error(ctx, "UpdateStatus fail.", zap.String("cond", cond), zap.Any("vals", vals), zap.Error(err))
+		return 0, err
+	}
+	return result.RowsAffected()
 }
 
 func GetOne(ctx context.Context, where map[string]any) (*Model, error) {

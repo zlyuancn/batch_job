@@ -16,23 +16,3 @@ type JobInfo struct {
 	UpdateTime       int64        // 更新秒级时间戳
 	StatusInfo       string       // "状态信息"
 }
-
-// 历史操作信息
-type HistoryOpInfo struct {
-	OpSource   string // 操作来源
-	OpUserId   string // 操作用户id
-	OpUserName string // 操作用户名
-	OpStatus   byte   // 操作状态
-	OldStatus  byte   // 旧状态
-	OpTime     int64  // 操作时间. 秒级时间戳
-	Remark     string // 备注
-}
-
-// 历史操作记录
-type HistoryOpInfos []HistoryOpInfo
-
-// 操作信息
-const (
-	StatusInfo_UserOp           = "user op"
-	StatusInfo_UserCreateAndRun = "user create and run"
-)

@@ -618,6 +618,10 @@
           "type": "integer",
           "format": "int32",
           "title": "每秒处理速率. 0表示不限制"
+        },
+        "op": {
+          "$ref": "#/definitions/batch_jobOpInfoQ",
+          "title": "操作信息"
         }
       }
     },
@@ -765,6 +769,10 @@
           "type": "string",
           "title": "备注"
         },
+        "execType": {
+          "$ref": "#/definitions/batch_jobExecType",
+          "title": "执行类型"
+        },
         "cbBeforeCreate": {
           "type": "string",
           "title": "创建任务回调url"
@@ -801,18 +809,18 @@
           "format": "int32",
           "title": "处理任务停止回调超时秒数"
         },
+        "rateType": {
+          "$ref": "#/definitions/batch_jobRateType",
+          "title": "速率类型"
+        },
         "rateSec": {
           "type": "integer",
           "format": "int32",
           "title": "每秒处理速率. 0表示不限制"
         },
-        "rateType": {
-          "$ref": "#/definitions/batch_jobRateType",
-          "title": "速率类型"
-        },
-        "execType": {
-          "$ref": "#/definitions/batch_jobExecType",
-          "title": "执行类型"
+        "op": {
+          "$ref": "#/definitions/batch_jobOpInfoA",
+          "title": "操作信息"
         }
       },
       "title": "业务信息-响应"
@@ -974,6 +982,10 @@
           "type": "string",
           "title": "操作用户名"
         },
+        "opRemark": {
+          "type": "string",
+          "title": "操作描述"
+        },
         "opTime": {
           "type": "string",
           "format": "int64",
@@ -996,6 +1008,10 @@
         "opUserName": {
           "type": "string",
           "title": "操作用户名"
+        },
+        "opRemark": {
+          "type": "string",
+          "title": "操作备注"
         }
       },
       "title": "操作信息-请求"
