@@ -126,7 +126,7 @@ func (*BatchJob) AdminChangeBiz(ctx context.Context, req *pb.AdminRegistryBizReq
 // 创建任务
 func (*BatchJob) AdminCreateJob(ctx context.Context, req *pb.AdminCreateJobReq) (*pb.AdminCreateJobRsp, error) {
 	// 获取业务信息
-	bizInfo, err := batch_job_biz.GetOneByBizType(ctx, req.GetBizType())
+	bizInfo, err := batch_job_biz.GetOneBaseInfoByBizType(ctx, req.GetBizType())
 	if err != nil {
 		logger.Error(ctx, "AdminStartJob call batch_job_biz.GetOneByBizType fail.", zap.Error(err))
 		return nil, err
@@ -228,7 +228,7 @@ func (*BatchJob) AdminStartJob(ctx context.Context, req *pb.AdminStartJobReq) (*
 	}
 
 	// 获取业务信息
-	bizInfo, err := batch_job_biz.GetOneByBizType(ctx, int32(jobInfo.BizType))
+	bizInfo, err := batch_job_biz.GetOneBaseInfoByBizType(ctx, int32(jobInfo.BizType))
 	if err != nil {
 		logger.Error(ctx, "AdminStartJob call batch_job_biz.GetOneByBizType fail.", zap.Error(err))
 		return nil, err

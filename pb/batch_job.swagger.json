@@ -1041,6 +1041,10 @@
           "type": "integer",
           "format": "int32",
           "title": "创建的业务类型. 必填"
+        },
+        "needOpHistory": {
+          "type": "boolean",
+          "title": "是否需要操作历史"
         }
       }
     },

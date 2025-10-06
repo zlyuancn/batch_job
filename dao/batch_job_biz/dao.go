@@ -29,7 +29,7 @@ var (
 		return selectAllFields
 	}()
 
-	selectMultiField = []string{
+	selectBaseField = []string{
 		"biz_type",
 		"biz_name",
 		"rate_sec",
@@ -188,7 +188,7 @@ limit 1;`
 	return result.RowsAffected()
 }
 
-func GetOne(ctx context.Context, where map[string]any) (*Model, error) {
+func GetOne(ctx context.Context, where map[string]any, selectField []string) (*Model, error) {
 	if where == nil {
 		where = map[string]any{}
 	}
@@ -208,7 +208,7 @@ func GetOne(ctx context.Context, where map[string]any) (*Model, error) {
 }
 
 func MultiGet(ctx context.Context, where map[string]any) ([]*Model, error) {
-	cond, vals, err := builder.BuildSelect(tableName, where, selectMultiField)
+	cond, vals, err := builder.BuildSelect(tableName, where, selectBaseField)
 	if err != nil {
 		logger.Log.Error(ctx, "MultiGet BuildSelect err",
 			zap.Any("where", where),
@@ -249,9 +249,21 @@ func GetOneByBizType(ctx context.Context, bizType int32) (*Model, error) {
 	where := map[string]interface{}{
 		"biz_type": bizType,
 	}
-	v, err := GetOne(ctx, where)
+	v, err := GetOne(ctx, where, selectField)
 	if err != nil {
 		logger.Error(ctx, "GetOneByBizType fail.", zap.Error(err))
+		return nil, err
+	}
+	return v, nil
+}
+
+func GetOneBaseInfoByBizType(ctx context.Context, bizType int32) (*Model, error) {
+	where := map[string]interface{}{
+		"biz_type": bizType,
+	}
+	v, err := GetOne(ctx, where, selectBaseField)
+	if err != nil {
+		logger.Error(ctx, "GetOneBaseInfoByBizType fail.", zap.Error(err))
 		return nil, err
 	}
 	return v, nil

@@ -13,10 +13,21 @@ import (
 
 // 查询业务信息
 func (b *BatchJob) QueryBizInfo(ctx context.Context, req *pb.QueryBizInfoReq) (*pb.QueryBizInfoRsp, error) {
-	line, err := batch_job_biz.GetOneByBizType(ctx, req.GetBizType())
-	if err != nil {
-		logger.Error(ctx, "QueryBizInfo call batch_job_biz.GetOneByBizType fail.", zap.Error(err))
-		return nil, err
+	var line *batch_job_biz.Model
+	var err error
+
+	if req.GetNeedOpHistory() {
+		line, err = batch_job_biz.GetOneByBizType(ctx, req.GetBizType())
+		if err != nil {
+			logger.Error(ctx, "QueryBizInfo call batch_job_biz.GetOneByBizType fail.", zap.Error(err))
+			return nil, err
+		}
+	} else {
+		line, err = batch_job_biz.GetOneBaseInfoByBizType(ctx, req.GetBizType())
+		if err != nil {
+			logger.Error(ctx, "QueryBizInfo call batch_job_biz.GetOneBaseInfoByBizType fail.", zap.Error(err))
+			return nil, err
+		}
 	}
 
 	ret := b.bizDbModel2Pb(line)

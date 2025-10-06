@@ -277,6 +277,7 @@ message AdminStopJobRsp {}
 
 message QueryBizInfoReq {
   int32 bizType = 1 [(validate.rules).int32.gt = 0]; // 创建的业务类型. 必填
+  bool needOpHistory = 2; // 是否需要操作历史
 }
 message QueryBizInfoRsp {
   BizInfoA line = 1; // 业务信息

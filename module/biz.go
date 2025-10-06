@@ -27,7 +27,7 @@ type bizCli struct{}
 // 获取业务
 func (b *bizCli) GetBizByBizType(ctx context.Context, bizType int32) (Business, error) {
 	// 从db加载biz信息
-	v, err := batch_job_biz.GetOneByBizType(ctx, bizType)
+	v, err := batch_job_biz.GetOneBaseInfoByBizType(ctx, bizType)
 	if err != nil {
 		logger.Error(ctx, "GetBiz error: %v", err)
 		return nil, err
