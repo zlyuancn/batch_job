@@ -622,6 +622,10 @@
         "op": {
           "$ref": "#/definitions/batch_jobOpInfoQ",
           "title": "操作信息"
+        },
+        "status": {
+          "$ref": "#/definitions/batch_jobBizStatus",
+          "title": "状态 0=正常 1=隐藏"
         }
       }
     },
@@ -661,58 +665,6 @@
     },
     "batch_jobAdminStopJobRsp": {
       "type": "object"
-    },
-    "batch_jobBaseInfoA": {
-      "type": "object",
-      "properties": {
-        "jobId": {
-          "type": "string",
-          "format": "int64",
-          "title": "任务id"
-        },
-        "bizType": {
-          "type": "integer",
-          "format": "int32",
-          "title": "业务类型"
-        },
-        "bizData": {
-          "type": "string",
-          "title": "业务任务数据, 让业务知道应该做什么"
-        },
-        "processDataTotal": {
-          "type": "string",
-          "format": "int64",
-          "title": "业务中需要处理数据总数"
-        },
-        "processedNum": {
-          "type": "string",
-          "format": "int64",
-          "title": "已处理过的数据量, 无论成功还是失败"
-        },
-        "errLogNum": {
-          "type": "string",
-          "format": "int64",
-          "title": "错误日志数"
-        },
-        "status": {
-          "$ref": "#/definitions/batch_jobJobStatus",
-          "title": "任务状态"
-        },
-        "createTime": {
-          "type": "string",
-          "format": "int64",
-          "title": "创建时间秒级时间戳"
-        },
-        "op": {
-          "$ref": "#/definitions/batch_jobOpInfoA",
-          "title": "操作信息"
-        },
-        "statusInfo": {
-          "type": "string",
-          "title": "状态信息"
-        }
-      },
-      "title": "任务基础信息-响应"
     },
     "batch_jobBizAddDataLogReq": {
       "type": "object",
@@ -821,6 +773,10 @@
         "op": {
           "$ref": "#/definitions/batch_jobOpInfoA",
           "title": "操作信息"
+        },
+        "status": {
+          "$ref": "#/definitions/batch_jobBizStatus",
+          "title": "状态 0=正常 1=隐藏"
         }
       },
       "title": "业务信息-响应"
@@ -837,6 +793,16 @@
     },
     "batch_jobBizStartJobRsp": {
       "type": "object"
+    },
+    "batch_jobBizStatus": {
+      "type": "string",
+      "enum": [
+        "BizStatus_None",
+        "BizStatus_Hidden"
+      ],
+      "default": "BizStatus_None",
+      "description": "- BizStatus_None: 正常\n - BizStatus_Hidden: 隐藏",
+      "title": "业务状态"
     },
     "batch_jobBizStopJobReq": {
       "type": "object",
@@ -946,12 +912,64 @@
     "batch_jobExecType": {
       "type": "string",
       "enum": [
-        "None",
-        "HttpCallback"
+        "ExecType_None",
+        "ExecType_HttpCallback"
       ],
-      "default": "None",
-      "description": "- HttpCallback: http回调",
+      "default": "ExecType_None",
+      "description": "- ExecType_HttpCallback: http回调",
       "title": "执行类型"
+    },
+    "batch_jobJobBaseInfoA": {
+      "type": "object",
+      "properties": {
+        "jobId": {
+          "type": "string",
+          "format": "int64",
+          "title": "任务id"
+        },
+        "bizType": {
+          "type": "integer",
+          "format": "int32",
+          "title": "业务类型"
+        },
+        "bizData": {
+          "type": "string",
+          "title": "业务任务数据, 让业务知道应该做什么"
+        },
+        "processDataTotal": {
+          "type": "string",
+          "format": "int64",
+          "title": "业务中需要处理数据总数"
+        },
+        "processedNum": {
+          "type": "string",
+          "format": "int64",
+          "title": "已处理过的数据量, 无论成功还是失败"
+        },
+        "errLogNum": {
+          "type": "string",
+          "format": "int64",
+          "title": "错误日志数"
+        },
+        "status": {
+          "$ref": "#/definitions/batch_jobJobStatus",
+          "title": "任务状态"
+        },
+        "createTime": {
+          "type": "string",
+          "format": "int64",
+          "title": "创建时间秒级时间戳"
+        },
+        "op": {
+          "$ref": "#/definitions/batch_jobOpInfoA",
+          "title": "操作信息"
+        },
+        "statusInfo": {
+          "type": "string",
+          "title": "状态信息"
+        }
+      },
+      "title": "任务基础信息-响应"
     },
     "batch_jobJobStatus": {
       "type": "string",
@@ -1051,6 +1069,10 @@
         "opUser": {
           "type": "string",
           "title": "操作人"
+        },
+        "status": {
+          "$ref": "#/definitions/batch_jobBizStatus",
+          "title": "状态 0=正常 1=隐藏"
         }
       }
     },
@@ -1091,7 +1113,7 @@
       "type": "object",
       "properties": {
         "baseInfo": {
-          "$ref": "#/definitions/batch_jobBaseInfoA",
+          "$ref": "#/definitions/batch_jobJobBaseInfoA",
           "title": "任务基础信息"
         }
       }
@@ -1197,7 +1219,7 @@
           "type": "array",
           "items": {
             "type": "object",
-            "$ref": "#/definitions/batch_jobBaseInfoA"
+            "$ref": "#/definitions/batch_jobJobBaseInfoA"
           },
           "title": "基础任务信息"
         }
@@ -1206,11 +1228,11 @@
     "batch_jobRateType": {
       "type": "string",
       "enum": [
-        "RateSec",
-        "Serialization"
+        "RateType_RateSec",
+        "RateType_Serialization"
       ],
-      "default": "RateSec",
-      "description": "- RateSec: 标准限速\n - Serialization: 串行化限速",
+      "default": "RateType_RateSec",
+      "description": "- RateType_RateSec: 标准限速\n - RateType_Serialization: 串行化限速",
       "title": "速率类型"
     },
     "protobufAny": {

@@ -120,14 +120,20 @@ service BatchJobService{
 
 // 速率类型
 enum RateType {
-  RateSec = 0; // 标准限速
-  Serialization = 1; // 串行化限速
+  RateType_RateSec = 0; // 标准限速
+  RateType_Serialization = 1; // 串行化限速
 }
 
 // 执行类型
 enum ExecType {
-  None = 0;
-  HttpCallback = 1; // http回调
+  ExecType_None = 0;
+  ExecType_HttpCallback = 1; // http回调
+}
+
+// 业务状态
+enum BizStatus {
+  BizStatus_None = 0; // 正常
+  BizStatus_Hidden = 1; // 隐藏
 }
 
 message AdminRegistryBizReq {
@@ -149,6 +155,7 @@ message AdminRegistryBizReq {
   int32 rateSec = 14; // 每秒处理速率. 0表示不限制
 
   OpInfoQ op = 15; // 操作信息
+  BizStatus status = 16; // 状态 0=正常 1=隐藏
 }
 message AdminRegistryBizRsp {}
 
@@ -196,10 +203,11 @@ message BizInfoA {
   RateType rateType = 13; // 速率类型
   int32 rateSec = 14; // 每秒处理速率. 0表示不限制
   OpInfoA op = 15; // 操作信息
+  BizStatus status = 16; // 状态 0=正常 1=隐藏
 }
 
 // 任务基础信息-响应
-message BaseInfoA {
+message JobBaseInfoA {
   int64 jobId = 1; // 任务id
   int32 bizType = 2; // 业务类型
   string bizData = 3; // 业务任务数据, 让业务知道应该做什么
@@ -272,6 +280,7 @@ message QueryBizListReq {
   int32 page = 1 [(validate.rules).int32.gt = 0]; // 页号, 从1开始
   int32 pageSize = 2 [(validate.rules).int32.gte = 5]; // 每页返回数量, 最少返回5条
   string opUser = 3; // 操作人
+  BizStatus status = 4; // 状态 0=正常 1=隐藏
 }
 message QueryBizListRsp {
   int32 total = 1; // 总条数
@@ -283,7 +292,7 @@ message QueryJobBaseInfoReq {
   int64 jobId = 1 [(validate.rules).int64.gt = 0]; // 创建的任务id. 必填
 }
 message QueryJobBaseInfoRsp {
-  BaseInfoA baseInfo = 1; // 任务基础信息
+  JobBaseInfoA baseInfo = 1; // 任务基础信息
 }
 
 message QueryJobListReq {
@@ -305,7 +314,7 @@ message QueryJobListReq {
 message QueryJobListRsp {
   int32 total = 1; // 总条数
   int32 pageSize = 2; // 当前分一页预期返回条数
-  repeated BaseInfoA line = 3; // 基础任务信息
+  repeated JobBaseInfoA line = 3; // 基础任务信息
 }
 
 message QueryJobDataLogReq {

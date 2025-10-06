@@ -50,6 +50,7 @@ var (
 	//	"last_op_user_id",
 	//	"last_op_user_name",
 	//	"op_history",
+	//	"status",
 	// }
 )
 
@@ -79,6 +80,7 @@ type Model struct {
 	LastOpUserID          string    `db:"last_op_user_id"`   // "最后操作用户id"
 	LastOpUserName        string    `db:"last_op_user_name"` // "最后操作用户名"
 	OpHistory             string    `db:"op_history"`        // "操作历史信息"
+	Status                byte      `db:"status"`            // "状态 0=正常 1=隐藏"
 }
 
 func CreateOneModel(ctx context.Context, v *Model) (int64, error) {
@@ -150,7 +152,8 @@ set
     last_op_source=?,
     last_op_user_id=?,
     last_op_user_name=?,
-    op_history=json_array_insert(op_history, '$[0]', json_extract(?, '$'))
+    op_history=json_array_insert(op_history, '$[0]', json_extract(?, '$')),
+    status=?
 where biz_type = ?
 limit 1;`
 	vals := []interface{}{
@@ -171,6 +174,7 @@ limit 1;`
 		v.LastOpUserID,
 		v.LastOpUserName,
 		v.OpHistory,
+		v.Status,
 		v.BizType,
 	}
 	result, err := db.GetSqlx().Exec(ctx, cond, vals...)

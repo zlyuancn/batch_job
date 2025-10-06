@@ -21,6 +21,7 @@ CREATE TABLE `batch_job_biz`
     `last_op_user_id`          varchar(32)        NOT NULL DEFAULT '' COMMENT '最后操作用户id',
     `last_op_user_name`        varchar(32)        NOT NULL DEFAULT '' COMMENT '最后操作用户名',
     `op_history`               json               NOT NULL COMMENT '操作历史信息',
+    `status`                   tinyint unsigned   NOT NULL DEFAULT 0 COMMENT '状态 0=正常 1=隐藏',
     PRIMARY KEY (`id`),
     UNIQUE KEY `batch_job_biz_biz_type` (`biz_type`),
     KEY `batch_job_biz_create_time` (`create_time` DESC)

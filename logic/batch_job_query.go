@@ -27,7 +27,9 @@ func (b *BatchJob) QueryBizInfo(ctx context.Context, req *pb.QueryBizInfoReq) (*
 
 // 查询业务列表
 func (b *BatchJob) QueryBizList(ctx context.Context, req *pb.QueryBizListReq) (*pb.QueryBizListRsp, error) {
-	where := map[string]interface{}{}
+	where := map[string]interface{}{
+		"status": int(req.GetStatus()),
+	}
 
 	total, err := batch_job_biz.Count(ctx, where)
 	if err != nil {
@@ -80,6 +82,7 @@ func (*BatchJob) bizDbModel2Pb(line *batch_job_biz.Model) *pb.BizInfoA {
 			OpUserName: line.LastOpUserName,
 			OpTime:     line.UpdateTime.Unix(),
 		},
+		Status: pb.BizStatus(line.Status),
 	}
 
 	hop := model.BizHistoryOpInfos{}

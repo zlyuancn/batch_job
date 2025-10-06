@@ -256,6 +256,8 @@ func (m *AdminRegistryBizReq) validate(all bool) error {
 		}
 	}
 
+	// no validation rules for Status
+
 	if len(errors) > 0 {
 		return AdminRegistryBizReqMultiError(errors)
 	}
@@ -731,6 +733,8 @@ func (m *BizInfoA) validate(all bool) error {
 		}
 	}
 
+	// no validation rules for Status
+
 	if len(errors) > 0 {
 		return BizInfoAMultiError(errors)
 	}
@@ -808,22 +812,22 @@ var _ interface {
 	ErrorName() string
 } = BizInfoAValidationError{}
 
-// Validate checks the field values on BaseInfoA with the rules defined in the
-// proto definition for this message. If any rules are violated, the first
+// Validate checks the field values on JobBaseInfoA with the rules defined in
+// the proto definition for this message. If any rules are violated, the first
 // error encountered is returned, or nil if there are no violations.
-func (m *BaseInfoA) Validate() error {
+func (m *JobBaseInfoA) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on BaseInfoA with the rules defined in
-// the proto definition for this message. If any rules are violated, the
-// result is a list of violation errors wrapped in BaseInfoAMultiError, or nil
-// if none found.
-func (m *BaseInfoA) ValidateAll() error {
+// ValidateAll checks the field values on JobBaseInfoA with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in JobBaseInfoAMultiError, or
+// nil if none found.
+func (m *JobBaseInfoA) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *BaseInfoA) validate(all bool) error {
+func (m *JobBaseInfoA) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -850,7 +854,7 @@ func (m *BaseInfoA) validate(all bool) error {
 		switch v := interface{}(m.GetOp()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, BaseInfoAValidationError{
+				errors = append(errors, JobBaseInfoAValidationError{
 					field:  "Op",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -858,7 +862,7 @@ func (m *BaseInfoA) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, BaseInfoAValidationError{
+				errors = append(errors, JobBaseInfoAValidationError{
 					field:  "Op",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -867,7 +871,7 @@ func (m *BaseInfoA) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetOp()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return BaseInfoAValidationError{
+			return JobBaseInfoAValidationError{
 				field:  "Op",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -878,18 +882,18 @@ func (m *BaseInfoA) validate(all bool) error {
 	// no validation rules for StatusInfo
 
 	if len(errors) > 0 {
-		return BaseInfoAMultiError(errors)
+		return JobBaseInfoAMultiError(errors)
 	}
 
 	return nil
 }
 
-// BaseInfoAMultiError is an error wrapping multiple validation errors returned
-// by BaseInfoA.ValidateAll() if the designated constraints aren't met.
-type BaseInfoAMultiError []error
+// JobBaseInfoAMultiError is an error wrapping multiple validation errors
+// returned by JobBaseInfoA.ValidateAll() if the designated constraints aren't met.
+type JobBaseInfoAMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m BaseInfoAMultiError) Error() string {
+func (m JobBaseInfoAMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -898,11 +902,11 @@ func (m BaseInfoAMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m BaseInfoAMultiError) AllErrors() []error { return m }
+func (m JobBaseInfoAMultiError) AllErrors() []error { return m }
 
-// BaseInfoAValidationError is the validation error returned by
-// BaseInfoA.Validate if the designated constraints aren't met.
-type BaseInfoAValidationError struct {
+// JobBaseInfoAValidationError is the validation error returned by
+// JobBaseInfoA.Validate if the designated constraints aren't met.
+type JobBaseInfoAValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -910,22 +914,22 @@ type BaseInfoAValidationError struct {
 }
 
 // Field function returns field value.
-func (e BaseInfoAValidationError) Field() string { return e.field }
+func (e JobBaseInfoAValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e BaseInfoAValidationError) Reason() string { return e.reason }
+func (e JobBaseInfoAValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e BaseInfoAValidationError) Cause() error { return e.cause }
+func (e JobBaseInfoAValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e BaseInfoAValidationError) Key() bool { return e.key }
+func (e JobBaseInfoAValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e BaseInfoAValidationError) ErrorName() string { return "BaseInfoAValidationError" }
+func (e JobBaseInfoAValidationError) ErrorName() string { return "JobBaseInfoAValidationError" }
 
 // Error satisfies the builtin error interface
-func (e BaseInfoAValidationError) Error() string {
+func (e JobBaseInfoAValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -937,14 +941,14 @@ func (e BaseInfoAValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sBaseInfoA.%s: %s%s",
+		"invalid %sJobBaseInfoA.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = BaseInfoAValidationError{}
+var _ error = JobBaseInfoAValidationError{}
 
 var _ interface {
 	Field() string
@@ -952,7 +956,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = BaseInfoAValidationError{}
+} = JobBaseInfoAValidationError{}
 
 // Validate checks the field values on DataLogQ with the rules defined in the
 // proto definition for this message. If any rules are violated, the first
@@ -2189,6 +2193,8 @@ func (m *QueryBizListReq) validate(all bool) error {
 	}
 
 	// no validation rules for OpUser
+
+	// no validation rules for Status
 
 	if len(errors) > 0 {
 		return QueryBizListReqMultiError(errors)

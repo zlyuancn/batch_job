@@ -2,6 +2,7 @@ package module
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 	"time"
 
@@ -61,7 +62,11 @@ func (*jobCli) createLauncher(ctx context.Context, bizInfo *batch_job_biz.Model,
 		return
 	}
 
-	jl := newJobLauncher(bizInfo, jobInfo, unlock, renew)
+	jl, err := newJobLauncher(bizInfo, jobInfo, unlock, renew)
+	if err != nil {
+		logger.Error("createLauncher call newJobLauncher fail.", zap.Error(err))
+		return
+	}
 	jl.Run()
 }
 
@@ -80,7 +85,7 @@ type jobLauncher struct {
 }
 
 func newJobLauncher(bizInfo *batch_job_biz.Model, jobInfo *batch_job_list.Model,
-	unlock redis.KeyUnlock, renew redis.KeyTtlRenew) *jobLauncher {
+	unlock redis.KeyUnlock, renew redis.KeyTtlRenew) (*jobLauncher, error) {
 
 	j := &jobLauncher{
 		bizInfo:       bizInfo,
@@ -91,10 +96,12 @@ func newJobLauncher(bizInfo *batch_job_biz.Model, jobInfo *batch_job_list.Model,
 	j.ctx, j.cancel = context.WithCancel(context.Background())
 
 	switch pb.RateType(bizInfo.RateType) {
-	case pb.RateType_Serialization: // 串行化
+	case pb.RateType_RateType_RateSec: // 可以使用多个线程
+		j.threadLock = make(chan struct{}, conf.Conf.JobRunThreadCount) // 可以使用多个线程
+	case pb.RateType_RateType_Serialization: // 串行化
 		j.threadLock = make(chan struct{}, 1) // 只能用一个线程
 	default:
-		j.threadLock = make(chan struct{}, conf.Conf.JobRunThreadCount) // 可以使用多个线程
+		return nil, fmt.Errorf("rateType %d nonsupport", int(bizInfo.RateType))
 	}
 
 	if bizInfo.RateSec > 0 { // 限速
@@ -104,7 +111,7 @@ func newJobLauncher(bizInfo *batch_job_biz.Model, jobInfo *batch_job_list.Model,
 	// 滑动窗口
 	j.sw = sliding_window.NewSlidingWindow(conf.Conf.JobSlidingWindowSize, int64(jobInfo.ProcessedCount))
 
-	return j
+	return j, nil
 }
 
 // todo 循环对运行锁续期

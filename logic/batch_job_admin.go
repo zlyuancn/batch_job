@@ -38,6 +38,8 @@ func (*BatchJob) AdminRegistryBiz(ctx context.Context, req *pb.AdminRegistryBizR
 		CbBeforeRunTimeout:    uint(req.GetCbBeforeRunTimeout()),
 		CbProcessTimeout:      uint(req.GetCbProcessTimeout()),
 		CbProcessStopTimeout:  uint(req.GetCbProcessStopTimeout()),
+
+		Status: 0,
 	}
 
 	hop := model.BizHistoryOpInfo{
@@ -85,6 +87,7 @@ func (*BatchJob) AdminChangeBiz(ctx context.Context, req *pb.AdminRegistryBizReq
 		CbBeforeRunTimeout:    uint(req.GetCbBeforeRunTimeout()),
 		CbProcessTimeout:      uint(req.GetCbProcessTimeout()),
 		CbProcessStopTimeout:  uint(req.GetCbProcessStopTimeout()),
+		Status:                byte(req.GetStatus()),
 	}
 	hop := &model.BizHistoryOpInfo{
 		OpSource:   req.GetOp().GetOpSource(),

@@ -39,7 +39,7 @@ func (b *bizCli) GetBizByBizType(ctx context.Context, bizType int32) (Business, 
 // 获取业务
 func (*bizCli) GetBizByDbModel(ctx context.Context, v *batch_job_biz.Model) (Business, error) {
 	switch v.ExecType {
-	case byte(pb.ExecType_HttpCallback): // http回调
+	case byte(pb.ExecType_ExecType_HttpCallback): // http回调
 		return newHttpCallbackBiz(ctx, v)
 	}
 
