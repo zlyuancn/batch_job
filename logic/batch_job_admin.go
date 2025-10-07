@@ -244,7 +244,7 @@ func (*BatchJob) AdminStartJob(ctx context.Context, req *pb.AdminStartJobReq) (*
 		LastOpUserID:   req.GetOp().GetOpUserid(),
 		LastOpUserName: req.GetOp().GetOpUserName(),
 		LastOpRemark:   req.GetOp().GetOpRemark(),
-		StatusInfo:     model.StatusInfo_UserOp,
+		StatusInfo:     model.StatusInfo_UserChangeStatus,
 	}
 	hop := &model.JobHistoryOpInfo{
 		OpTime: time.Now().Unix(),
@@ -318,7 +318,7 @@ func (*BatchJob) AdminStopJob(ctx context.Context, req *pb.AdminStopJobReq) (*pb
 		LastOpUserID:   req.GetOp().GetOpUserid(),
 		LastOpUserName: req.GetOp().GetOpUserName(),
 		LastOpRemark:   req.GetOp().GetOpRemark(),
-		StatusInfo:     model.StatusInfo_UserOp,
+		StatusInfo:     model.StatusInfo_UserChangeStatus,
 	}
 	hop := &model.JobHistoryOpInfo{
 		OpTime: time.Now().Unix(),
