@@ -223,10 +223,6 @@ func (m *AdminRegistryBizReq) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	// no validation rules for RateType
-
-	// no validation rules for RateSec
-
 	if all {
 		switch v := interface{}(m.GetOp()).(type) {
 		case interface{ ValidateAll() error }:
@@ -858,10 +854,6 @@ func (m *BizInfoA) validate(all bool) error {
 
 	// no validation rules for CbProcessStopTimeout
 
-	// no validation rules for RateType
-
-	// no validation rules for RateSec
-
 	if all {
 		switch v := interface{}(m.GetOp()).(type) {
 		case interface{ ValidateAll() error }:
@@ -1007,6 +999,10 @@ func (m *JobBaseInfoA) validate(all bool) error {
 	// no validation rules for Status
 
 	// no validation rules for CreateTime
+
+	// no validation rules for RateType
+
+	// no validation rules for RateSec
 
 	if all {
 		switch v := interface{}(m.GetOp()).(type) {
@@ -1367,11 +1363,11 @@ func (m *AdminCreateJobReq) validate(all bool) error {
 
 	// no validation rules for BizData
 
-	// no validation rules for BizProcessData
-
 	// no validation rules for ProcessDataTotal
 
-	// no validation rules for StartNow
+	// no validation rules for RateType
+
+	// no validation rules for RateSec
 
 	if all {
 		switch v := interface{}(m.GetOp()).(type) {
@@ -1401,6 +1397,8 @@ func (m *AdminCreateJobReq) validate(all bool) error {
 			}
 		}
 	}
+
+	// no validation rules for StartNow
 
 	if len(errors) > 0 {
 		return AdminCreateJobReqMultiError(errors)
@@ -1585,6 +1583,264 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = AdminCreateJobRspValidationError{}
+
+// Validate checks the field values on AdminChangeJobReq with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *AdminChangeJobReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AdminChangeJobReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// AdminChangeJobReqMultiError, or nil if none found.
+func (m *AdminChangeJobReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AdminChangeJobReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if m.GetBizType() <= 0 {
+		err := AdminChangeJobReqValidationError{
+			field:  "BizType",
+			reason: "value must be greater than 0",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	// no validation rules for BizData
+
+	// no validation rules for BizProcessData
+
+	// no validation rules for ProcessDataTotal
+
+	// no validation rules for StartNow
+
+	// no validation rules for RateType
+
+	// no validation rules for RateSec
+
+	if all {
+		switch v := interface{}(m.GetOp()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, AdminChangeJobReqValidationError{
+					field:  "Op",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, AdminChangeJobReqValidationError{
+					field:  "Op",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetOp()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return AdminChangeJobReqValidationError{
+				field:  "Op",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for JobId
+
+	if len(errors) > 0 {
+		return AdminChangeJobReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// AdminChangeJobReqMultiError is an error wrapping multiple validation errors
+// returned by AdminChangeJobReq.ValidateAll() if the designated constraints
+// aren't met.
+type AdminChangeJobReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AdminChangeJobReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AdminChangeJobReqMultiError) AllErrors() []error { return m }
+
+// AdminChangeJobReqValidationError is the validation error returned by
+// AdminChangeJobReq.Validate if the designated constraints aren't met.
+type AdminChangeJobReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AdminChangeJobReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AdminChangeJobReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AdminChangeJobReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AdminChangeJobReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AdminChangeJobReqValidationError) ErrorName() string {
+	return "AdminChangeJobReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e AdminChangeJobReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAdminChangeJobReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = AdminChangeJobReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AdminChangeJobReqValidationError{}
+
+// Validate checks the field values on AdminChangeJobRsp with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *AdminChangeJobRsp) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AdminChangeJobRsp with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// AdminChangeJobRspMultiError, or nil if none found.
+func (m *AdminChangeJobRsp) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AdminChangeJobRsp) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return AdminChangeJobRspMultiError(errors)
+	}
+
+	return nil
+}
+
+// AdminChangeJobRspMultiError is an error wrapping multiple validation errors
+// returned by AdminChangeJobRsp.ValidateAll() if the designated constraints
+// aren't met.
+type AdminChangeJobRspMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AdminChangeJobRspMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AdminChangeJobRspMultiError) AllErrors() []error { return m }
+
+// AdminChangeJobRspValidationError is the validation error returned by
+// AdminChangeJobRsp.Validate if the designated constraints aren't met.
+type AdminChangeJobRspValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AdminChangeJobRspValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AdminChangeJobRspValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AdminChangeJobRspValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AdminChangeJobRspValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AdminChangeJobRspValidationError) ErrorName() string {
+	return "AdminChangeJobRspValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e AdminChangeJobRspValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAdminChangeJobRsp.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = AdminChangeJobRspValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AdminChangeJobRspValidationError{}
 
 // Validate checks the field values on AdminStartJobReq with the rules defined
 // in the proto definition for this message. If any rules are violated, the
@@ -2838,47 +3094,6 @@ func (m *QueryJobListReq) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for StartTime
-
-	// no validation rules for EndTime
-
-	// no validation rules for OpUser
-
-	if len(m.GetBizType()) > 0 {
-
-		_QueryJobListReq_BizType_Unique := make(map[int32]struct{}, len(m.GetBizType()))
-
-		for idx, item := range m.GetBizType() {
-			_, _ = idx, item
-
-			if _, exists := _QueryJobListReq_BizType_Unique[item]; exists {
-				err := QueryJobListReqValidationError{
-					field:  fmt.Sprintf("BizType[%v]", idx),
-					reason: "repeated value must contain unique items",
-				}
-				if !all {
-					return err
-				}
-				errors = append(errors, err)
-			} else {
-				_QueryJobListReq_BizType_Unique[item] = struct{}{}
-			}
-
-			if item <= 0 {
-				err := QueryJobListReqValidationError{
-					field:  fmt.Sprintf("BizType[%v]", idx),
-					reason: "value must be greater than 0",
-				}
-				if !all {
-					return err
-				}
-				errors = append(errors, err)
-			}
-
-		}
-
-	}
-
 	if m.GetPage() <= 0 {
 		err := QueryJobListReqValidationError{
 			field:  "Page",
@@ -2900,6 +3115,25 @@ func (m *QueryJobListReq) validate(all bool) error {
 		}
 		errors = append(errors, err)
 	}
+
+	if m.GetBizType() < 0 {
+		err := QueryJobListReqValidationError{
+			field:  "BizType",
+			reason: "value must be greater than or equal to 0",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	// no validation rules for Status
+
+	// no validation rules for StartTime
+
+	// no validation rules for EndTime
+
+	// no validation rules for OpUser
 
 	if len(errors) > 0 {
 		return QueryJobListReqMultiError(errors)

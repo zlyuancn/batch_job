@@ -49,6 +49,39 @@
         ]
       }
     },
+    "/BatchJob/AdminChangeJob": {
+      "post": {
+        "summary": "修改任务",
+        "operationId": "BatchJobService_AdminChangeJob",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/batch_jobAdminChangeJobRsp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/batch_jobAdminChangeJobReq"
+            }
+          }
+        ],
+        "tags": [
+          "BatchJobService"
+        ]
+      }
+    },
     "/BatchJob/AdminCreateJob": {
       "post": {
         "summary": "创建任务",
@@ -513,7 +546,7 @@
     }
   },
   "definitions": {
-    "batch_jobAdminCreateJobReq": {
+    "batch_jobAdminChangeJobReq": {
       "type": "object",
       "properties": {
         "bizType": {
@@ -538,9 +571,62 @@
           "type": "boolean",
           "title": "创建后是否立即启动"
         },
+        "rateType": {
+          "$ref": "#/definitions/batch_jobRateType",
+          "title": "速率类型"
+        },
+        "rateSec": {
+          "type": "integer",
+          "format": "int32",
+          "title": "每秒处理速率. 0表示不限制"
+        },
         "op": {
           "$ref": "#/definitions/batch_jobOpInfoQ",
           "title": "操作信息"
+        },
+        "jobId": {
+          "type": "string",
+          "format": "int64",
+          "title": "任务id"
+        }
+      }
+    },
+    "batch_jobAdminChangeJobRsp": {
+      "type": "object"
+    },
+    "batch_jobAdminCreateJobReq": {
+      "type": "object",
+      "properties": {
+        "bizType": {
+          "type": "integer",
+          "format": "int32",
+          "title": "业务类型. 必填"
+        },
+        "bizData": {
+          "type": "string",
+          "title": "业务任务数据, 让业务知道应该做什么"
+        },
+        "processDataTotal": {
+          "type": "string",
+          "format": "int64",
+          "title": "需要处理数据总数"
+        },
+        "rateType": {
+          "$ref": "#/definitions/batch_jobRateType",
+          "title": "速率类型"
+        },
+        "rateSec": {
+          "type": "integer",
+          "format": "int32",
+          "title": "每秒处理速率. 0表示不限制"
+        },
+        "op": {
+          "$ref": "#/definitions/batch_jobOpInfoQ",
+          "title": "操作信息"
+        },
+        "startNow": {
+          "type": "boolean",
+          "title": "创建后是否立即启动"
         }
       }
     },
@@ -609,15 +695,6 @@
           "type": "integer",
           "format": "int32",
           "title": "处理任务停止回调超时秒数"
-        },
-        "rateType": {
-          "$ref": "#/definitions/batch_jobRateType",
-          "title": "速率类型"
-        },
-        "rateSec": {
-          "type": "integer",
-          "format": "int32",
-          "title": "每秒处理速率. 0表示不限制"
         },
         "op": {
           "$ref": "#/definitions/batch_jobOpInfoQ",
@@ -761,15 +838,6 @@
           "format": "int32",
           "title": "处理任务停止回调超时秒数"
         },
-        "rateType": {
-          "$ref": "#/definitions/batch_jobRateType",
-          "title": "速率类型"
-        },
-        "rateSec": {
-          "type": "integer",
-          "format": "int32",
-          "title": "每秒处理速率. 0表示不限制"
-        },
         "op": {
           "$ref": "#/definitions/batch_jobOpInfoA",
           "title": "操作信息"
@@ -900,13 +968,13 @@
     "batch_jobDataLogType": {
       "type": "string",
       "enum": [
-        "Debug",
-        "Info",
-        "Warn",
-        "Err"
+        "DataLogType_Debug",
+        "DataLogType_Info",
+        "DataLogType_Warn",
+        "DataLogType_Err"
       ],
-      "default": "Debug",
-      "description": "- Debug: 调试\n - Info: 信息\n - Warn: 警告\n - Err: 错误",
+      "default": "DataLogType_Debug",
+      "description": "- DataLogType_Debug: 调试\n - DataLogType_Info: 信息\n - DataLogType_Warn: 警告\n - DataLogType_Err: 错误",
       "title": "数据的日志类型"
     },
     "batch_jobExecType": {
@@ -960,6 +1028,15 @@
           "format": "int64",
           "title": "创建时间秒级时间戳"
         },
+        "rateType": {
+          "$ref": "#/definitions/batch_jobRateType",
+          "title": "速率类型"
+        },
+        "rateSec": {
+          "type": "integer",
+          "format": "int32",
+          "title": "每秒处理速率. 0表示不限制"
+        },
         "op": {
           "$ref": "#/definitions/batch_jobOpInfoA",
           "title": "操作信息"
@@ -974,15 +1051,26 @@
     "batch_jobJobStatus": {
       "type": "string",
       "enum": [
-        "Created",
-        "WaitBizRun",
-        "Running",
-        "Finished",
-        "Stopping",
-        "Stopped"
+        "JobStatus_Created",
+        "JobStatus_WaitBizRun",
+        "JobStatus_Running",
+        "JobStatus_Finished",
+        "JobStatus_Stopping",
+        "JobStatus_Stopped"
       ],
-      "default": "Created",
-      "description": "- Created: 已创建\n - WaitBizRun: 等待业务主动启动\n - Running: 运行中\n - Finished: 已完成\n - Stopping: 正在停止\n - Stopped: 已停止",
+      "default": "JobStatus_Created",
+      "description": "- JobStatus_Created: 已创建\n - JobStatus_WaitBizRun: 等待业务主动启动\n - JobStatus_Running: 运行中\n - JobStatus_Finished: 已完成\n - JobStatus_Stopping: 正在停止\n - JobStatus_Stopped: 已停止",
+      "title": "任务状态"
+    },
+    "batch_jobJobStatusQ": {
+      "type": "string",
+      "enum": [
+        "JobStatusQ_Created",
+        "JobStatusQ_Running",
+        "JobStatusQ_Finished"
+      ],
+      "default": "JobStatusQ_Created",
+      "description": "- JobStatusQ_Created: 待启动: 已创建/已停止\n - JobStatusQ_Running: 运行中: 运行中/等待业务主动启动/正在停止\n - JobStatusQ_Finished: 已完成",
       "title": "任务状态"
     },
     "batch_jobOpInfoA": {
@@ -1172,6 +1260,25 @@
     "batch_jobQueryJobListReq": {
       "type": "object",
       "properties": {
+        "page": {
+          "type": "integer",
+          "format": "int32",
+          "title": "页号, 从1开始"
+        },
+        "pageSize": {
+          "type": "integer",
+          "format": "int32",
+          "title": "每页返回数量, 最少返回5条"
+        },
+        "bizType": {
+          "type": "integer",
+          "format": "int32",
+          "title": "业务类型"
+        },
+        "status": {
+          "$ref": "#/definitions/batch_jobJobStatusQ",
+          "title": "任务状态"
+        },
         "startTime": {
           "type": "string",
           "format": "int64",
@@ -1185,24 +1292,6 @@
         "opUser": {
           "type": "string",
           "title": "操作人"
-        },
-        "bizType": {
-          "type": "array",
-          "items": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "title": "业务类型"
-        },
-        "page": {
-          "type": "integer",
-          "format": "int32",
-          "title": "页号, 从1开始"
-        },
-        "pageSize": {
-          "type": "integer",
-          "format": "int32",
-          "title": "每页返回数量, 最少返回5条"
         }
       }
     },

@@ -26,8 +26,6 @@ func (*BatchJob) AdminRegistryBiz(ctx context.Context, req *pb.AdminRegistryBizR
 	v := &batch_job_biz.Model{
 		BizType:               uint(req.GetBizType()),
 		BizName:               req.GetBizName(),
-		RateSec:               uint(req.GetRateSec()),
-		RateType:              byte(req.GetRateType()),
 		ExecType:              byte(req.GetExecType()),
 		Remark:                req.GetRemark(),
 		CbBeforeCreate:        req.GetCbBeforeCreate(),
@@ -38,17 +36,17 @@ func (*BatchJob) AdminRegistryBiz(ctx context.Context, req *pb.AdminRegistryBizR
 		CbBeforeRunTimeout:    uint(req.GetCbBeforeRunTimeout()),
 		CbProcessTimeout:      uint(req.GetCbProcessTimeout()),
 		CbProcessStopTimeout:  uint(req.GetCbProcessStopTimeout()),
-
-		Status: 0,
+		LastOpSource:          req.GetOp().GetOpSource(),
+		LastOpUserID:          req.GetOp().GetOpUserid(),
+		LastOpUserName:        req.GetOp().GetOpUserName(),
+		LastOpRemark:          req.GetOp().GetOpRemark(),
+		OpHistory:             "",
+		Status:                0,
 	}
 
 	hop := model.BizHistoryOpInfo{
-		OpSource:   req.GetOp().GetOpSource(),
-		OpUserId:   req.GetOp().GetOpUserid(),
-		OpUserName: req.GetOp().GetOpUserName(),
-		OpTime:     time.Now().Unix(),
-		OpRemark:   req.GetOp().GetOpRemark(),
-		NewData:    v,
+		OpTime: time.Now().Unix(),
+		Model:  v,
 	}
 	history := model.BizHistoryOpInfos{hop}
 	historyText, err := sonic.MarshalString(history)
@@ -57,10 +55,6 @@ func (*BatchJob) AdminRegistryBiz(ctx context.Context, req *pb.AdminRegistryBizR
 		return nil, err
 	}
 
-	v.LastOpSource = req.GetOp().GetOpSource()
-	v.LastOpUserID = req.GetOp().GetOpUserid()
-	v.LastOpUserName = req.GetOp().GetOpUserName()
-	v.LastOpRemark = req.GetOp().GetOpRemark()
 	v.OpHistory = historyText
 
 	_, err = batch_job_biz.CreateOneModel(ctx, v)
@@ -76,8 +70,6 @@ func (*BatchJob) AdminChangeBiz(ctx context.Context, req *pb.AdminRegistryBizReq
 	v := &batch_job_biz.Model{
 		BizType:               uint(req.GetBizType()),
 		BizName:               req.GetBizName(),
-		RateSec:               uint(req.GetRateSec()),
-		RateType:              byte(req.GetRateType()),
 		ExecType:              byte(req.GetExecType()),
 		Remark:                req.GetRemark(),
 		CbBeforeCreate:        req.GetCbBeforeCreate(),
@@ -88,15 +80,15 @@ func (*BatchJob) AdminChangeBiz(ctx context.Context, req *pb.AdminRegistryBizReq
 		CbBeforeRunTimeout:    uint(req.GetCbBeforeRunTimeout()),
 		CbProcessTimeout:      uint(req.GetCbProcessTimeout()),
 		CbProcessStopTimeout:  uint(req.GetCbProcessStopTimeout()),
+		LastOpSource:          req.GetOp().GetOpSource(),
+		LastOpUserID:          req.GetOp().GetOpUserid(),
+		LastOpUserName:        req.GetOp().GetOpUserName(),
+		LastOpRemark:          req.GetOp().GetOpRemark(),
 		Status:                byte(req.GetStatus()),
 	}
 	hop := &model.BizHistoryOpInfo{
-		OpSource:   req.GetOp().GetOpSource(),
-		OpUserId:   req.GetOp().GetOpUserid(),
-		OpUserName: req.GetOp().GetOpUserName(),
-		OpTime:     time.Now().Unix(),
-		OpRemark:   req.GetOp().GetOpRemark(),
-		NewData:    v,
+		OpTime: time.Now().Unix(),
+		Model:  v,
 	}
 	historyText, err := sonic.MarshalString(hop)
 	if err != nil {
@@ -104,10 +96,6 @@ func (*BatchJob) AdminChangeBiz(ctx context.Context, req *pb.AdminRegistryBizReq
 		return nil, err
 	}
 
-	v.LastOpSource = req.GetOp().GetOpSource()
-	v.LastOpUserID = req.GetOp().GetOpUserid()
-	v.LastOpUserName = req.GetOp().GetOpUserName()
-	v.LastOpRemark = req.GetOp().GetOpRemark()
 	v.OpHistory = historyText
 
 	count, err := batch_job_biz.UpdateOneModel(ctx, v)
@@ -154,18 +142,30 @@ func (*BatchJob) AdminCreateJob(ctx context.Context, req *pb.AdminCreateJobReq) 
 		return nil, err
 	}
 
-	hop := model.JobHistoryOpInfo{
-		OpSource:   req.GetOp().GetOpSource(),
-		OpUserId:   req.GetOp().GetOpUserid(),
-		OpUserName: req.GetOp().GetOpUserName(),
-		OpTime:     time.Now().Unix(),
-		OpRemark:   req.GetOp().GetOpRemark(),
-		NewStatus:  byte(pb.JobStatus_Running),
+	// 写入数据库
+	v := &batch_job_list.Model{
+		JobID:            uint64(jobId),
+		BizType:          uint(req.GetBizType()),
+		BizData:          req.GetBizData(),
+		ProcessDataTotal: uint64(req.GetProcessDataTotal()),
+		Status:           byte(pb.JobStatus_JobStatus_Created),
+		LastOpSource:     req.GetOp().GetOpSource(),
+		LastOpUserID:     req.GetOp().GetOpUserid(),
+		LastOpUserName:   req.GetOp().GetOpUserName(),
+		LastOpRemark:     req.GetOp().GetOpRemark(),
+		RateSec:          uint(req.GetRateSec()),
+		RateType:         byte(req.GetRateType()),
+		StatusInfo:       model.StatusInfo_UserOp,
 	}
 	if req.GetStartNow() {
-		hop.NewStatus = byte(pb.JobStatus_Running)
+		v.Status = byte(pb.JobStatus_JobStatus_Running)
+		v.StatusInfo = model.StatusInfo_UserCreateAndRun
 	}
 
+	hop := model.JobHistoryOpInfo{
+		OpTime: time.Now().Unix(),
+		Model:  v,
+	}
 	history := model.JobHistoryOpInfos{hop}
 	historyText, err := sonic.MarshalString(history)
 	if err != nil {
@@ -173,27 +173,12 @@ func (*BatchJob) AdminCreateJob(ctx context.Context, req *pb.AdminCreateJobReq) 
 		return nil, err
 	}
 
-	// 写入数据库
-	v := &batch_job_list.Model{
-		JobID:            uint64(jobId),
-		BizType:          uint(req.GetBizType()),
-		BizData:          req.GetBizData(),
-		ProcessDataTotal: uint64(req.GetProcessDataTotal()),
-		Status:           byte(pb.JobStatus_Created),
-		UpdateTime:       time.Time{},
-		LastOpSource:     req.GetOp().GetOpSource(),
-		LastOpUserID:     req.GetOp().GetOpUserid(),
-		LastOpUserName:   req.GetOp().GetOpUserName(),
-		StatusInfo:       model.StatusInfo_UserOp,
-		OpHistory:        historyText,
-		BizProcessData:   req.GetBizProcessData(),
-	}
+	v.OpHistory = historyText
+
 	if req.GetStartNow() {
-		v.Status = byte(pb.JobStatus_Running)
 		if b.HasBeforeRunCallback() {
-			v.Status = byte(pb.JobStatus_WaitBizRun)
+			v.Status = byte(pb.JobStatus_JobStatus_WaitBizRun)
 		}
-		v.StatusInfo = model.StatusInfo_UserCreateAndRun
 	}
 	_, err = batch_job_list.CreateOneModel(ctx, v)
 	if err != nil {
@@ -236,10 +221,10 @@ func (*BatchJob) AdminStartJob(ctx context.Context, req *pb.AdminStartJobReq) (*
 
 	// 检查任务状态
 	switch pb.JobStatus(jobInfo.Status) {
-	case pb.JobStatus_Running, pb.JobStatus_WaitBizRun:
+	case pb.JobStatus_JobStatus_Running, pb.JobStatus_JobStatus_WaitBizRun:
 		logger.Info(ctx, "AdminStartJob fail. status is running", zap.Int64("jobId", req.GetJobId()))
 		return &pb.AdminStartJobRsp{}, nil
-	case pb.JobStatus_Stopping, pb.JobStatus_Finished:
+	case pb.JobStatus_JobStatus_Stopping, pb.JobStatus_JobStatus_Finished:
 		logger.Error(ctx, "AdminStartJob fail. status is finished or stopping", zap.Int64("jobId", req.GetJobId()))
 		return nil, errors.New("Job is finished or stopping")
 	}
@@ -252,21 +237,38 @@ func (*BatchJob) AdminStartJob(ctx context.Context, req *pb.AdminStartJobReq) (*
 	}
 
 	// 更新状态和操作人
-	status := pb.JobStatus_Running
-	if b.HasBeforeRunCallback() {
-		status = pb.JobStatus_WaitBizRun
+	v := &batch_job_list.Model{
+		JobID:          uint64(req.GetJobId()),
+		Status:         byte(pb.JobStatus_JobStatus_Running),
+		LastOpSource:   req.GetOp().GetOpSource(),
+		LastOpUserID:   req.GetOp().GetOpUserid(),
+		LastOpUserName: req.GetOp().GetOpUserName(),
+		LastOpRemark:   req.GetOp().GetOpRemark(),
+		StatusInfo:     model.StatusInfo_UserOp,
 	}
-	opInfo := &model.JobHistoryOpInfo{
-		OpSource:   req.GetOp().GetOpSource(),
-		OpUserId:   req.GetOp().GetOpUserid(),
-		OpUserName: req.GetOp().GetOpUserName(),
-		OpTime:     time.Now().Unix(),
-		OpRemark:   req.GetOp().GetOpRemark(),
-		NewStatus:  byte(pb.JobStatus_Running),
+	hop := &model.JobHistoryOpInfo{
+		OpTime: time.Now().Unix(),
+		Model:  v,
 	}
-	err = module.Job.UpdateJobStatus(ctx, req.GetJobId(), pb.JobStatus(jobInfo.Status), status, opInfo)
+	historyText, err := sonic.MarshalString(hop)
 	if err != nil {
-		logger.Error(ctx, "AdminStartJob call UpdateJobStatus fail.", zap.Error(err))
+		logger.Error(ctx, "AdminStartJob call MarshalString history fail.", zap.Error(err))
+		return nil, err
+	}
+
+	v.OpHistory = historyText
+
+	if b.HasBeforeRunCallback() {
+		v.Status = byte(pb.JobStatus_JobStatus_WaitBizRun)
+	}
+	count, err := batch_job_list.UpdateStatus(ctx, v)
+	if err != nil {
+		logger.Error(ctx, "AdminStartJob call UpdateStatus fail.", zap.Error(err))
+		return nil, err
+	}
+	if count != 1 {
+		err = fmt.Errorf("update job status fail. update count != 1. is %d", count)
+		logger.Error(ctx, "AdminStartJob call batch_job_biz.UpdateStatus fail.", zap.Error(err))
 		return nil, err
 	}
 
@@ -296,8 +298,8 @@ func (*BatchJob) AdminStopJob(ctx context.Context, req *pb.AdminStopJobReq) (*pb
 
 	// 检查任务状态
 	switch pb.JobStatus(jobInfo.Status) {
-	case pb.JobStatus_Created, pb.JobStatus_Finished, pb.JobStatus_Stopping, pb.JobStatus_Stopped:
-		logger.Info(ctx, "AdminStartJob fail. status is stopped", zap.Int64("jobId", req.GetJobId()))
+	case pb.JobStatus_JobStatus_Created, pb.JobStatus_JobStatus_Finished, pb.JobStatus_JobStatus_Stopping, pb.JobStatus_JobStatus_Stopped:
+		logger.Info(ctx, "AdminStopJob fail. status is stopped", zap.Int64("jobId", req.GetJobId()))
 		return &pb.AdminStopJobRsp{}, nil
 	}
 
@@ -308,20 +310,37 @@ func (*BatchJob) AdminStopJob(ctx context.Context, req *pb.AdminStopJobReq) (*pb
 		return nil, err
 	}
 
-	// 更新状态
-	opInfo := &model.JobHistoryOpInfo{
-		OpSource:   req.GetOp().GetOpSource(),
-		OpUserId:   req.GetOp().GetOpUserid(),
-		OpUserName: req.GetOp().GetOpUserName(),
-		NewStatus:  byte(pb.JobStatus_Stopping),
-		OpTime:     time.Now().Unix(),
-		OpRemark:   model.StatusInfo_UserOp,
+	// 更新状态和操作人
+	v := &batch_job_list.Model{
+		JobID:          uint64(req.GetJobId()),
+		Status:         byte(pb.JobStatus_JobStatus_Stopping),
+		LastOpSource:   req.GetOp().GetOpSource(),
+		LastOpUserID:   req.GetOp().GetOpUserid(),
+		LastOpUserName: req.GetOp().GetOpUserName(),
+		LastOpRemark:   req.GetOp().GetOpRemark(),
+		StatusInfo:     model.StatusInfo_UserOp,
 	}
-	err = module.Job.UpdateJobStatus(ctx, req.GetJobId(), pb.JobStatus(jobInfo.Status), pb.JobStatus_Stopping, opInfo)
+	hop := &model.JobHistoryOpInfo{
+		OpTime: time.Now().Unix(),
+		Model:  v,
+	}
+	historyText, err := sonic.MarshalString(hop)
 	if err != nil {
-		logger.Error(ctx, "AdminStopJob call UpdateJobStatus fail.", zap.Error(err))
+		logger.Error(ctx, "AdminStopJob call MarshalString history fail.", zap.Error(err))
 		return nil, err
 	}
 
+	v.OpHistory = historyText
+
+	count, err := batch_job_list.UpdateStatus(ctx, v)
+	if err != nil {
+		logger.Error(ctx, "AdminStopJob call UpdateStatus fail.", zap.Error(err))
+		return nil, err
+	}
+	if count != 1 {
+		err = fmt.Errorf("update job status fail. update count != 1. is %d", count)
+		logger.Error(ctx, "AdminStopJob call batch_job_biz.UpdateStatus fail.", zap.Error(err))
+		return nil, err
+	}
 	return &pb.AdminStopJobRsp{}, nil
 }

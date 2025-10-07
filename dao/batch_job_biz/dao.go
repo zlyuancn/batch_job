@@ -32,8 +32,6 @@ var (
 	selectBaseField = []string{
 		"biz_type",
 		"biz_name",
-		"rate_sec",
-		"rate_type",
 		"exec_type",
 		"remark",
 		"cb_before_create",
@@ -61,8 +59,6 @@ type Model struct {
 	ID                    uint      `db:"id" json:"-"`
 	BizType               uint      `db:"biz_type"`                 // "业务类型"
 	BizName               string    `db:"biz_name"`                 // "业务名"
-	RateSec               uint      `db:"rate_sec"`                 // "每秒处理速率. 0表示不限制"
-	RateType              byte      `db:"rate_type"`                // "速率类型. 0=通过rate_sec限速, 1=串行化"
 	ExecType              byte      `db:"exec_type"`                // "执行类型"
 	Remark                string    `db:"remark"`                   // "备注"
 	CbBeforeCreate        string    `db:"cb_before_create"`         // "创建任务回调url"
@@ -92,8 +88,6 @@ func CreateOneModel(ctx context.Context, v *Model) (int64, error) {
 	data = append(data, map[string]any{
 		"biz_type":                 v.BizType,
 		"biz_name":                 v.BizName,
-		"rate_sec":                 v.RateSec,
-		"rate_type":                v.RateType,
 		"exec_type":                v.ExecType,
 		"remark":                   v.Remark,
 		"cb_before_create":         v.CbBeforeCreate,
@@ -139,8 +133,6 @@ update batch_job_biz
 set 
     biz_name=?,
     rate_sec=?,
-    rate_type=?,
-    exec_type=?,
     remark=?,
     cb_before_create=?,
     cb_before_run=?,
@@ -150,6 +142,7 @@ set
     cb_before_run_timeout=?,
     cb_process_timeout=?,
     cb_process_stop_timeout=?,
+    update_time=now(),
     last_op_source=?,
     last_op_user_id=?,
     last_op_user_name=?,
@@ -160,8 +153,6 @@ where biz_type = ?
 limit 1;`
 	vals := []interface{}{
 		v.BizName,
-		v.RateSec,
-		v.RateType,
 		v.ExecType,
 		v.Remark,
 		v.CbBeforeCreate,
@@ -182,7 +173,7 @@ limit 1;`
 	}
 	result, err := db.GetSqlx().Exec(ctx, cond, vals...)
 	if nil != err {
-		logger.Error(ctx, "UpdateStatus fail.", zap.String("cond", cond), zap.Any("vals", vals), zap.Error(err))
+		logger.Error(ctx, "UpdateOneModel fail.", zap.String("cond", cond), zap.Any("vals", vals), zap.Error(err))
 		return 0, err
 	}
 	return result.RowsAffected()

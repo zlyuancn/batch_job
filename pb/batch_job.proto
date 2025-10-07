@@ -28,6 +28,13 @@ service BatchJobService{
       body: "*",
     };
   }
+  // 修改任务
+  rpc AdminChangeJob(AdminChangeJobReq) returns (AdminChangeJobRsp) {
+    option (google.api.http) = {
+      post: "/BatchJob/AdminChangeJob",
+      body: "*",
+    };
+  }
   // 启动任务
   rpc AdminStartJob(AdminStartJobReq) returns (AdminStartJobRsp) {
     option (google.api.http) = {
@@ -151,11 +158,8 @@ message AdminRegistryBizReq {
   int32 cbProcessTimeout = 11 [(validate.rules).int32.gte = 0]; // 处理任务回调超时秒数
   int32 cbProcessStopTimeout = 12 [(validate.rules).int32.gte = 0]; // 处理任务停止回调超时秒数
 
-  RateType rateType = 13; // 速率类型
-  int32 rateSec = 14; // 每秒处理速率. 0表示不限制
-
-  OpInfoQ op = 15; // 操作信息
-  BizStatus status = 16; // 状态 0=正常 1=隐藏
+  OpInfoQ op = 13; // 操作信息
+  BizStatus status = 14; // 状态 0=正常 1=隐藏
 }
 message AdminRegistryBizRsp {}
 
@@ -184,12 +188,19 @@ message BizOpHistoryA {
 
 // 任务状态
 enum JobStatus {
-  Created = 0; // 已创建
-  WaitBizRun = 1; // 等待业务主动启动
-  Running = 2; // 运行中
-  Finished = 3; // 已完成
-  Stopping = 4; // 正在停止
-  Stopped = 5; // 已停止
+  JobStatus_Created = 0; // 已创建
+  JobStatus_WaitBizRun = 1; // 等待业务主动启动
+  JobStatus_Running = 2; // 运行中
+  JobStatus_Finished = 3; // 已完成
+  JobStatus_Stopping = 4; // 正在停止
+  JobStatus_Stopped = 5; // 已停止
+}
+
+// 任务状态
+enum JobStatusQ {
+  JobStatusQ_Created = 0; // 待启动: 已创建/已停止
+  JobStatusQ_Running = 2; // 运行中: 运行中/等待业务主动启动/正在停止
+  JobStatusQ_Finished = 3; // 已完成
 }
 
 // 业务信息-响应
@@ -206,10 +217,8 @@ message BizInfoA {
   int32 cbBeforeRunTimeout = 10; // 启动前回调超时秒数
   int32 cbProcessTimeout = 11; // 处理任务回调超时秒数
   int32 cbProcessStopTimeout = 12; // 处理任务停止回调超时秒数
-  RateType rateType = 13; // 速率类型
-  int32 rateSec = 14; // 每秒处理速率. 0表示不限制
-  OpInfoA op = 15; // 操作信息
-  BizStatus status = 16; // 状态 0=正常 1=隐藏
+  OpInfoA op = 13; // 操作信息
+  BizStatus status = 14; // 状态 0=正常 1=隐藏
 }
 
 // 任务基础信息-响应
@@ -222,16 +231,18 @@ message JobBaseInfoA {
   int64 errLogNum = 6; // 错误日志数
   JobStatus status = 7; // 任务状态
   int64 createTime = 8; // 创建时间秒级时间戳
-  OpInfoA op = 9; // 操作信息
-  string statusInfo = 10; // 状态信息
+  RateType rateType = 9; // 速率类型
+  int32 rateSec = 10; // 每秒处理速率. 0表示不限制
+  OpInfoA op = 11; // 操作信息
+  string statusInfo = 12; // 状态信息
 }
 
 // 数据的日志类型
 enum DataLogType {
-  Debug = 0; // 调试
-  Info = 1; // 信息
-  Warn = 2; // 警告
-  Err = 3; // 错误
+  DataLogType_Debug = 0; // 调试
+  DataLogType_Info = 1; // 信息
+  DataLogType_Warn = 2; // 警告
+  DataLogType_Err = 3; // 错误
 }
 
 // 日志-请求
@@ -254,13 +265,28 @@ message DataLogA {
 message AdminCreateJobReq {
   int32 bizType = 1 [(validate.rules).int32.gt = 0]; // 业务类型. 必填
   string bizData = 2; // 业务任务数据, 让业务知道应该做什么
-  string bizProcessData = 3; // 业务中需要处理的批量数据
-  int64 processDataTotal = 4; // 需要处理数据总数
-  bool startNow = 5; // 创建后是否立即启动
+  int64 processDataTotal = 3; // 需要处理数据总数
+  RateType rateType = 4; // 速率类型
+  int32 rateSec = 5; // 每秒处理速率. 0表示不限制
   OpInfoQ op = 6; // 操作信息
+  bool startNow = 7; // 创建后是否立即启动
 }
 message AdminCreateJobRsp {
   int64 jobId = 1; // 创建的任务id
+}
+
+message AdminChangeJobReq {
+  int32 bizType = 1 [(validate.rules).int32.gt = 0]; // 业务类型. 必填
+  string bizData = 2; // 业务任务数据, 让业务知道应该做什么
+  string bizProcessData = 3; // 业务中需要处理的批量数据
+  int64 processDataTotal = 4; // 需要处理数据总数
+  bool startNow = 5; // 创建后是否立即启动
+  RateType rateType = 6; // 速率类型
+  int32 rateSec = 7; // 每秒处理速率. 0表示不限制
+  OpInfoQ op = 8; // 操作信息
+  int64 jobId = 9; // 任务id
+}
+message AdminChangeJobRsp {
 }
 
 message AdminStartJobReq {
@@ -303,20 +329,13 @@ message QueryJobBaseInfoRsp {
 }
 
 message QueryJobListReq {
-  int64 startTime = 1; // 开始时间, 秒级时间戳. 0表示不限制
-  int64 endTime = 2; // 结束时间, 秒级时间戳. 0表示不限制
-  string opUser = 3; // 操作人
-  repeated int32 bizType = 4 [(validate.rules).repeated = {
-    unique: true, // 内部数据不允许重复
-    ignore_empty: true, // 允许空数据
-    items : {
-      int32 : {
-        gt: 0,
-      }
-    }
-  }]; // 业务类型
-  int32 page = 5 [(validate.rules).int32.gt = 0]; // 页号, 从1开始
-  int32 pageSize = 6 [(validate.rules).int32.gte = 5]; // 每页返回数量, 最少返回5条
+  int32 page = 1 [(validate.rules).int32.gt = 0]; // 页号, 从1开始
+  int32 pageSize = 2 [(validate.rules).int32.gte = 5]; // 每页返回数量, 最少返回5条
+  int32 bizType = 3 [(validate.rules).int32.gte = 0]; // 业务类型
+  JobStatusQ status = 4; // 任务状态
+  int64 startTime = 5; // 开始时间, 秒级时间戳. 0表示不限制
+  int64 endTime = 6; // 结束时间, 秒级时间戳. 0表示不限制
+  string opUser = 7; // 操作人
 }
 message QueryJobListRsp {
   int32 total = 1; // 总条数

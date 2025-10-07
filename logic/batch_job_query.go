@@ -93,8 +93,6 @@ func (*BatchJob) bizDbModel2Pb(line *batch_job_biz.Model) *pb.BizInfoA {
 		CbBeforeRunTimeout:    int32(line.CbBeforeRunTimeout),
 		CbProcessTimeout:      int32(line.CbProcessTimeout),
 		CbProcessStopTimeout:  int32(line.CbProcessStopTimeout),
-		RateType:              pb.RateType(line.RateType),
-		RateSec:               int32(line.RateSec),
 		Op: &pb.OpInfoA{
 			OpSource:   line.LastOpSource,
 			OpUserid:   line.LastOpUserID,

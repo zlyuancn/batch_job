@@ -22,6 +22,7 @@ const (
 	BatchJobService_AdminRegistryBiz_FullMethodName    = "/batch_job.BatchJobService/AdminRegistryBiz"
 	BatchJobService_AdminChangeBiz_FullMethodName      = "/batch_job.BatchJobService/AdminChangeBiz"
 	BatchJobService_AdminCreateJob_FullMethodName      = "/batch_job.BatchJobService/AdminCreateJob"
+	BatchJobService_AdminChangeJob_FullMethodName      = "/batch_job.BatchJobService/AdminChangeJob"
 	BatchJobService_AdminStartJob_FullMethodName       = "/batch_job.BatchJobService/AdminStartJob"
 	BatchJobService_AdminStopJob_FullMethodName        = "/batch_job.BatchJobService/AdminStopJob"
 	BatchJobService_QueryBizInfo_FullMethodName        = "/batch_job.BatchJobService/QueryBizInfo"
@@ -48,6 +49,8 @@ type BatchJobServiceClient interface {
 	AdminChangeBiz(ctx context.Context, in *AdminRegistryBizReq, opts ...grpc.CallOption) (*AdminRegistryBizRsp, error)
 	// 创建任务
 	AdminCreateJob(ctx context.Context, in *AdminCreateJobReq, opts ...grpc.CallOption) (*AdminCreateJobRsp, error)
+	// 修改任务
+	AdminChangeJob(ctx context.Context, in *AdminChangeJobReq, opts ...grpc.CallOption) (*AdminChangeJobRsp, error)
 	// 启动任务
 	AdminStartJob(ctx context.Context, in *AdminStartJobReq, opts ...grpc.CallOption) (*AdminStartJobRsp, error)
 	// 停止任务
@@ -106,6 +109,16 @@ func (c *batchJobServiceClient) AdminCreateJob(ctx context.Context, in *AdminCre
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(AdminCreateJobRsp)
 	err := c.cc.Invoke(ctx, BatchJobService_AdminCreateJob_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *batchJobServiceClient) AdminChangeJob(ctx context.Context, in *AdminChangeJobReq, opts ...grpc.CallOption) (*AdminChangeJobRsp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AdminChangeJobRsp)
+	err := c.cc.Invoke(ctx, BatchJobService_AdminChangeJob_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -244,6 +257,8 @@ type BatchJobServiceServer interface {
 	AdminChangeBiz(context.Context, *AdminRegistryBizReq) (*AdminRegistryBizRsp, error)
 	// 创建任务
 	AdminCreateJob(context.Context, *AdminCreateJobReq) (*AdminCreateJobRsp, error)
+	// 修改任务
+	AdminChangeJob(context.Context, *AdminChangeJobReq) (*AdminChangeJobRsp, error)
 	// 启动任务
 	AdminStartJob(context.Context, *AdminStartJobReq) (*AdminStartJobRsp, error)
 	// 停止任务
@@ -286,6 +301,9 @@ func (UnimplementedBatchJobServiceServer) AdminChangeBiz(context.Context, *Admin
 }
 func (UnimplementedBatchJobServiceServer) AdminCreateJob(context.Context, *AdminCreateJobReq) (*AdminCreateJobRsp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AdminCreateJob not implemented")
+}
+func (UnimplementedBatchJobServiceServer) AdminChangeJob(context.Context, *AdminChangeJobReq) (*AdminChangeJobRsp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminChangeJob not implemented")
 }
 func (UnimplementedBatchJobServiceServer) AdminStartJob(context.Context, *AdminStartJobReq) (*AdminStartJobRsp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AdminStartJob not implemented")
@@ -394,6 +412,24 @@ func _BatchJobService_AdminCreateJob_Handler(srv interface{}, ctx context.Contex
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(BatchJobServiceServer).AdminCreateJob(ctx, req.(*AdminCreateJobReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BatchJobService_AdminChangeJob_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminChangeJobReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BatchJobServiceServer).AdminChangeJob(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BatchJobService_AdminChangeJob_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BatchJobServiceServer).AdminChangeJob(ctx, req.(*AdminChangeJobReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -632,6 +668,10 @@ var BatchJobService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AdminCreateJob",
 			Handler:    _BatchJobService_AdminCreateJob_Handler,
+		},
+		{
+			MethodName: "AdminChangeJob",
+			Handler:    _BatchJobService_AdminChangeJob_Handler,
 		},
 		{
 			MethodName: "AdminStartJob",

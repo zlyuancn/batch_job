@@ -109,6 +109,32 @@ func local_request_BatchJobService_AdminCreateJob_0(ctx context.Context, marshal
 
 }
 
+func request_BatchJobService_AdminChangeJob_0(ctx context.Context, marshaler runtime.Marshaler, client BatchJobServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq AdminChangeJobReq
+	var metadata runtime.ServerMetadata
+
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := client.AdminChangeJob(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+
+}
+
+func local_request_BatchJobService_AdminChangeJob_0(ctx context.Context, marshaler runtime.Marshaler, server BatchJobServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq AdminChangeJobReq
+	var metadata runtime.ServerMetadata
+
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := server.AdminChangeJob(ctx, &protoReq)
+	return msg, metadata, err
+
+}
+
 func request_BatchJobService_AdminStartJob_0(ctx context.Context, marshaler runtime.Marshaler, client BatchJobServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq AdminStartJobReq
 	var metadata runtime.ServerMetadata
@@ -499,6 +525,31 @@ func RegisterBatchJobServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 		}
 
 		forward_BatchJobService_AdminCreateJob_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("POST", pattern_BatchJobService_AdminChangeJob_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/batch_job.BatchJobService/AdminChangeJob", runtime.WithHTTPPathPattern("/BatchJob/AdminChangeJob"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_BatchJobService_AdminChangeJob_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_BatchJobService_AdminChangeJob_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -909,6 +960,28 @@ func RegisterBatchJobServiceHandlerClient(ctx context.Context, mux *runtime.Serv
 
 	})
 
+	mux.Handle("POST", pattern_BatchJobService_AdminChangeJob_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/batch_job.BatchJobService/AdminChangeJob", runtime.WithHTTPPathPattern("/BatchJob/AdminChangeJob"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_BatchJobService_AdminChangeJob_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_BatchJobService_AdminChangeJob_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
 	mux.Handle("POST", pattern_BatchJobService_AdminStartJob_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -1183,6 +1256,8 @@ var (
 
 	pattern_BatchJobService_AdminCreateJob_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"BatchJob", "AdminCreateJob"}, ""))
 
+	pattern_BatchJobService_AdminChangeJob_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"BatchJob", "AdminChangeJob"}, ""))
+
 	pattern_BatchJobService_AdminStartJob_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"BatchJob", "AdminStartJob"}, ""))
 
 	pattern_BatchJobService_AdminStopJob_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"BatchJob", "AdminStopJob"}, ""))
@@ -1214,6 +1289,8 @@ var (
 	forward_BatchJobService_AdminChangeBiz_0 = runtime.ForwardResponseMessage
 
 	forward_BatchJobService_AdminCreateJob_0 = runtime.ForwardResponseMessage
+
+	forward_BatchJobService_AdminChangeJob_0 = runtime.ForwardResponseMessage
 
 	forward_BatchJobService_AdminStartJob_0 = runtime.ForwardResponseMessage
 

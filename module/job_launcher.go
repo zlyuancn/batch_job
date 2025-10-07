@@ -95,17 +95,17 @@ func newJobLauncher(bizInfo *batch_job_biz.Model, jobInfo *batch_job_list.Model,
 	}
 	j.ctx, j.cancel = context.WithCancel(context.Background())
 
-	switch pb.RateType(bizInfo.RateType) {
+	switch pb.RateType(jobInfo.RateType) {
 	case pb.RateType_RateType_RateSec: // 可以使用多个线程
 		j.threadLock = make(chan struct{}, conf.Conf.JobRunThreadCount) // 可以使用多个线程
 	case pb.RateType_RateType_Serialization: // 串行化
 		j.threadLock = make(chan struct{}, 1) // 只能用一个线程
 	default:
-		return nil, fmt.Errorf("rateType %d nonsupport", int(bizInfo.RateType))
+		return nil, fmt.Errorf("rateType %d nonsupport", int(jobInfo.RateType))
 	}
 
-	if bizInfo.RateSec > 0 { // 限速
-		j.limiter = rate.NewLimiter(rate.Limit(bizInfo.RateSec), int(bizInfo.RateSec)) // 每秒限速
+	if jobInfo.RateSec > 0 { // 限速
+		j.limiter = rate.NewLimiter(rate.Limit(jobInfo.RateSec), int(jobInfo.RateSec)) // 每秒限速
 	}
 
 	// 滑动窗口
