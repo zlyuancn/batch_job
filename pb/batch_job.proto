@@ -66,7 +66,7 @@ service BatchJobService{
     };
   }
   // 查询任务基本信息
-  rpc QueryJobBaseInfo(QueryJobBaseInfoReq) returns (QueryJobBaseInfoRsp) {
+  rpc QueryJobInfo(QueryJobInfoReq) returns (QueryJobInfoRsp) {
     option (google.api.http) = {
       post: "/BatchJob/QueryJobBaseInfo",
       body: "*",
@@ -219,16 +219,44 @@ message BizInfoA {
   int32 cbProcessStopTimeout = 12; // 处理任务停止回调超时秒数
   OpInfoA op = 13; // 操作信息
   BizStatus status = 14; // 状态 0=正常 1=隐藏
+  int64 createTime = 15; // 创建时间秒级时间戳
+}
+
+// 业务信息-响应
+message BizInfoByListA {
+  int32 bizType = 1; // 业务类型. 必填
+  string bizName = 2; // 业务名
+  string remark = 3; // 备注
+  ExecType execType = 4; // 执行类型
+  OpInfoA op = 13; // 操作信息
+  BizStatus status = 14; // 状态 0=正常 1=隐藏
+}
+
+// 任务信息-响应
+message JobInfoA {
+  int64 jobId = 1; // 任务id
+  string job_name = 2; // 任务名称
+  int32 bizType = 3; // 业务类型
+  string bizData = 4; // 业务任务数据, 让业务知道应该做什么
+  int64 processDataTotal = 5; // 业务中需要处理数据总数
+  int64 processedCount = 6; // 已处理过的数据量, 无论成功还是失败
+  int64 errLogCount = 7; // 错误日志数
+  JobStatus status = 8; // 任务状态
+  int64 createTime = 9; // 创建时间秒级时间戳
+  RateType rateType = 10; // 速率类型
+  int32 rateSec = 11; // 每秒处理速率. 0表示不限制
+  OpInfoA op = 12; // 操作信息
+  string statusInfo = 13; // 状态信息
 }
 
 // 任务基础信息-响应
-message JobBaseInfoA {
+message JobInfoByListA {
   int64 jobId = 1; // 任务id
-  int32 bizType = 2; // 业务类型
-  string bizData = 3; // 业务任务数据, 让业务知道应该做什么
+  string job_name = 2; // 任务名称
+  int32 bizType = 3; // 业务类型
   int64 processDataTotal = 4; // 业务中需要处理数据总数
-  int64 processedNum = 5; // 已处理过的数据量, 无论成功还是失败
-  int64 errLogNum = 6; // 错误日志数
+  int64 processedCount = 5; // 已处理过的数据量, 无论成功还是失败
+  int64 errLogCount = 6; // 错误日志数
   JobStatus status = 7; // 任务状态
   int64 createTime = 8; // 创建时间秒级时间戳
   RateType rateType = 9; // 速率类型
@@ -264,12 +292,14 @@ message DataLogA {
 
 message AdminCreateJobReq {
   int32 bizType = 1 [(validate.rules).int32.gt = 0]; // 业务类型. 必填
-  string bizData = 2; // 业务任务数据, 让业务知道应该做什么
-  int64 processDataTotal = 3; // 需要处理数据总数
-  RateType rateType = 4; // 速率类型
-  int32 rateSec = 5; // 每秒处理速率. 0表示不限制
-  OpInfoQ op = 6; // 操作信息
-  bool startNow = 7; // 创建后是否立即启动
+  string job_name = 2; // 任务名称
+  string bizData = 3; // 业务任务数据, 让业务知道应该做什么
+  int64 processDataTotal = 4; // 需要处理数据总数
+  int64 processedCount = 5; // 已处理过的数据量, 无论成功还是失败
+  RateType rateType = 6; // 速率类型
+  int32 rateSec = 7; // 每秒处理速率. 0表示不限制
+  OpInfoQ op = 8; // 操作信息
+  bool startNow = 9; // 创建后是否立即启动
 }
 message AdminCreateJobRsp {
   int64 jobId = 1; // 创建的任务id
@@ -277,10 +307,10 @@ message AdminCreateJobRsp {
 
 message AdminChangeJobReq {
   int32 bizType = 1 [(validate.rules).int32.gt = 0]; // 业务类型. 必填
-  string bizData = 2; // 业务任务数据, 让业务知道应该做什么
-  string bizProcessData = 3; // 业务中需要处理的批量数据
+  string job_name = 2; // 任务名称
+  string bizData = 3; // 业务任务数据, 让业务知道应该做什么
   int64 processDataTotal = 4; // 需要处理数据总数
-  bool startNow = 5; // 创建后是否立即启动
+  int64 processedCount = 5; // 已处理过的数据量, 无论成功还是失败
   RateType rateType = 6; // 速率类型
   int32 rateSec = 7; // 每秒处理速率. 0表示不限制
   OpInfoQ op = 8; // 操作信息
@@ -318,14 +348,15 @@ message QueryBizListReq {
 message QueryBizListRsp {
   int32 total = 1; // 总条数
   int32 pageSize = 2; // 当前分一页预期返回条数
-  repeated BizInfoA line = 3; // 业务信息
+  repeated BizInfoByListA line = 3; // 业务信息
 }
 
-message QueryJobBaseInfoReq {
+message QueryJobInfoReq {
   int64 jobId = 1 [(validate.rules).int64.gt = 0]; // 创建的任务id. 必填
+  bool needOpHistory = 2; // 是否需要操作历史
 }
-message QueryJobBaseInfoRsp {
-  JobBaseInfoA baseInfo = 1; // 任务基础信息
+message QueryJobInfoRsp {
+  JobInfoA line = 1; // 任务基础信息
 }
 
 message QueryJobListReq {
@@ -340,7 +371,7 @@ message QueryJobListReq {
 message QueryJobListRsp {
   int32 total = 1; // 总条数
   int32 pageSize = 2; // 当前分一页预期返回条数
-  repeated JobBaseInfoA line = 3; // 基础任务信息
+  repeated JobInfoByListA line = 3; // 基础任务信息
 }
 
 message QueryJobDataLogReq {
@@ -370,7 +401,7 @@ message BizUpdateBizDataReq {
   string bizData = 2; // 业务任务数据, 让业务知道应该做什么. 空值则不会更新这个数据
   string bizProcessData = 3; // 业务中需要处理的批量数据. 空值则不会更新这个数据
   int64 processDataTotal = 4; // 需要处理数据总数. 空值则不会更新这个数据
-  int64 processedNum = 5; // 已处理过的数据量, 无论成功还是失败. 空值则不会更新这个数据
+  int64 processedCount = 5; // 已处理过的数据量, 无论成功还是失败. 空值则不会更新这个数据
 }
 message BizUpdateBizDataRsp {}
 
@@ -385,3 +416,16 @@ message BizAddDataLogReq {
   repeated DataLogQ log = 2; // 日志内容
 }
 message BizAddDataLogRsp {}
+
+// 创建和修改任务基本参数
+message BeforeCreateAndChangeReq {
+  string job_name = 1; // 任务名称
+  int32 bizType = 2; // 业务类型. 必填
+  string bizData = 3; // 业务任务数据, 让业务知道应该做什么
+  int64 processDataTotal = 4; // 需要处理数据总数
+  int64 processedCount = 5; // 已处理过的数据量, 无论成功还是失败
+  RateType rateType = 6; // 速率类型
+  int32 rateSec = 7; // 每秒处理速率. 0表示不限制
+  int64 jobId = 8; // 任务id
+  bool isCreate = 9; // 是否为创建
+}

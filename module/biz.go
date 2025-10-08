@@ -15,7 +15,7 @@ type Business interface {
 	// 是否存在启动前回调
 	HasBeforeRunCallback() bool
 	// 创建业务回调
-	BeforeCreate(ctx context.Context, createJobReq *pb.AdminCreateJobReq, jobId int64) (*pb.AdminCreateJobReq, error)
+	BeforeCreateAndChange(ctx context.Context, args *pb.BeforeCreateAndChangeReq) error
 	// 业务启动前回调
 	BeforeRun(ctx context.Context, bizInfo *batch_job_biz.Model, jobInfo *batch_job_list.Model)
 }
@@ -25,7 +25,7 @@ var Biz = &bizCli{}
 type bizCli struct{}
 
 // 获取业务
-func (b *bizCli) GetBizByBizType(ctx context.Context, bizType int32) (Business, error) {
+func (b *bizCli) GetBizByBizType(ctx context.Context, bizType int) (Business, error) {
 	// 从db加载biz信息
 	v, err := batch_job_biz.GetOneBaseInfoByBizType(ctx, bizType)
 	if err != nil {

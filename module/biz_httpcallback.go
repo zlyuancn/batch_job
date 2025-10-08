@@ -16,13 +16,13 @@ func (h *httpCallbackBiz) HasBeforeRunCallback() bool {
 	return h.v.CbBeforeRun != ""
 }
 
-func (h *httpCallbackBiz) BeforeCreate(ctx context.Context, req *pb.AdminCreateJobReq, jobId int64) (*pb.AdminCreateJobReq, error) {
+func (h *httpCallbackBiz) BeforeCreateAndChange(ctx context.Context, args *pb.BeforeCreateAndChangeReq) error {
 	if h.v.CbBeforeCreate == "" {
-		return req, nil
+		return nil
 	}
 
 	// todo 创建前回调
-	return req, nil
+	return nil
 }
 
 func (h *httpCallbackBiz) BeforeRun(ctx context.Context, bizInfo *batch_job_biz.Model, jobInfo *batch_job_list.Model) {

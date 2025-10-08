@@ -27,7 +27,7 @@ const (
 	BatchJobService_AdminStopJob_FullMethodName        = "/batch_job.BatchJobService/AdminStopJob"
 	BatchJobService_QueryBizInfo_FullMethodName        = "/batch_job.BatchJobService/QueryBizInfo"
 	BatchJobService_QueryBizList_FullMethodName        = "/batch_job.BatchJobService/QueryBizList"
-	BatchJobService_QueryJobBaseInfo_FullMethodName    = "/batch_job.BatchJobService/QueryJobBaseInfo"
+	BatchJobService_QueryJobInfo_FullMethodName        = "/batch_job.BatchJobService/QueryJobInfo"
 	BatchJobService_QueryJobList_FullMethodName        = "/batch_job.BatchJobService/QueryJobList"
 	BatchJobService_QueryJobDataLog_FullMethodName     = "/batch_job.BatchJobService/QueryJobDataLog"
 	BatchJobService_BizStartJob_FullMethodName         = "/batch_job.BatchJobService/BizStartJob"
@@ -60,7 +60,7 @@ type BatchJobServiceClient interface {
 	// 查询业务列表
 	QueryBizList(ctx context.Context, in *QueryBizListReq, opts ...grpc.CallOption) (*QueryBizListRsp, error)
 	// 查询任务基本信息
-	QueryJobBaseInfo(ctx context.Context, in *QueryJobBaseInfoReq, opts ...grpc.CallOption) (*QueryJobBaseInfoRsp, error)
+	QueryJobInfo(ctx context.Context, in *QueryJobInfoReq, opts ...grpc.CallOption) (*QueryJobInfoRsp, error)
 	// 查询任务列表
 	QueryJobList(ctx context.Context, in *QueryJobListReq, opts ...grpc.CallOption) (*QueryJobListRsp, error)
 	// 查询任务的数据日志
@@ -165,10 +165,10 @@ func (c *batchJobServiceClient) QueryBizList(ctx context.Context, in *QueryBizLi
 	return out, nil
 }
 
-func (c *batchJobServiceClient) QueryJobBaseInfo(ctx context.Context, in *QueryJobBaseInfoReq, opts ...grpc.CallOption) (*QueryJobBaseInfoRsp, error) {
+func (c *batchJobServiceClient) QueryJobInfo(ctx context.Context, in *QueryJobInfoReq, opts ...grpc.CallOption) (*QueryJobInfoRsp, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(QueryJobBaseInfoRsp)
-	err := c.cc.Invoke(ctx, BatchJobService_QueryJobBaseInfo_FullMethodName, in, out, cOpts...)
+	out := new(QueryJobInfoRsp)
+	err := c.cc.Invoke(ctx, BatchJobService_QueryJobInfo_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -268,7 +268,7 @@ type BatchJobServiceServer interface {
 	// 查询业务列表
 	QueryBizList(context.Context, *QueryBizListReq) (*QueryBizListRsp, error)
 	// 查询任务基本信息
-	QueryJobBaseInfo(context.Context, *QueryJobBaseInfoReq) (*QueryJobBaseInfoRsp, error)
+	QueryJobInfo(context.Context, *QueryJobInfoReq) (*QueryJobInfoRsp, error)
 	// 查询任务列表
 	QueryJobList(context.Context, *QueryJobListReq) (*QueryJobListRsp, error)
 	// 查询任务的数据日志
@@ -317,8 +317,8 @@ func (UnimplementedBatchJobServiceServer) QueryBizInfo(context.Context, *QueryBi
 func (UnimplementedBatchJobServiceServer) QueryBizList(context.Context, *QueryBizListReq) (*QueryBizListRsp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method QueryBizList not implemented")
 }
-func (UnimplementedBatchJobServiceServer) QueryJobBaseInfo(context.Context, *QueryJobBaseInfoReq) (*QueryJobBaseInfoRsp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method QueryJobBaseInfo not implemented")
+func (UnimplementedBatchJobServiceServer) QueryJobInfo(context.Context, *QueryJobInfoReq) (*QueryJobInfoRsp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method QueryJobInfo not implemented")
 }
 func (UnimplementedBatchJobServiceServer) QueryJobList(context.Context, *QueryJobListReq) (*QueryJobListRsp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method QueryJobList not implemented")
@@ -506,20 +506,20 @@ func _BatchJobService_QueryBizList_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
-func _BatchJobService_QueryJobBaseInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryJobBaseInfoReq)
+func _BatchJobService_QueryJobInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryJobInfoReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BatchJobServiceServer).QueryJobBaseInfo(ctx, in)
+		return srv.(BatchJobServiceServer).QueryJobInfo(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: BatchJobService_QueryJobBaseInfo_FullMethodName,
+		FullMethod: BatchJobService_QueryJobInfo_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BatchJobServiceServer).QueryJobBaseInfo(ctx, req.(*QueryJobBaseInfoReq))
+		return srv.(BatchJobServiceServer).QueryJobInfo(ctx, req.(*QueryJobInfoReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -690,8 +690,8 @@ var BatchJobService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _BatchJobService_QueryBizList_Handler,
 		},
 		{
-			MethodName: "QueryJobBaseInfo",
-			Handler:    _BatchJobService_QueryJobBaseInfo_Handler,
+			MethodName: "QueryJobInfo",
+			Handler:    _BatchJobService_QueryJobInfo_Handler,
 		},
 		{
 			MethodName: "QueryJobList",

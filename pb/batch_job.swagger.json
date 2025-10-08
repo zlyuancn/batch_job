@@ -448,12 +448,12 @@
     "/BatchJob/QueryJobBaseInfo": {
       "post": {
         "summary": "查询任务基本信息",
-        "operationId": "BatchJobService_QueryJobBaseInfo",
+        "operationId": "BatchJobService_QueryJobInfo",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/batch_jobQueryJobBaseInfoRsp"
+              "$ref": "#/definitions/batch_jobQueryJobInfoRsp"
             }
           },
           "default": {
@@ -469,7 +469,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/batch_jobQueryJobBaseInfoReq"
+              "$ref": "#/definitions/batch_jobQueryJobInfoReq"
             }
           }
         ],
@@ -554,22 +554,23 @@
           "format": "int32",
           "title": "业务类型. 必填"
         },
+        "jobName": {
+          "type": "string",
+          "title": "任务名称"
+        },
         "bizData": {
           "type": "string",
           "title": "业务任务数据, 让业务知道应该做什么"
-        },
-        "bizProcessData": {
-          "type": "string",
-          "title": "业务中需要处理的批量数据"
         },
         "processDataTotal": {
           "type": "string",
           "format": "int64",
           "title": "需要处理数据总数"
         },
-        "startNow": {
-          "type": "boolean",
-          "title": "创建后是否立即启动"
+        "processedCount": {
+          "type": "string",
+          "format": "int64",
+          "title": "已处理过的数据量, 无论成功还是失败"
         },
         "rateType": {
           "$ref": "#/definitions/batch_jobRateType",
@@ -602,6 +603,10 @@
           "format": "int32",
           "title": "业务类型. 必填"
         },
+        "jobName": {
+          "type": "string",
+          "title": "任务名称"
+        },
         "bizData": {
           "type": "string",
           "title": "业务任务数据, 让业务知道应该做什么"
@@ -610,6 +615,11 @@
           "type": "string",
           "format": "int64",
           "title": "需要处理数据总数"
+        },
+        "processedCount": {
+          "type": "string",
+          "format": "int64",
+          "title": "已处理过的数据量, 无论成功还是失败"
         },
         "rateType": {
           "$ref": "#/definitions/batch_jobRateType",
@@ -845,6 +855,42 @@
         "status": {
           "$ref": "#/definitions/batch_jobBizStatus",
           "title": "状态 0=正常 1=隐藏"
+        },
+        "createTime": {
+          "type": "string",
+          "format": "int64",
+          "title": "创建时间秒级时间戳"
+        }
+      },
+      "title": "业务信息-响应"
+    },
+    "batch_jobBizInfoByListA": {
+      "type": "object",
+      "properties": {
+        "bizType": {
+          "type": "integer",
+          "format": "int32",
+          "title": "业务类型. 必填"
+        },
+        "bizName": {
+          "type": "string",
+          "title": "业务名"
+        },
+        "remark": {
+          "type": "string",
+          "title": "备注"
+        },
+        "execType": {
+          "$ref": "#/definitions/batch_jobExecType",
+          "title": "执行类型"
+        },
+        "op": {
+          "$ref": "#/definitions/batch_jobOpInfoA",
+          "title": "操作信息"
+        },
+        "status": {
+          "$ref": "#/definitions/batch_jobBizStatus",
+          "title": "状态 0=正常 1=隐藏"
         }
       },
       "title": "业务信息-响应"
@@ -906,7 +952,7 @@
           "format": "int64",
           "title": "需要处理数据总数. 空值则不会更新这个数据"
         },
-        "processedNum": {
+        "processedCount": {
           "type": "string",
           "format": "int64",
           "title": "已处理过的数据量, 无论成功还是失败. 空值则不会更新这个数据"
@@ -987,13 +1033,17 @@
       "description": "- ExecType_HttpCallback: http回调",
       "title": "执行类型"
     },
-    "batch_jobJobBaseInfoA": {
+    "batch_jobJobInfoA": {
       "type": "object",
       "properties": {
         "jobId": {
           "type": "string",
           "format": "int64",
           "title": "任务id"
+        },
+        "jobName": {
+          "type": "string",
+          "title": "任务名称"
         },
         "bizType": {
           "type": "integer",
@@ -1009,12 +1059,73 @@
           "format": "int64",
           "title": "业务中需要处理数据总数"
         },
-        "processedNum": {
+        "processedCount": {
           "type": "string",
           "format": "int64",
           "title": "已处理过的数据量, 无论成功还是失败"
         },
-        "errLogNum": {
+        "errLogCount": {
+          "type": "string",
+          "format": "int64",
+          "title": "错误日志数"
+        },
+        "status": {
+          "$ref": "#/definitions/batch_jobJobStatus",
+          "title": "任务状态"
+        },
+        "createTime": {
+          "type": "string",
+          "format": "int64",
+          "title": "创建时间秒级时间戳"
+        },
+        "rateType": {
+          "$ref": "#/definitions/batch_jobRateType",
+          "title": "速率类型"
+        },
+        "rateSec": {
+          "type": "integer",
+          "format": "int32",
+          "title": "每秒处理速率. 0表示不限制"
+        },
+        "op": {
+          "$ref": "#/definitions/batch_jobOpInfoA",
+          "title": "操作信息"
+        },
+        "statusInfo": {
+          "type": "string",
+          "title": "状态信息"
+        }
+      },
+      "title": "任务信息-响应"
+    },
+    "batch_jobJobInfoByListA": {
+      "type": "object",
+      "properties": {
+        "jobId": {
+          "type": "string",
+          "format": "int64",
+          "title": "任务id"
+        },
+        "jobName": {
+          "type": "string",
+          "title": "任务名称"
+        },
+        "bizType": {
+          "type": "integer",
+          "format": "int32",
+          "title": "业务类型"
+        },
+        "processDataTotal": {
+          "type": "string",
+          "format": "int64",
+          "title": "业务中需要处理数据总数"
+        },
+        "processedCount": {
+          "type": "string",
+          "format": "int64",
+          "title": "已处理过的数据量, 无论成功还是失败"
+        },
+        "errLogCount": {
           "type": "string",
           "format": "int64",
           "title": "错误日志数"
@@ -1185,28 +1296,9 @@
           "type": "array",
           "items": {
             "type": "object",
-            "$ref": "#/definitions/batch_jobBizInfoA"
+            "$ref": "#/definitions/batch_jobBizInfoByListA"
           },
           "title": "业务信息"
-        }
-      }
-    },
-    "batch_jobQueryJobBaseInfoReq": {
-      "type": "object",
-      "properties": {
-        "jobId": {
-          "type": "string",
-          "format": "int64",
-          "title": "创建的任务id. 必填"
-        }
-      }
-    },
-    "batch_jobQueryJobBaseInfoRsp": {
-      "type": "object",
-      "properties": {
-        "baseInfo": {
-          "$ref": "#/definitions/batch_jobJobBaseInfoA",
-          "title": "任务基础信息"
         }
       }
     },
@@ -1254,6 +1346,29 @@
             "$ref": "#/definitions/batch_jobDataLogA"
           },
           "title": "日志"
+        }
+      }
+    },
+    "batch_jobQueryJobInfoReq": {
+      "type": "object",
+      "properties": {
+        "jobId": {
+          "type": "string",
+          "format": "int64",
+          "title": "创建的任务id. 必填"
+        },
+        "needOpHistory": {
+          "type": "boolean",
+          "title": "是否需要操作历史"
+        }
+      }
+    },
+    "batch_jobQueryJobInfoRsp": {
+      "type": "object",
+      "properties": {
+        "line": {
+          "$ref": "#/definitions/batch_jobJobInfoA",
+          "title": "任务基础信息"
         }
       }
     },
@@ -1312,7 +1427,7 @@
           "type": "array",
           "items": {
             "type": "object",
-            "$ref": "#/definitions/batch_jobJobBaseInfoA"
+            "$ref": "#/definitions/batch_jobJobInfoByListA"
           },
           "title": "基础任务信息"
         }

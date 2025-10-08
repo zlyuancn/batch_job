@@ -28,26 +28,45 @@ var (
 		}
 		return selectAllFields
 	}()
-	// selectField = []string{
-	//	"id",
-	//	"job_id",
-	//	"biz_type",
-	//	"biz_data",
-	//	"process_data_total",
-	//	"processed_count",
-	//	"err_log_count",
-	//	"status",
-	//	"create_time",
-	//	"update_time",
-	//	"last_op_source",
-	//	"last_op_user_id",
-	//	"last_op_user_name",
-	//	"last_op_remark",
-	//	"status_info",
-	//	"op_history",
-	//	"rate_sec",
-	//	"rate_type",
-	// }
+
+	selectBaseField = []string{
+		"job_id",
+		"biz_type",
+		"job_name",
+		"biz_data",
+		"process_data_total",
+		"processed_count",
+		"err_log_count",
+		"status",
+		"create_time",
+		"update_time",
+		"last_op_source",
+		"last_op_user_id",
+		"last_op_user_name",
+		"last_op_remark",
+		"status_info",
+		"rate_sec",
+		"rate_type",
+	}
+
+	selectFieldByQueryList = []string{
+		"job_id",
+		"biz_type",
+		"job_name",
+		"process_data_total",
+		"processed_count",
+		"err_log_count",
+		"status",
+		"create_time",
+		"update_time",
+		"last_op_source",
+		"last_op_user_id",
+		"last_op_user_name",
+		"last_op_remark",
+		"status_info",
+		"rate_sec",
+		"rate_type",
+	}
 )
 
 const (
@@ -55,8 +74,9 @@ const (
 )
 
 type Model struct {
-	ID               uint64    `db:"id" json:"-"`
-	JobID            uint64    `db:"job_id" json:"-"`        // "任务号"
+	ID               uint      `db:"id" json:"-"`
+	JobID            uint      `db:"job_id" json:"-"`        // "任务号"
+	JobName          string    `db:"job_name"`               // "任务名称"
 	BizType          uint      `db:"biz_type" json:"-"`      // "业务类型"
 	BizData          string    `db:"biz_data"`               // "业务任务数据, 让业务知道应该做什么"
 	ProcessDataTotal uint64    `db:"process_data_total"`     // "需要处理数据总数"
@@ -83,6 +103,7 @@ func CreateOneModel(ctx context.Context, v *Model) (int64, error) {
 	var data []map[string]any
 	data = append(data, map[string]any{
 		"job_id":             v.JobID,
+		"job_name":           v.JobName,
 		"biz_type":           v.BizType,
 		"biz_data":           v.BizData,
 		"process_data_total": v.ProcessDataTotal,
@@ -114,7 +135,7 @@ func CreateOneModel(ctx context.Context, v *Model) (int64, error) {
 	return result.LastInsertId()
 }
 
-func GetOne(ctx context.Context, where map[string]any) (*Model, error) {
+func GetOne(ctx context.Context, where map[string]any, selectField []string) (*Model, error) {
 	if where == nil {
 		where = map[string]any{}
 	}
@@ -133,11 +154,11 @@ func GetOne(ctx context.Context, where map[string]any) (*Model, error) {
 	return &ret, nil
 }
 
-func GetOneByJobId(ctx context.Context, jobId int64) (*Model, error) {
+func GetOneByJobId(ctx context.Context, jobId int) (*Model, error) {
 	where := map[string]interface{}{
 		"job_id": jobId,
 	}
-	v, err := GetOne(ctx, where)
+	v, err := GetOne(ctx, where, selectField)
 	if err != nil {
 		logger.Error(ctx, "GetOneByJobId fail.", zap.Error(err))
 		return nil, err
@@ -145,7 +166,57 @@ func GetOneByJobId(ctx context.Context, jobId int64) (*Model, error) {
 	return v, nil
 }
 
-func UpdateOneModel(ctx context.Context, v *Model) (int64, error) {
+func GetOneBaseInfoByJobId(ctx context.Context, jobId int) (*Model, error) {
+	where := map[string]interface{}{
+		"job_id": jobId,
+	}
+	v, err := GetOne(ctx, where, selectBaseField)
+	if err != nil {
+		logger.Error(ctx, "GetOneBaseInfoByJobId fail.", zap.Error(err))
+		return nil, err
+	}
+	return v, nil
+}
+
+func MultiGet(ctx context.Context, where map[string]any) ([]*Model, error) {
+	cond, vals, err := builder.BuildSelect(tableName, where, selectFieldByQueryList)
+	if err != nil {
+		logger.Log.Error(ctx, "MultiGet BuildSelect err",
+			zap.Any("where", where),
+			zap.Error(err),
+		)
+		return nil, err
+	}
+
+	ret := []*Model{}
+	err = db.GetSqlx().Find(ctx, &ret, cond, vals...)
+	if err != nil {
+		logger.Error(ctx, "MultiGet FindOne fail.", zap.String("cond", cond), zap.Any("vals", vals), zap.Error(err))
+		return nil, err
+	}
+	return ret, nil
+}
+
+func Count(ctx context.Context, where map[string]any) (int64, error) {
+	cond, vals, err := builder.BuildSelect(tableName, where, []string{"count(1)"})
+	if err != nil {
+		logger.Log.Error(ctx, "Count BuildSelect err",
+			zap.Any("where", where),
+			zap.Error(err),
+		)
+		return 0, err
+	}
+
+	var ret int64
+	err = db.GetSqlx().FindOne(ctx, &ret, cond, vals...)
+	if err != nil {
+		logger.Error(ctx, "Count FindOne fail.", zap.String("cond", cond), zap.Any("vals", vals), zap.Error(err))
+		return 0, err
+	}
+	return ret, nil
+}
+
+func UpdateOneModelWhereStatus(ctx context.Context, v *Model, whereStatus byte) (int64, error) {
 	if v == nil {
 		return 0, errors.New("UpdateOneModel v is empty")
 	}
@@ -155,10 +226,10 @@ func UpdateOneModel(ctx context.Context, v *Model) (int64, error) {
 	const cond = `
 update batch_job_list
 set 
+    job_name=?,
     biz_data=?,
     process_data_total=?,
     processed_count=?,
-    status=?,
     update_time=now(),
     last_op_source=?,
     last_op_user_id=?,
@@ -169,12 +240,13 @@ set
     rate_sec=?,
     rate_type=?
 where job_id = ?
+    whereStatus = ?
 limit 1;`
 	vals := []interface{}{
+		v.JobName,
 		v.BizData,
 		v.ProcessDataTotal,
 		v.ProcessedCount,
-		v.Status,
 		v.LastOpSource,
 		v.LastOpUserID,
 		v.LastOpUserName,
@@ -184,10 +256,11 @@ limit 1;`
 		v.RateSec,
 		v.RateType,
 		v.JobID,
+		whereStatus,
 	}
 	result, err := db.GetSqlx().Exec(ctx, cond, vals...)
 	if nil != err {
-		logger.Error(ctx, "UpdateOneModel fail.", zap.String("cond", cond), zap.Any("vals", vals), zap.Error(err))
+		logger.Error(ctx, "UpdateOneModelWhereStatus fail.", zap.String("cond", cond), zap.Any("vals", vals), zap.Error(err))
 		return 0, err
 	}
 	return result.RowsAffected()

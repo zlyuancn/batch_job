@@ -42,6 +42,20 @@ var (
 		"cb_before_run_timeout",
 		"cb_process_timeout",
 		"cb_process_stop_timeout",
+		"create_time",
+		"update_time",
+		"last_op_source",
+		"last_op_user_id",
+		"last_op_user_name",
+		"last_op_remark",
+		"status",
+	}
+
+	selectFieldByQueryList = []string{
+		"biz_type",
+		"biz_name",
+		"exec_type",
+		"remark",
 		"update_time",
 		"last_op_source",
 		"last_op_user_id",
@@ -132,7 +146,7 @@ func UpdateOneModel(ctx context.Context, v *Model) (int64, error) {
 update batch_job_biz
 set 
     biz_name=?,
-    rate_sec=?,
+    exec_type=?,
     remark=?,
     cb_before_create=?,
     cb_before_run=?,
@@ -199,7 +213,7 @@ func GetOne(ctx context.Context, where map[string]any, selectField []string) (*M
 }
 
 func MultiGet(ctx context.Context, where map[string]any) ([]*Model, error) {
-	cond, vals, err := builder.BuildSelect(tableName, where, selectBaseField)
+	cond, vals, err := builder.BuildSelect(tableName, where, selectFieldByQueryList)
 	if err != nil {
 		logger.Log.Error(ctx, "MultiGet BuildSelect err",
 			zap.Any("where", where),
@@ -236,7 +250,7 @@ func Count(ctx context.Context, where map[string]any) (int64, error) {
 	return ret, nil
 }
 
-func GetOneByBizType(ctx context.Context, bizType int32) (*Model, error) {
+func GetOneByBizType(ctx context.Context, bizType int) (*Model, error) {
 	where := map[string]interface{}{
 		"biz_type": bizType,
 	}
@@ -248,7 +262,7 @@ func GetOneByBizType(ctx context.Context, bizType int32) (*Model, error) {
 	return v, nil
 }
 
-func GetOneBaseInfoByBizType(ctx context.Context, bizType int32) (*Model, error) {
+func GetOneBaseInfoByBizType(ctx context.Context, bizType int) (*Model, error) {
 	where := map[string]interface{}{
 		"biz_type": bizType,
 	}
