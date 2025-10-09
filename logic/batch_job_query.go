@@ -9,8 +9,32 @@ import (
 
 	"github.com/zlyuancn/batch_job/dao/batch_job_biz"
 	"github.com/zlyuancn/batch_job/dao/batch_job_list"
+	"github.com/zlyuancn/batch_job/dao/batch_job_log"
 	"github.com/zlyuancn/batch_job/pb"
 )
+
+// 查询所有业务名
+func (b *BatchJob) QueryAllBizName(ctx context.Context, req *pb.QueryAllBizNameReq) (*pb.QueryAllBizNameRsp, error) {
+	where := map[string]interface{}{
+		"_orderby": "biz_type asc",
+	}
+	selectField := []string{"biz_type", "biz_name", "status"}
+	lines, err := batch_job_biz.MultiGetBySelect(ctx, where, selectField)
+	if err != nil {
+		logger.Error(ctx, "QueryAllBizName call batch_job_biz.MultiGetBySelect", zap.Error(err))
+		return nil, err
+	}
+
+	ret := make([]*pb.QueryAllBizNameRsp_LineA, 0, len(lines))
+	for _, line := range lines {
+		ret = append(ret, &pb.QueryAllBizNameRsp_LineA{
+			BizType: int32(line.BizType),
+			BizName: line.BizName,
+			Status:  pb.BizStatus(line.Status),
+		})
+	}
+	return &pb.QueryAllBizNameRsp{Line: ret}, nil
+}
 
 // 查询业务信息
 func (b *BatchJob) QueryBizInfo(ctx context.Context, req *pb.QueryBizInfoReq) (*pb.QueryBizInfoRsp, error) {
@@ -269,6 +293,68 @@ func (*BatchJob) jobDbModel2ListPb(line *batch_job_list.Model) *pb.JobInfoByList
 			OpTime:     line.UpdateTime.Unix(),
 		},
 		StatusInfo: line.StatusInfo,
+	}
+	return ret
+}
+
+// 查询任务的数据日志
+func (b *BatchJob) QueryJobDataLog(ctx context.Context, req *pb.QueryJobDataLogReq) (*pb.QueryJobDataLogRsp, error) {
+	where := map[string]interface{}{}
+	if req.GetJobId() > 0 {
+		where["job_id"] = req.GetJobId()
+	}
+	if req.GetNextCursor() > 0 {
+		where["id <"] = req.GetNextCursor()
+	}
+	if req.GetStartTime() > 0 {
+		where["create_time >="] = req.GetStartTime()
+	}
+	if req.GetEndTime() > 0 {
+		where["create_time <="] = req.GetEndTime()
+	}
+	if len(req.GetLogType()) == 1 {
+		where["log_type"] = int(req.GetLogType()[0])
+	}
+	if len(req.GetLogType()) > 1 {
+		types := make([]int32, len(req.GetLogType()))
+		for i := range req.GetLogType() {
+			types[i] = int32(req.GetLogType()[i])
+		}
+		where["log_type in"] = types
+	}
+
+	pageSize := int32(math.Max(float64(req.GetPageSize()), 20))
+	where["_orderby"] = "id desc"
+	where["_limit"] = []uint{0, uint(pageSize)}
+
+	lines, err := batch_job_log.MultiGet(ctx, where)
+	if err != nil {
+		logger.Error(ctx, "QueryJobDataLog call batch_job_log.MultiGet", zap.Error(err))
+		return nil, err
+	}
+
+	ret := make([]*pb.LogInfoByListA, 0, len(lines))
+	for _, line := range lines {
+		ret = append(ret, b.logDbModel2ListPb(line))
+	}
+	nextCursor := int64(0)
+	if len(lines) > 0 {
+		nextCursor = int64(lines[len(lines)-1].ID)
+	}
+	return &pb.QueryJobDataLogRsp{
+		NextCursor: nextCursor,
+		PageSize:   pageSize,
+		Line:       ret,
+	}, nil
+}
+
+func (*BatchJob) logDbModel2ListPb(line *batch_job_log.Model) *pb.LogInfoByListA {
+	ret := &pb.LogInfoByListA{
+		DataId:     line.DataID,
+		Remark:     line.Remark,
+		Extend:     line.Extend,
+		LogType:    pb.DataLogType(line.LogType),
+		CreateTime: line.CreateTime.Unix(),
 	}
 	return ret
 }

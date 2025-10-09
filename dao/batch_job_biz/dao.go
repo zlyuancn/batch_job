@@ -225,7 +225,26 @@ func MultiGet(ctx context.Context, where map[string]any) ([]*Model, error) {
 	ret := []*Model{}
 	err = db.GetSqlx().Find(ctx, &ret, cond, vals...)
 	if err != nil {
-		logger.Error(ctx, "MultiGet FindOne fail.", zap.String("cond", cond), zap.Any("vals", vals), zap.Error(err))
+		logger.Error(ctx, "MultiGet Find fail.", zap.String("cond", cond), zap.Any("vals", vals), zap.Error(err))
+		return nil, err
+	}
+	return ret, nil
+}
+
+func MultiGetBySelect(ctx context.Context, where map[string]any, selectField []string) ([]*Model, error) {
+	cond, vals, err := builder.BuildSelect(tableName, where, selectField)
+	if err != nil {
+		logger.Log.Error(ctx, "MultiGetBySelect BuildSelect err",
+			zap.Any("where", where),
+			zap.Error(err),
+		)
+		return nil, err
+	}
+
+	ret := []*Model{}
+	err = db.GetSqlx().Find(ctx, &ret, cond, vals...)
+	if err != nil {
+		logger.Error(ctx, "MultiGetBySelect Find fail.", zap.String("cond", cond), zap.Any("vals", vals), zap.Error(err))
 		return nil, err
 	}
 	return ret, nil

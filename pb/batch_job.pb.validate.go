@@ -1513,22 +1513,22 @@ var _ interface {
 	ErrorName() string
 } = DataLogQValidationError{}
 
-// Validate checks the field values on DataLogA with the rules defined in the
-// proto definition for this message. If any rules are violated, the first
+// Validate checks the field values on LogInfoByListA with the rules defined in
+// the proto definition for this message. If any rules are violated, the first
 // error encountered is returned, or nil if there are no violations.
-func (m *DataLogA) Validate() error {
+func (m *LogInfoByListA) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on DataLogA with the rules defined in
-// the proto definition for this message. If any rules are violated, the
-// result is a list of violation errors wrapped in DataLogAMultiError, or nil
-// if none found.
-func (m *DataLogA) ValidateAll() error {
+// ValidateAll checks the field values on LogInfoByListA with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in LogInfoByListAMultiError,
+// or nil if none found.
+func (m *LogInfoByListA) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *DataLogA) validate(all bool) error {
+func (m *LogInfoByListA) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -1546,18 +1546,19 @@ func (m *DataLogA) validate(all bool) error {
 	// no validation rules for CreateTime
 
 	if len(errors) > 0 {
-		return DataLogAMultiError(errors)
+		return LogInfoByListAMultiError(errors)
 	}
 
 	return nil
 }
 
-// DataLogAMultiError is an error wrapping multiple validation errors returned
-// by DataLogA.ValidateAll() if the designated constraints aren't met.
-type DataLogAMultiError []error
+// LogInfoByListAMultiError is an error wrapping multiple validation errors
+// returned by LogInfoByListA.ValidateAll() if the designated constraints
+// aren't met.
+type LogInfoByListAMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m DataLogAMultiError) Error() string {
+func (m LogInfoByListAMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -1566,11 +1567,11 @@ func (m DataLogAMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m DataLogAMultiError) AllErrors() []error { return m }
+func (m LogInfoByListAMultiError) AllErrors() []error { return m }
 
-// DataLogAValidationError is the validation error returned by
-// DataLogA.Validate if the designated constraints aren't met.
-type DataLogAValidationError struct {
+// LogInfoByListAValidationError is the validation error returned by
+// LogInfoByListA.Validate if the designated constraints aren't met.
+type LogInfoByListAValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -1578,22 +1579,22 @@ type DataLogAValidationError struct {
 }
 
 // Field function returns field value.
-func (e DataLogAValidationError) Field() string { return e.field }
+func (e LogInfoByListAValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e DataLogAValidationError) Reason() string { return e.reason }
+func (e LogInfoByListAValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e DataLogAValidationError) Cause() error { return e.cause }
+func (e LogInfoByListAValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e DataLogAValidationError) Key() bool { return e.key }
+func (e LogInfoByListAValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e DataLogAValidationError) ErrorName() string { return "DataLogAValidationError" }
+func (e LogInfoByListAValidationError) ErrorName() string { return "LogInfoByListAValidationError" }
 
 // Error satisfies the builtin error interface
-func (e DataLogAValidationError) Error() string {
+func (e LogInfoByListAValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -1605,14 +1606,14 @@ func (e DataLogAValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sDataLogA.%s: %s%s",
+		"invalid %sLogInfoByListA.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = DataLogAValidationError{}
+var _ error = LogInfoByListAValidationError{}
 
 var _ interface {
 	Field() string
@@ -1620,7 +1621,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = DataLogAValidationError{}
+} = LogInfoByListAValidationError{}
 
 // Validate checks the field values on AdminCreateJobReq with the rules defined
 // in the proto definition for this message. If any rules are violated, the
@@ -2619,6 +2620,244 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = AdminStopJobRspValidationError{}
+
+// Validate checks the field values on QueryAllBizNameReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *QueryAllBizNameReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on QueryAllBizNameReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// QueryAllBizNameReqMultiError, or nil if none found.
+func (m *QueryAllBizNameReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *QueryAllBizNameReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return QueryAllBizNameReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// QueryAllBizNameReqMultiError is an error wrapping multiple validation errors
+// returned by QueryAllBizNameReq.ValidateAll() if the designated constraints
+// aren't met.
+type QueryAllBizNameReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m QueryAllBizNameReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m QueryAllBizNameReqMultiError) AllErrors() []error { return m }
+
+// QueryAllBizNameReqValidationError is the validation error returned by
+// QueryAllBizNameReq.Validate if the designated constraints aren't met.
+type QueryAllBizNameReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e QueryAllBizNameReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e QueryAllBizNameReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e QueryAllBizNameReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e QueryAllBizNameReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e QueryAllBizNameReqValidationError) ErrorName() string {
+	return "QueryAllBizNameReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e QueryAllBizNameReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sQueryAllBizNameReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = QueryAllBizNameReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = QueryAllBizNameReqValidationError{}
+
+// Validate checks the field values on QueryAllBizNameRsp with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *QueryAllBizNameRsp) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on QueryAllBizNameRsp with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// QueryAllBizNameRspMultiError, or nil if none found.
+func (m *QueryAllBizNameRsp) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *QueryAllBizNameRsp) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	for idx, item := range m.GetLine() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, QueryAllBizNameRspValidationError{
+						field:  fmt.Sprintf("Line[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, QueryAllBizNameRspValidationError{
+						field:  fmt.Sprintf("Line[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return QueryAllBizNameRspValidationError{
+					field:  fmt.Sprintf("Line[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if len(errors) > 0 {
+		return QueryAllBizNameRspMultiError(errors)
+	}
+
+	return nil
+}
+
+// QueryAllBizNameRspMultiError is an error wrapping multiple validation errors
+// returned by QueryAllBizNameRsp.ValidateAll() if the designated constraints
+// aren't met.
+type QueryAllBizNameRspMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m QueryAllBizNameRspMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m QueryAllBizNameRspMultiError) AllErrors() []error { return m }
+
+// QueryAllBizNameRspValidationError is the validation error returned by
+// QueryAllBizNameRsp.Validate if the designated constraints aren't met.
+type QueryAllBizNameRspValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e QueryAllBizNameRspValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e QueryAllBizNameRspValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e QueryAllBizNameRspValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e QueryAllBizNameRspValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e QueryAllBizNameRspValidationError) ErrorName() string {
+	return "QueryAllBizNameRspValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e QueryAllBizNameRspValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sQueryAllBizNameRsp.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = QueryAllBizNameRspValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = QueryAllBizNameRspValidationError{}
 
 // Validate checks the field values on QueryBizInfoReq with the rules defined
 // in the proto definition for this message. If any rules are violated, the
@@ -3680,16 +3919,7 @@ func (m *QueryJobDataLogReq) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if m.GetPage() <= 0 {
-		err := QueryJobDataLogReqValidationError{
-			field:  "Page",
-			reason: "value must be greater than 0",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
+	// no validation rules for NextCursor
 
 	if m.GetPageSize() < 5 {
 		err := QueryJobDataLogReqValidationError{
@@ -3702,7 +3932,9 @@ func (m *QueryJobDataLogReq) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	// no validation rules for LogType
+	// no validation rules for StartTime
+
+	// no validation rules for EndTime
 
 	if len(errors) > 0 {
 		return QueryJobDataLogReqMultiError(errors)
@@ -3806,11 +4038,11 @@ func (m *QueryJobDataLogRsp) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Total
+	// no validation rules for NextCursor
 
 	// no validation rules for PageSize
 
-	for idx, item := range m.GetLog() {
+	for idx, item := range m.GetLine() {
 		_, _ = idx, item
 
 		if all {
@@ -3818,7 +4050,7 @@ func (m *QueryJobDataLogRsp) validate(all bool) error {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, QueryJobDataLogRspValidationError{
-						field:  fmt.Sprintf("Log[%v]", idx),
+						field:  fmt.Sprintf("Line[%v]", idx),
 						reason: "embedded message failed validation",
 						cause:  err,
 					})
@@ -3826,7 +4058,7 @@ func (m *QueryJobDataLogRsp) validate(all bool) error {
 			case interface{ Validate() error }:
 				if err := v.Validate(); err != nil {
 					errors = append(errors, QueryJobDataLogRspValidationError{
-						field:  fmt.Sprintf("Log[%v]", idx),
+						field:  fmt.Sprintf("Line[%v]", idx),
 						reason: "embedded message failed validation",
 						cause:  err,
 					})
@@ -3835,7 +4067,7 @@ func (m *QueryJobDataLogRsp) validate(all bool) error {
 		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return QueryJobDataLogRspValidationError{
-					field:  fmt.Sprintf("Log[%v]", idx),
+					field:  fmt.Sprintf("Line[%v]", idx),
 					reason: "embedded message failed validation",
 					cause:  err,
 				}
@@ -5159,3 +5391,111 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = BeforeCreateAndChangeReqValidationError{}
+
+// Validate checks the field values on QueryAllBizNameRsp_LineA with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *QueryAllBizNameRsp_LineA) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on QueryAllBizNameRsp_LineA with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// QueryAllBizNameRsp_LineAMultiError, or nil if none found.
+func (m *QueryAllBizNameRsp_LineA) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *QueryAllBizNameRsp_LineA) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for BizType
+
+	// no validation rules for BizName
+
+	// no validation rules for Status
+
+	if len(errors) > 0 {
+		return QueryAllBizNameRsp_LineAMultiError(errors)
+	}
+
+	return nil
+}
+
+// QueryAllBizNameRsp_LineAMultiError is an error wrapping multiple validation
+// errors returned by QueryAllBizNameRsp_LineA.ValidateAll() if the designated
+// constraints aren't met.
+type QueryAllBizNameRsp_LineAMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m QueryAllBizNameRsp_LineAMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m QueryAllBizNameRsp_LineAMultiError) AllErrors() []error { return m }
+
+// QueryAllBizNameRsp_LineAValidationError is the validation error returned by
+// QueryAllBizNameRsp_LineA.Validate if the designated constraints aren't met.
+type QueryAllBizNameRsp_LineAValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e QueryAllBizNameRsp_LineAValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e QueryAllBizNameRsp_LineAValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e QueryAllBizNameRsp_LineAValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e QueryAllBizNameRsp_LineAValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e QueryAllBizNameRsp_LineAValidationError) ErrorName() string {
+	return "QueryAllBizNameRsp_LineAValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e QueryAllBizNameRsp_LineAValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sQueryAllBizNameRsp_LineA.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = QueryAllBizNameRsp_LineAValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = QueryAllBizNameRsp_LineAValidationError{}

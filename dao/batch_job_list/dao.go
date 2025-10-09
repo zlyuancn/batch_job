@@ -191,7 +191,7 @@ func MultiGet(ctx context.Context, where map[string]any) ([]*Model, error) {
 	ret := []*Model{}
 	err = db.GetSqlx().Find(ctx, &ret, cond, vals...)
 	if err != nil {
-		logger.Error(ctx, "MultiGet FindOne fail.", zap.String("cond", cond), zap.Any("vals", vals), zap.Error(err))
+		logger.Error(ctx, "MultiGet Find fail.", zap.String("cond", cond), zap.Any("vals", vals), zap.Error(err))
 		return nil, err
 	}
 	return ret, nil
@@ -240,7 +240,7 @@ set
     rate_sec=?,
     rate_type=?
 where job_id = ?
-    whereStatus = ?
+    and status = ?
 limit 1;`
 	vals := []interface{}{
 		v.JobName,
