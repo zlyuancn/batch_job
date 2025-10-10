@@ -107,17 +107,10 @@ service BatchJobService{
       body: "*",
     };
   }
-  // 更新业务数据. 要求任务必须处于 JobStatus.WaitBizRun 状态或者串行化速率类型的任务可以使用
-  rpc BizUpdateBizData(BizUpdateBizDataReq) returns (BizUpdateBizDataRsp) {
+  // 更新任务数据. 要求任务必须处于 JobStatus.WaitBizRun 状态或者串行化速率类型的任务可以使用
+  rpc BizUpdateJobData(BizUpdateJobDataReq) returns (BizUpdateJobDataRsp) {
     option (google.api.http) = {
-      post: "/BatchJob/BizUpdateBizData",
-      body: "*",
-    };
-  }
-  // 增加已处理数
-  rpc BizIncrProcessedNum(BizIncrProcessedNumReq) returns (BizIncrProcessedNumRsp) {
-    option (google.api.http) = {
-      post: "/BatchJob/BizIncrProcessedNum",
+      post: "/BatchJob/BizUpdateJobData",
       body: "*",
     };
   }
@@ -155,7 +148,7 @@ message AdminRegistryBizReq {
   string remark = 3; // 备注
 
   ExecType execType = 4; // 执行类型
-  string cbBeforeCreate = 5 [(validate.rules).string = {uri: true, ignore_empty: true}]; // 创建任务回调url
+  string cbBeforeCreate = 5 [(validate.rules).string = {uri: true, ignore_empty: true}]; // 创建和修改任务回调url
   string cbBeforeRun = 6 [(validate.rules).string = {uri: true, ignore_empty: true}]; // 启动前回调. 一旦配置, 则任务必须由业务主动调用 BizStartJob 执行任务. 否则任务将一直处于 JobStatus.WaitBizRun 状态
   string cbProcess = 7 [(validate.rules).string = {uri: true}]; // 处理任务回调. 必填
   string cbProcessStop = 8 [(validate.rules).string = {uri: true, ignore_empty: true}]; // 任务停止回调. 用于业务方做一些清理. 选填
@@ -241,9 +234,9 @@ message BizInfoByListA {
 // 任务信息-响应
 message JobInfoA {
   int64 jobId = 1; // 任务id
-  string job_name = 2; // 任务名称
+  string jobName = 2; // 任务名称
   int32 bizType = 3; // 业务类型
-  string bizData = 4; // 业务任务数据, 让业务知道应该做什么
+  string jobData = 4; // 任务数据, 让业务知道应该做什么
   int64 processDataTotal = 5; // 业务中需要处理数据总数
   int64 processedCount = 6; // 已处理过的数据量, 无论成功还是失败
   int64 errLogCount = 7; // 错误日志数
@@ -258,7 +251,7 @@ message JobInfoA {
 // 任务基础信息-响应
 message JobInfoByListA {
   int64 jobId = 1; // 任务id
-  string job_name = 2; // 任务名称
+  string jobName = 2; // 任务名称
   int32 bizType = 3; // 业务类型
   int64 processDataTotal = 4; // 业务中需要处理数据总数
   int64 processedCount = 5; // 已处理过的数据量, 无论成功还是失败
@@ -277,6 +270,7 @@ enum DataLogType {
   DataLogType_Info = 1; // 信息
   DataLogType_Warn = 2; // 警告
   DataLogType_Err = 3; // 错误
+  DataLogType_ErrData = 4; // 错误数据, 表示放弃处理这个数据了. 这个日志会被认为是错误计数
 }
 
 // 日志-请求
@@ -298,8 +292,8 @@ message LogInfoByListA {
 
 message AdminCreateJobReq {
   int32 bizType = 1 [(validate.rules).int32.gt = 0]; // 业务类型. 必填
-  string job_name = 2; // 任务名称
-  string bizData = 3; // 业务任务数据, 让业务知道应该做什么
+  string jobName = 2; // 任务名称
+  string jobData = 3; // 任务数据, 让业务知道应该做什么
   int64 processDataTotal = 4; // 需要处理数据总数
   int64 processedCount = 5; // 已处理过的数据量, 无论成功还是失败
   RateType rateType = 6; // 速率类型
@@ -313,8 +307,8 @@ message AdminCreateJobRsp {
 
 message AdminChangeJobReq {
   int32 bizType = 1 [(validate.rules).int32.gt = 0]; // 业务类型. 必填
-  string job_name = 2; // 任务名称
-  string bizData = 3; // 业务任务数据, 让业务知道应该做什么
+  string jobName = 2; // 任务名称
+  string jobData = 3; // 任务数据, 让业务知道应该做什么
   int64 processDataTotal = 4; // 需要处理数据总数
   int64 processedCount = 5; // 已处理过的数据量, 无论成功还是失败
   RateType rateType = 6; // 速率类型
@@ -414,20 +408,14 @@ message BizStopJobReq {
 }
 message BizStopJobRsp {}
 
-message BizUpdateBizDataReq {
+message BizUpdateJobDataReq {
   int64 jobId = 1 [(validate.rules).int64.gt = 0]; // 创建的任务id. 必填
-  string bizData = 2; // 业务任务数据, 让业务知道应该做什么. 空值则不会更新这个数据
-  string bizProcessData = 3; // 业务中需要处理的批量数据. 空值则不会更新这个数据
+  string jobData = 2; // 任务数据, 让业务知道应该做什么. 空值则不会更新这个数据
+  string bizCustomData = 3; // 任务的自定义数据. 空值则不会更新这个数据
   int64 processDataTotal = 4; // 需要处理数据总数. 空值则不会更新这个数据
   int64 processedCount = 5; // 已处理过的数据量, 无论成功还是失败. 空值则不会更新这个数据
 }
-message BizUpdateBizDataRsp {}
-
-message BizIncrProcessedNumReq {
-  int64 jobId = 1 [(validate.rules).int64.gt = 0]; // 创建的任务id. 必填
-  int64 num = 2 [(validate.rules).int64.gt = 0]; // 增加数量. 必填
-}
-message BizIncrProcessedNumRsp {}
+message BizUpdateJobDataRsp {}
 
 message BizAddDataLogReq {
   int64 jobId = 1 [(validate.rules).int64.gt = 0]; // 创建的任务id. 必填
@@ -435,11 +423,11 @@ message BizAddDataLogReq {
 }
 message BizAddDataLogRsp {}
 
-// 创建和修改任务基本参数
-message BeforeCreateAndChangeReq {
-  string job_name = 1; // 任务名称
+// 创建和修改任务前回调参数
+message JobBeforeCreateAndChangeReq {
+  string jobName = 1; // 任务名称
   int32 bizType = 2; // 业务类型. 必填
-  string bizData = 3; // 业务任务数据, 让业务知道应该做什么
+  string jobData = 3; // 任务数据, 让业务知道应该做什么
   int64 processDataTotal = 4; // 需要处理数据总数
   int64 processedCount = 5; // 已处理过的数据量, 无论成功还是失败
   RateType rateType = 6; // 速率类型
@@ -447,3 +435,36 @@ message BeforeCreateAndChangeReq {
   int64 jobId = 8; // 任务id
   bool isCreate = 9; // 是否为创建
 }
+message JobBeforeCreateAndChangeRsp {}
+
+// 任务启动前回调参数
+message JobBeforeRunReq {
+  int64 jobId = 1; // 任务id
+  string jobName = 2; // 任务名称
+  int32 bizType = 3; // 业务类型
+  string bizName = 4; // 业务名
+  string jobData = 5; // 任务数据, 让业务知道应该做什么
+  int64 processDataTotal = 6; // 业务中需要处理数据总数
+  int64 processedCount = 7; // 已处理过的数据量, 无论成功还是失败
+}
+message JobBeforeRunRsp {}
+
+// 任务处理回调参数
+message JobProcessReq {
+  int64 jobId = 1; // 创建的任务id. 必填
+  int64 dataIndex = 2; // 要处理的数据索引, 从0开始
+}
+message JobProcessRsp {}
+
+// 任务停止回调参数
+message JobProcessStopReq {
+  int64 jobId = 1; // 任务id
+  string jobName = 2; // 任务名称
+  int32 bizType = 3; // 业务类型
+  string bizName = 4; // 业务名
+  string jobData = 5; // 任务数据, 让业务知道应该做什么
+  int64 processDataTotal = 6; // 业务中需要处理数据总数
+  int64 processedCount = 7; // 已处理过的数据量, 无论成功还是失败
+  bool isFinished = 8; // 任务是否已完成
+}
+message JobProcessStopRsp {}

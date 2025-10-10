@@ -413,9 +413,9 @@ func local_request_BatchJobService_BizStopJob_0(ctx context.Context, marshaler r
 	return msg, metadata, err
 }
 
-func request_BatchJobService_BizUpdateBizData_0(ctx context.Context, marshaler runtime.Marshaler, client BatchJobServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_BatchJobService_BizUpdateJobData_0(ctx context.Context, marshaler runtime.Marshaler, client BatchJobServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
-		protoReq BizUpdateBizDataReq
+		protoReq BizUpdateJobDataReq
 		metadata runtime.ServerMetadata
 	)
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
@@ -424,46 +424,19 @@ func request_BatchJobService_BizUpdateBizData_0(ctx context.Context, marshaler r
 	if req.Body != nil {
 		_, _ = io.Copy(io.Discard, req.Body)
 	}
-	msg, err := client.BizUpdateBizData(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.BizUpdateJobData(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }
 
-func local_request_BatchJobService_BizUpdateBizData_0(ctx context.Context, marshaler runtime.Marshaler, server BatchJobServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_BatchJobService_BizUpdateJobData_0(ctx context.Context, marshaler runtime.Marshaler, server BatchJobServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
-		protoReq BizUpdateBizDataReq
+		protoReq BizUpdateJobDataReq
 		metadata runtime.ServerMetadata
 	)
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	msg, err := server.BizUpdateBizData(ctx, &protoReq)
-	return msg, metadata, err
-}
-
-func request_BatchJobService_BizIncrProcessedNum_0(ctx context.Context, marshaler runtime.Marshaler, client BatchJobServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq BizIncrProcessedNumReq
-		metadata runtime.ServerMetadata
-	)
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	if req.Body != nil {
-		_, _ = io.Copy(io.Discard, req.Body)
-	}
-	msg, err := client.BizIncrProcessedNum(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
-	return msg, metadata, err
-}
-
-func local_request_BatchJobService_BizIncrProcessedNum_0(ctx context.Context, marshaler runtime.Marshaler, server BatchJobServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq BizIncrProcessedNumReq
-		metadata runtime.ServerMetadata
-	)
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	msg, err := server.BizIncrProcessedNum(ctx, &protoReq)
+	msg, err := server.BizUpdateJobData(ctx, &protoReq)
 	return msg, metadata, err
 }
 
@@ -780,45 +753,25 @@ func RegisterBatchJobServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 		}
 		forward_BatchJobService_BizStopJob_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodPost, pattern_BatchJobService_BizUpdateBizData_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_BatchJobService_BizUpdateJobData_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/batch_job.BatchJobService/BizUpdateBizData", runtime.WithHTTPPathPattern("/BatchJob/BizUpdateBizData"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/batch_job.BatchJobService/BizUpdateJobData", runtime.WithHTTPPathPattern("/BatchJob/BizUpdateJobData"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_BatchJobService_BizUpdateBizData_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_BatchJobService_BizUpdateJobData_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BatchJobService_BizUpdateBizData_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-	})
-	mux.Handle(http.MethodPost, pattern_BatchJobService_BizIncrProcessedNum_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		var stream runtime.ServerTransportStream
-		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/batch_job.BatchJobService/BizIncrProcessedNum", runtime.WithHTTPPathPattern("/BatchJob/BizIncrProcessedNum"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := local_request_BatchJobService_BizIncrProcessedNum_0(annotatedContext, inboundMarshaler, server, req, pathParams)
-		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
-		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		forward_BatchJobService_BizIncrProcessedNum_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_BatchJobService_BizUpdateJobData_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 	mux.Handle(http.MethodPost, pattern_BatchJobService_BizAddDataLog_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
@@ -1118,39 +1071,22 @@ func RegisterBatchJobServiceHandlerClient(ctx context.Context, mux *runtime.Serv
 		}
 		forward_BatchJobService_BizStopJob_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodPost, pattern_BatchJobService_BizUpdateBizData_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_BatchJobService_BizUpdateJobData_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/batch_job.BatchJobService/BizUpdateBizData", runtime.WithHTTPPathPattern("/BatchJob/BizUpdateBizData"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/batch_job.BatchJobService/BizUpdateJobData", runtime.WithHTTPPathPattern("/BatchJob/BizUpdateJobData"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_BatchJobService_BizUpdateBizData_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_BatchJobService_BizUpdateJobData_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BatchJobService_BizUpdateBizData_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-	})
-	mux.Handle(http.MethodPost, pattern_BatchJobService_BizIncrProcessedNum_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/batch_job.BatchJobService/BizIncrProcessedNum", runtime.WithHTTPPathPattern("/BatchJob/BizIncrProcessedNum"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := request_BatchJobService_BizIncrProcessedNum_0(annotatedContext, inboundMarshaler, client, req, pathParams)
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
-		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		forward_BatchJobService_BizIncrProcessedNum_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_BatchJobService_BizUpdateJobData_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 	mux.Handle(http.MethodPost, pattern_BatchJobService_BizAddDataLog_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
@@ -1173,41 +1109,39 @@ func RegisterBatchJobServiceHandlerClient(ctx context.Context, mux *runtime.Serv
 }
 
 var (
-	pattern_BatchJobService_AdminRegistryBiz_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"BatchJob", "AdminRegistryBiz"}, ""))
-	pattern_BatchJobService_AdminChangeBiz_0      = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"BatchJob", "AdminChangeBiz"}, ""))
-	pattern_BatchJobService_AdminCreateJob_0      = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"BatchJob", "AdminCreateJob"}, ""))
-	pattern_BatchJobService_AdminChangeJob_0      = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"BatchJob", "AdminChangeJob"}, ""))
-	pattern_BatchJobService_AdminStartJob_0       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"BatchJob", "AdminStartJob"}, ""))
-	pattern_BatchJobService_AdminStopJob_0        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"BatchJob", "AdminStopJob"}, ""))
-	pattern_BatchJobService_QueryAllBizName_0     = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"BatchJob", "QueryAllBizName"}, ""))
-	pattern_BatchJobService_QueryBizInfo_0        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"BatchJob", "QueryBizInfo"}, ""))
-	pattern_BatchJobService_QueryBizList_0        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"BatchJob", "QueryBizList"}, ""))
-	pattern_BatchJobService_QueryJobInfo_0        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"BatchJob", "QueryJobBaseInfo"}, ""))
-	pattern_BatchJobService_QueryJobList_0        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"BatchJob", "QueryJobList"}, ""))
-	pattern_BatchJobService_QueryJobDataLog_0     = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"BatchJob", "QueryJobDataLog"}, ""))
-	pattern_BatchJobService_BizStartJob_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"BatchJob", "BizStartJob"}, ""))
-	pattern_BatchJobService_BizStopJob_0          = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"BatchJob", "BizStopJob"}, ""))
-	pattern_BatchJobService_BizUpdateBizData_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"BatchJob", "BizUpdateBizData"}, ""))
-	pattern_BatchJobService_BizIncrProcessedNum_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"BatchJob", "BizIncrProcessedNum"}, ""))
-	pattern_BatchJobService_BizAddDataLog_0       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"BatchJob", "BizAddDataLog"}, ""))
+	pattern_BatchJobService_AdminRegistryBiz_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"BatchJob", "AdminRegistryBiz"}, ""))
+	pattern_BatchJobService_AdminChangeBiz_0   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"BatchJob", "AdminChangeBiz"}, ""))
+	pattern_BatchJobService_AdminCreateJob_0   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"BatchJob", "AdminCreateJob"}, ""))
+	pattern_BatchJobService_AdminChangeJob_0   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"BatchJob", "AdminChangeJob"}, ""))
+	pattern_BatchJobService_AdminStartJob_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"BatchJob", "AdminStartJob"}, ""))
+	pattern_BatchJobService_AdminStopJob_0     = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"BatchJob", "AdminStopJob"}, ""))
+	pattern_BatchJobService_QueryAllBizName_0  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"BatchJob", "QueryAllBizName"}, ""))
+	pattern_BatchJobService_QueryBizInfo_0     = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"BatchJob", "QueryBizInfo"}, ""))
+	pattern_BatchJobService_QueryBizList_0     = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"BatchJob", "QueryBizList"}, ""))
+	pattern_BatchJobService_QueryJobInfo_0     = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"BatchJob", "QueryJobBaseInfo"}, ""))
+	pattern_BatchJobService_QueryJobList_0     = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"BatchJob", "QueryJobList"}, ""))
+	pattern_BatchJobService_QueryJobDataLog_0  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"BatchJob", "QueryJobDataLog"}, ""))
+	pattern_BatchJobService_BizStartJob_0      = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"BatchJob", "BizStartJob"}, ""))
+	pattern_BatchJobService_BizStopJob_0       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"BatchJob", "BizStopJob"}, ""))
+	pattern_BatchJobService_BizUpdateJobData_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"BatchJob", "BizUpdateJobData"}, ""))
+	pattern_BatchJobService_BizAddDataLog_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"BatchJob", "BizAddDataLog"}, ""))
 )
 
 var (
-	forward_BatchJobService_AdminRegistryBiz_0    = runtime.ForwardResponseMessage
-	forward_BatchJobService_AdminChangeBiz_0      = runtime.ForwardResponseMessage
-	forward_BatchJobService_AdminCreateJob_0      = runtime.ForwardResponseMessage
-	forward_BatchJobService_AdminChangeJob_0      = runtime.ForwardResponseMessage
-	forward_BatchJobService_AdminStartJob_0       = runtime.ForwardResponseMessage
-	forward_BatchJobService_AdminStopJob_0        = runtime.ForwardResponseMessage
-	forward_BatchJobService_QueryAllBizName_0     = runtime.ForwardResponseMessage
-	forward_BatchJobService_QueryBizInfo_0        = runtime.ForwardResponseMessage
-	forward_BatchJobService_QueryBizList_0        = runtime.ForwardResponseMessage
-	forward_BatchJobService_QueryJobInfo_0        = runtime.ForwardResponseMessage
-	forward_BatchJobService_QueryJobList_0        = runtime.ForwardResponseMessage
-	forward_BatchJobService_QueryJobDataLog_0     = runtime.ForwardResponseMessage
-	forward_BatchJobService_BizStartJob_0         = runtime.ForwardResponseMessage
-	forward_BatchJobService_BizStopJob_0          = runtime.ForwardResponseMessage
-	forward_BatchJobService_BizUpdateBizData_0    = runtime.ForwardResponseMessage
-	forward_BatchJobService_BizIncrProcessedNum_0 = runtime.ForwardResponseMessage
-	forward_BatchJobService_BizAddDataLog_0       = runtime.ForwardResponseMessage
+	forward_BatchJobService_AdminRegistryBiz_0 = runtime.ForwardResponseMessage
+	forward_BatchJobService_AdminChangeBiz_0   = runtime.ForwardResponseMessage
+	forward_BatchJobService_AdminCreateJob_0   = runtime.ForwardResponseMessage
+	forward_BatchJobService_AdminChangeJob_0   = runtime.ForwardResponseMessage
+	forward_BatchJobService_AdminStartJob_0    = runtime.ForwardResponseMessage
+	forward_BatchJobService_AdminStopJob_0     = runtime.ForwardResponseMessage
+	forward_BatchJobService_QueryAllBizName_0  = runtime.ForwardResponseMessage
+	forward_BatchJobService_QueryBizInfo_0     = runtime.ForwardResponseMessage
+	forward_BatchJobService_QueryBizList_0     = runtime.ForwardResponseMessage
+	forward_BatchJobService_QueryJobInfo_0     = runtime.ForwardResponseMessage
+	forward_BatchJobService_QueryJobList_0     = runtime.ForwardResponseMessage
+	forward_BatchJobService_QueryJobDataLog_0  = runtime.ForwardResponseMessage
+	forward_BatchJobService_BizStartJob_0      = runtime.ForwardResponseMessage
+	forward_BatchJobService_BizStopJob_0       = runtime.ForwardResponseMessage
+	forward_BatchJobService_BizUpdateJobData_0 = runtime.ForwardResponseMessage
+	forward_BatchJobService_BizAddDataLog_0    = runtime.ForwardResponseMessage
 )

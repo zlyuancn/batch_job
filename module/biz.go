@@ -15,9 +15,19 @@ type Business interface {
 	// 是否存在启动前回调
 	HasBeforeRunCallback() bool
 	// 创建业务回调
-	BeforeCreateAndChange(ctx context.Context, args *pb.BeforeCreateAndChangeReq) error
+	BeforeCreateAndChange(ctx context.Context, args *pb.JobBeforeCreateAndChangeReq) error
 	// 业务启动前回调
-	BeforeRun(ctx context.Context, bizInfo *batch_job_biz.Model, jobInfo *batch_job_list.Model)
+	BeforeRun(ctx context.Context, jobInfo *batch_job_list.Model)
+	/*处理任务回调
+
+	jobInfo 任务信息
+	dataIndex 数据序号, 从0开始
+
+	return err表示处理失败
+	*/
+	Process(ctx context.Context, jobInfo *batch_job_list.Model, dataIndex int64, attemptCount int) error
+	// 任务停止回调
+	ProcessStop(ctx context.Context, jobInfo *batch_job_list.Model, isFinished bool) error
 }
 
 var Biz = &bizCli{}

@@ -136,10 +136,10 @@ func (*BatchJob) AdminCreateJob(ctx context.Context, req *pb.AdminCreateJobReq) 
 	}
 
 	// 创建前回调
-	args := &pb.BeforeCreateAndChangeReq{
+	args := &pb.JobBeforeCreateAndChangeReq{
 		JobName:          req.GetJobName(),
 		BizType:          req.GetBizType(),
-		BizData:          req.GetBizData(),
+		JobData:          req.GetJobData(),
 		ProcessDataTotal: req.GetProcessDataTotal(),
 		ProcessedCount:   req.GetProcessedCount(),
 		RateType:         req.GetRateType(),
@@ -158,7 +158,7 @@ func (*BatchJob) AdminCreateJob(ctx context.Context, req *pb.AdminCreateJobReq) 
 		JobID:            uint(jobId),
 		JobName:          req.GetJobName(),
 		BizType:          uint(req.GetBizType()),
-		BizData:          req.GetBizData(),
+		JobData:          req.GetJobData(),
 		ProcessDataTotal: uint64(req.GetProcessDataTotal()),
 		ProcessedCount:   uint64(req.GetProcessedCount()),
 		Status:           byte(pb.JobStatus_JobStatus_Created),
@@ -247,10 +247,10 @@ func (*BatchJob) AdminChangeJob(ctx context.Context, req *pb.AdminChangeJobReq) 
 	}
 
 	// 修改前回调
-	args := &pb.BeforeCreateAndChangeReq{
+	args := &pb.JobBeforeCreateAndChangeReq{
 		JobName:          req.GetJobName(),
 		BizType:          req.GetBizType(),
-		BizData:          req.GetBizData(),
+		JobData:          req.GetJobData(),
 		ProcessDataTotal: req.GetProcessDataTotal(),
 		ProcessedCount:   req.GetProcessedCount(),
 		RateType:         req.GetRateType(),
@@ -267,8 +267,9 @@ func (*BatchJob) AdminChangeJob(ctx context.Context, req *pb.AdminChangeJobReq) 
 	// 写入数据库
 	v := &batch_job_list.Model{
 		JobID:            uint(req.GetJobId()),
+		BizType:          uint(req.GetBizType()),
 		JobName:          req.GetJobName(),
-		BizData:          req.GetBizData(),
+		JobData:          req.GetJobData(),
 		ProcessDataTotal: uint64(req.GetProcessDataTotal()),
 		ProcessedCount:   uint64(req.GetProcessedCount()),
 		LastOpSource:     req.GetOp().GetOpSource(),

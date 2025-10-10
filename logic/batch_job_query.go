@@ -254,7 +254,7 @@ func (*BatchJob) jobDbModel2Pb(line *batch_job_list.Model) *pb.JobInfoA {
 		JobId:            int64(line.JobID),
 		JobName:          line.JobName,
 		BizType:          int32(line.BizType),
-		BizData:          line.BizData,
+		JobData:          line.JobData,
 		ProcessDataTotal: int64(line.ProcessDataTotal),
 		ProcessedCount:   int64(line.ProcessedCount),
 		ErrLogCount:      int64(line.ErrLogCount),

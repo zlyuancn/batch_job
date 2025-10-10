@@ -33,7 +33,7 @@ var (
 		"job_id",
 		"biz_type",
 		"job_name",
-		"biz_data",
+		"job_data",
 		"process_data_total",
 		"processed_count",
 		"err_log_count",
@@ -78,7 +78,7 @@ type Model struct {
 	JobID            uint      `db:"job_id" json:"-"`        // "任务号"
 	JobName          string    `db:"job_name"`               // "任务名称"
 	BizType          uint      `db:"biz_type" json:"-"`      // "业务类型"
-	BizData          string    `db:"biz_data"`               // "业务任务数据, 让业务知道应该做什么"
+	JobData          string    `db:"job_data"`               // "任务数据, 让业务知道应该做什么"
 	ProcessDataTotal uint64    `db:"process_data_total"`     // "需要处理数据总数"
 	ProcessedCount   uint64    `db:"processed_count"`        // "已处理过的数据量, 无论成功还是失败. 如果任务在运行中, 则真实进度存在于redis"
 	ErrLogCount      uint64    `db:"err_log_count" json:"-"` // "错误日志数"
@@ -105,7 +105,7 @@ func CreateOneModel(ctx context.Context, v *Model) (int64, error) {
 		"job_id":             v.JobID,
 		"job_name":           v.JobName,
 		"biz_type":           v.BizType,
-		"biz_data":           v.BizData,
+		"job_data":           v.JobData,
 		"process_data_total": v.ProcessDataTotal,
 		"processed_count":    v.ProcessedCount,
 		"err_log_count":      v.ErrLogCount,
@@ -113,6 +113,7 @@ func CreateOneModel(ctx context.Context, v *Model) (int64, error) {
 		"last_op_source":     v.LastOpSource,
 		"last_op_user_id":    v.LastOpUserID,
 		"last_op_user_name":  v.LastOpUserName,
+		"last_op_remark":     v.LastOpRemark,
 		"status_info":        v.StatusInfo,
 		"op_history":         v.OpHistory,
 		"rate_sec":           v.RateSec,
@@ -227,7 +228,7 @@ func UpdateOneModelWhereStatus(ctx context.Context, v *Model, whereStatus byte) 
 update batch_job_list
 set 
     job_name=?,
-    biz_data=?,
+    job_data=?,
     process_data_total=?,
     processed_count=?,
     update_time=now(),
@@ -244,7 +245,7 @@ where job_id = ?
 limit 1;`
 	vals := []interface{}{
 		v.JobName,
-		v.BizData,
+		v.JobData,
 		v.ProcessDataTotal,
 		v.ProcessedCount,
 		v.LastOpSource,
