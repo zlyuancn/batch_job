@@ -293,7 +293,7 @@ func (*BatchJob) AdminChangeJob(ctx context.Context, req *pb.AdminChangeJobReq) 
 
 	v.OpHistory = historyText
 
-	_, err = batch_job_list.UpdateOneModelWhereStatus(ctx, v, jobInfo.Status)
+	_, err = batch_job_list.ChangeJob(ctx, v, jobInfo.Status)
 	if err != nil {
 		logger.Error(ctx, "AdminChangeJob call UpdateOneModelWhereStatus fail.", zap.Error(err))
 		return nil, err
@@ -412,7 +412,7 @@ func (*BatchJob) AdminStopJob(ctx context.Context, req *pb.AdminStopJobReq) (*pb
 	}
 
 	// 写入停止标记
-	err = module.Job.SetStopFlag(ctx, req.GetJobId(), true)
+	err = module.Job.SetStopFlag(ctx, int(req.GetJobId()), true)
 	if err != nil {
 		logger.Error(ctx, "AdminStopJob call SetStopFlag fail.", zap.Error(err))
 		return nil, err

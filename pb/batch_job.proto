@@ -107,7 +107,7 @@ service BatchJobService{
       body: "*",
     };
   }
-  // 更新任务数据. 要求任务必须处于 JobStatus.WaitBizRun 状态或者串行化速率类型的任务可以使用
+  // 更新任务数据. 要求任务必须处于 JobStatus.WaitBizRun 状态可以使用
   rpc BizUpdateJobData(BizUpdateJobDataReq) returns (BizUpdateJobDataRsp) {
     option (google.api.http) = {
       post: "/BatchJob/BizUpdateJobData",
@@ -352,8 +352,9 @@ message QueryBizInfoRsp {
 message QueryBizListReq {
   int32 page = 1 [(validate.rules).int32.gt = 0]; // 页号, 从1开始
   int32 pageSize = 2 [(validate.rules).int32.gte = 5]; // 每页返回数量, 最少返回5条
-  string opUser = 3; // 操作人
-  BizStatus status = 4; // 状态 0=正常 1=隐藏
+  int32 bizType = 3 [(validate.rules).int32.gte = 0]; // 业务类型
+  string opUser = 4; // 操作人
+  BizStatus status = 5; // 状态 0=正常 1=隐藏
 }
 message QueryBizListRsp {
   int32 total = 1; // 总条数

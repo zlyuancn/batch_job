@@ -7,7 +7,8 @@ require (
 	github.com/didi/gendry v1.9.0
 	github.com/envoyproxy/protoc-gen-validate v1.2.1
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.1
-	github.com/zly-app/component/redis v0.0.0-20240730111157-8bb3372a7bfe
+	github.com/redis/go-redis/v9 v9.6.1
+	github.com/zly-app/component/redis v0.0.0-20251011093137-f95c12b07f17
 	github.com/zly-app/component/sqlx v0.0.0-20250113115202-54207e1efaeb
 	github.com/zly-app/grpc v0.5.2
 	github.com/zly-app/uapp v0.0.0-20250721063824-0fef763876af
@@ -87,9 +88,8 @@ require (
 	github.com/prometheus/client_model v0.6.1 // indirect
 	github.com/prometheus/common v0.55.0 // indirect
 	github.com/prometheus/procfs v0.15.1 // indirect
-	github.com/redis/go-redis/extra/rediscmd/v9 v9.0.5 // indirect
-	github.com/redis/go-redis/extra/redisotel/v9 v9.0.5 // indirect
-	github.com/redis/go-redis/v9 v9.1.0 // indirect
+	github.com/redis/go-redis/extra/rediscmd/v9 v9.5.3 // indirect
+	github.com/redis/go-redis/extra/redisotel/v9 v9.5.3 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/schollz/closestmatch v2.1.0+incompatible // indirect
 	github.com/shirou/gopsutil/v3 v3.23.10 // indirect
@@ -119,6 +119,7 @@ require (
 	github.com/zlyuancn/connpool v0.0.0-20240529080113-fdbaa79cba97 // indirect
 	github.com/zlyuancn/zbalancer v1.1.0 // indirect
 	github.com/zlyuancn/zretry v0.0.0-20220514032503-d78bfd22a441 // indirect
+	github.com/zlyuancn/zstr v0.0.0-20230412074414-14d6b645962f // indirect
 	go.opentelemetry.io/auto/sdk v1.1.0 // indirect
 	go.opentelemetry.io/otel v1.36.0 // indirect
 	go.opentelemetry.io/otel/bridge/opentracing v1.29.0 // indirect

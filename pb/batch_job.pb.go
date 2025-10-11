@@ -277,10 +277,11 @@ func (JobStatusQ) EnumDescriptor() ([]byte, []int) {
 type DataLogType int32
 
 const (
-	DataLogType_DataLogType_Debug DataLogType = 0 // 调试
-	DataLogType_DataLogType_Info  DataLogType = 1 // 信息
-	DataLogType_DataLogType_Warn  DataLogType = 2 // 警告
-	DataLogType_DataLogType_Err   DataLogType = 3 // 错误
+	DataLogType_DataLogType_Debug   DataLogType = 0 // 调试
+	DataLogType_DataLogType_Info    DataLogType = 1 // 信息
+	DataLogType_DataLogType_Warn    DataLogType = 2 // 警告
+	DataLogType_DataLogType_Err     DataLogType = 3 // 错误
+	DataLogType_DataLogType_ErrData DataLogType = 4 // 错误数据, 表示放弃处理这个数据了. 这个日志会被认为是错误计数
 )
 
 // Enum value maps for DataLogType.
@@ -290,12 +291,14 @@ var (
 		1: "DataLogType_Info",
 		2: "DataLogType_Warn",
 		3: "DataLogType_Err",
+		4: "DataLogType_ErrData",
 	}
 	DataLogType_value = map[string]int32{
-		"DataLogType_Debug": 0,
-		"DataLogType_Info":  1,
-		"DataLogType_Warn":  2,
-		"DataLogType_Err":   3,
+		"DataLogType_Debug":   0,
+		"DataLogType_Info":    1,
+		"DataLogType_Warn":    2,
+		"DataLogType_Err":     3,
+		"DataLogType_ErrData": 4,
 	}
 )
 
@@ -2023,8 +2026,9 @@ type QueryBizListReq struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Page          int32                  `protobuf:"varint,1,opt,name=page,proto3" json:"page,omitempty"`                              // 页号, 从1开始
 	PageSize      int32                  `protobuf:"varint,2,opt,name=pageSize,proto3" json:"pageSize,omitempty"`                      // 每页返回数量, 最少返回5条
-	OpUser        string                 `protobuf:"bytes,3,opt,name=opUser,proto3" json:"opUser,omitempty"`                           // 操作人
-	Status        BizStatus              `protobuf:"varint,4,opt,name=status,proto3,enum=batch_job.BizStatus" json:"status,omitempty"` // 状态 0=正常 1=隐藏
+	BizType       int32                  `protobuf:"varint,3,opt,name=bizType,proto3" json:"bizType,omitempty"`                        // 业务类型
+	OpUser        string                 `protobuf:"bytes,4,opt,name=opUser,proto3" json:"opUser,omitempty"`                           // 操作人
+	Status        BizStatus              `protobuf:"varint,5,opt,name=status,proto3,enum=batch_job.BizStatus" json:"status,omitempty"` // 状态 0=正常 1=隐藏
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2069,6 +2073,13 @@ func (x *QueryBizListReq) GetPage() int32 {
 func (x *QueryBizListReq) GetPageSize() int32 {
 	if x != nil {
 		return x.PageSize
+	}
+	return 0
+}
+
+func (x *QueryBizListReq) GetBizType() int32 {
+	if x != nil {
+		return x.BizType
 	}
 	return 0
 }
@@ -3617,12 +3628,13 @@ const file_batch_job_proto_rawDesc = "" +
 	"\abizType\x18\x01 \x01(\x05B\a\xfaB\x04\x1a\x02 \x00R\abizType\x12$\n" +
 	"\rneedOpHistory\x18\x02 \x01(\bR\rneedOpHistory\":\n" +
 	"\x0fQueryBizInfoRsp\x12'\n" +
-	"\x04line\x18\x01 \x01(\v2\x13.batch_job.BizInfoAR\x04line\"\x99\x01\n" +
+	"\x04line\x18\x01 \x01(\v2\x13.batch_job.BizInfoAR\x04line\"\xbc\x01\n" +
 	"\x0fQueryBizListReq\x12\x1b\n" +
 	"\x04page\x18\x01 \x01(\x05B\a\xfaB\x04\x1a\x02 \x00R\x04page\x12#\n" +
-	"\bpageSize\x18\x02 \x01(\x05B\a\xfaB\x04\x1a\x02(\x05R\bpageSize\x12\x16\n" +
-	"\x06opUser\x18\x03 \x01(\tR\x06opUser\x12,\n" +
-	"\x06status\x18\x04 \x01(\x0e2\x14.batch_job.BizStatusR\x06status\"r\n" +
+	"\bpageSize\x18\x02 \x01(\x05B\a\xfaB\x04\x1a\x02(\x05R\bpageSize\x12!\n" +
+	"\abizType\x18\x03 \x01(\x05B\a\xfaB\x04\x1a\x02(\x00R\abizType\x12\x16\n" +
+	"\x06opUser\x18\x04 \x01(\tR\x06opUser\x12,\n" +
+	"\x06status\x18\x05 \x01(\x0e2\x14.batch_job.BizStatusR\x06status\"r\n" +
 	"\x0fQueryBizListRsp\x12\x14\n" +
 	"\x05total\x18\x01 \x01(\x05R\x05total\x12\x1a\n" +
 	"\bpageSize\x18\x02 \x01(\x05R\bpageSize\x12-\n" +
@@ -3732,12 +3744,13 @@ const file_batch_job_proto_rawDesc = "" +
 	"JobStatusQ\x12\x16\n" +
 	"\x12JobStatusQ_Created\x10\x00\x12\x16\n" +
 	"\x12JobStatusQ_Running\x10\x02\x12\x17\n" +
-	"\x13JobStatusQ_Finished\x10\x03*e\n" +
+	"\x13JobStatusQ_Finished\x10\x03*~\n" +
 	"\vDataLogType\x12\x15\n" +
 	"\x11DataLogType_Debug\x10\x00\x12\x14\n" +
 	"\x10DataLogType_Info\x10\x01\x12\x14\n" +
 	"\x10DataLogType_Warn\x10\x02\x12\x13\n" +
-	"\x0fDataLogType_Err\x10\x032\x95\x0e\n" +
+	"\x0fDataLogType_Err\x10\x03\x12\x17\n" +
+	"\x13DataLogType_ErrData\x10\x042\x95\x0e\n" +
 	"\x0fBatchJobService\x12y\n" +
 	"\x10AdminRegistryBiz\x12\x1e.batch_job.AdminRegistryBizReq\x1a\x1e.batch_job.AdminRegistryBizRsp\"%\x82\xd3\xe4\x93\x02\x1f:\x01*\"\x1a/BatchJob/AdminRegistryBiz\x12u\n" +
 	"\x0eAdminChangeBiz\x12\x1e.batch_job.AdminRegistryBizReq\x1a\x1e.batch_job.AdminRegistryBizRsp\"#\x82\xd3\xe4\x93\x02\x1d:\x01*\"\x18/BatchJob/AdminChangeBiz\x12q\n" +

@@ -23,7 +23,8 @@ CREATE TABLE `batch_job_biz`
     `status`                   tinyint unsigned   NOT NULL DEFAULT 0 COMMENT '状态 0=正常 1=隐藏',
     PRIMARY KEY (`id`),
     UNIQUE KEY `batch_job_biz_biz_type` (`biz_type`),
-    KEY `batch_job_biz_create_time` (`create_time` DESC)
+    KEY `batch_job_biz_create_time` (`create_time` DESC),
+    KEY `batch_job_biz_status_create_time` (`status`, `create_time` DESC)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT ='批量任务类型';
@@ -51,10 +52,8 @@ CREATE TABLE `batch_job_list`
     `rate_sec`           int unsigned       NOT NULL DEFAULT 0 COMMENT '每秒处理速率. 0表示不限制',
     PRIMARY KEY (`id`),
     UNIQUE KEY `batch_job_list_id` (`job_id`),
-    KEY `batch_job_list_biz_type` (`biz_type`),
-    KEY `batch_job_list_job_id_create_time_biz_type_index` (`job_id`, `create_time` DESC, `biz_type`),
-    KEY `batch_job_list_job_id_update_time_biz_type_index` (`job_id`, `update_time` DESC, `biz_type`),
-    KEY `batch_job_list_job_id_last_op_user_id_create_time_index` (`job_id`, `last_op_user_id`, `create_time` DESC)
+    KEY `batch_job_list_biz_type` (`biz_type`, `status`, `update_time` DESC),
+    KEY `batch_job_list_job_id_last_op_user_id_create_time_index` (`biz_type`, `last_op_user_id`, `status`, `create_time` DESC)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT ='批量任务列表';

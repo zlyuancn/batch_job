@@ -4,17 +4,22 @@ import (
 	"context"
 	"math"
 
+	"github.com/zly-app/component/redis"
 	"github.com/zly-app/zapp/logger"
 	"go.uber.org/zap"
 
+	"github.com/zlyuancn/batch_job/client/db"
 	"github.com/zlyuancn/batch_job/dao/batch_job_biz"
 	"github.com/zlyuancn/batch_job/dao/batch_job_list"
 	"github.com/zlyuancn/batch_job/dao/batch_job_log"
+	"github.com/zlyuancn/batch_job/module"
 	"github.com/zlyuancn/batch_job/pb"
 )
 
 // 查询所有业务名
 func (b *BatchJob) QueryAllBizName(ctx context.Context, req *pb.QueryAllBizNameReq) (*pb.QueryAllBizNameRsp, error) {
+	// todo 优化性能, 改为从redis获取, 相关的增删改要去删除redisKey
+
 	where := map[string]interface{}{
 		"_orderby": "biz_type asc",
 	}
@@ -63,6 +68,9 @@ func (b *BatchJob) QueryBizInfo(ctx context.Context, req *pb.QueryBizInfoReq) (*
 func (b *BatchJob) QueryBizList(ctx context.Context, req *pb.QueryBizListReq) (*pb.QueryBizListRsp, error) {
 	where := map[string]interface{}{
 		"status": int(req.GetStatus()),
+	}
+	if req.GetBizType() > 0 {
+		where["biz_type"] = req.GetBizType()
 	}
 	if req.GetOpUser() != "" {
 		where["_or"] = []map[string]interface{}{
@@ -175,9 +183,10 @@ func (b *BatchJob) QueryJobInfo(ctx context.Context, req *pb.QueryJobInfoReq) (*
 // 查询任务列表
 func (b *BatchJob) QueryJobList(ctx context.Context, req *pb.QueryJobListReq) (*pb.QueryJobListRsp, error) {
 	where := map[string]interface{}{}
-	if req.GetBizType() > 0 {
-		where["biz_type"] = req.GetBizType()
+	if req.GetBizType() == 0 {
+		return nil, nil
 	}
+	where["biz_type"] = req.GetBizType()
 	switch req.GetStatus() {
 	case pb.JobStatusQ_JobStatusQ_Running:
 		where["status in"] = []int{int(pb.JobStatus_JobStatus_Running), int(pb.JobStatus_JobStatus_WaitBizRun), int(pb.JobStatus_JobStatus_Stopping)}
@@ -235,18 +244,55 @@ func (b *BatchJob) QueryJobList(ctx context.Context, req *pb.QueryJobListReq) (*
 		return nil, err
 	}
 
-	// todo 填充 业务名
-	// todo 对于运行中的任务, 对进度和错误数需要从redis获取
-
 	ret := make([]*pb.JobInfoByListA, 0, len(lines))
 	for _, line := range lines {
 		ret = append(ret, b.jobDbModel2ListPb(line))
 	}
+
+	// 对于运行中的任务, 对进度和错误数需要从redis获取
+	_ = b.batchRenderRunningJobProcess(ctx, ret)
+
 	return &pb.QueryJobListRsp{
 		Total:    int32(total),
 		PageSize: pageSize,
 		Line:     ret,
 	}, nil
+}
+
+// 批量渲染运行中任务进度
+func (*BatchJob) batchRenderRunningJobProcess(ctx context.Context, ret []*pb.JobInfoByListA) error {
+	lines := make([]*pb.JobInfoByListA, 0, len(ret))
+	ps := make([]*redis.StringCmd, 0, len(ret))
+	es := make([]*redis.StringCmd, 0, len(ret))
+
+	pipe := db.GetRedis().Pipeline()
+	for _, l := range ret {
+		switch l.Status {
+		case pb.JobStatus_JobStatus_Running, pb.JobStatus_JobStatus_Stopping:
+		default:
+			continue
+		}
+
+		lines = append(lines, l)
+		ps = append(ps, pipe.Get(ctx, module.Job.GenProgressCacheKey(int(l.JobId))))
+		es = append(es, pipe.Get(ctx, module.Job.GenErrCountCacheKey(int(l.JobId))))
+	}
+	_, err := pipe.Exec(ctx)
+	if err != nil {
+		logger.Error(ctx, "batchRenderRunningJobProcess call pipe.Exec", zap.Error(err))
+		return err
+	}
+
+	for i, line := range lines {
+		p, e := ps[i], es[i]
+		if p.Err() == nil {
+			line.ProcessedCount, _ = p.Int64()
+		}
+		if e.Err() == nil {
+			line.ErrLogCount, _ = e.Int64()
+		}
+	}
+	return nil
 }
 
 func (*BatchJob) jobDbModel2Pb(line *batch_job_list.Model) *pb.JobInfoA {
@@ -324,7 +370,7 @@ func (b *BatchJob) QueryJobDataLog(ctx context.Context, req *pb.QueryJobDataLogR
 	}
 
 	pageSize := int32(math.Max(float64(req.GetPageSize()), 20))
-	where["_orderby"] = "id desc"
+	where["_orderby"] = "create_time desc"
 	where["_limit"] = []uint{0, uint(pageSize)}
 
 	lines, err := batch_job_log.MultiGet(ctx, where)

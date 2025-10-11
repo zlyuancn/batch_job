@@ -70,3 +70,22 @@ func MultiGet(ctx context.Context, where map[string]any) ([]*Model, error) {
 	}
 	return ret, nil
 }
+
+func Count(ctx context.Context, where map[string]any) (int64, error) {
+	cond, vals, err := builder.BuildSelect(tableName, where, []string{"count(1)"})
+	if err != nil {
+		logger.Log.Error(ctx, "Count BuildSelect err",
+			zap.Any("where", where),
+			zap.Error(err),
+		)
+		return 0, err
+	}
+
+	var ret int64
+	err = db.GetSqlx().FindOne(ctx, &ret, cond, vals...)
+	if err != nil {
+		logger.Error(ctx, "Count FindOne fail.", zap.String("cond", cond), zap.Any("vals", vals), zap.Error(err))
+		return 0, err
+	}
+	return ret, nil
+}

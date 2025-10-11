@@ -3145,6 +3145,17 @@ func (m *QueryBizListReq) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
+	if m.GetBizType() < 0 {
+		err := QueryBizListReqValidationError{
+			field:  "BizType",
+			reason: "value must be greater than or equal to 0",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
 	// no validation rules for OpUser
 
 	// no validation rules for Status

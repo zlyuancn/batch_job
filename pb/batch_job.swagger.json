@@ -990,10 +990,11 @@
         "DataLogType_Debug",
         "DataLogType_Info",
         "DataLogType_Warn",
-        "DataLogType_Err"
+        "DataLogType_Err",
+        "DataLogType_ErrData"
       ],
       "default": "DataLogType_Debug",
-      "description": "- DataLogType_Debug: 调试\n - DataLogType_Info: 信息\n - DataLogType_Warn: 警告\n - DataLogType_Err: 错误",
+      "description": "- DataLogType_Debug: 调试\n - DataLogType_Info: 信息\n - DataLogType_Warn: 警告\n - DataLogType_Err: 错误\n - DataLogType_ErrData: 错误数据, 表示放弃处理这个数据了. 这个日志会被认为是错误计数",
       "title": "数据的日志类型"
     },
     "batch_jobExecType": {
@@ -1283,6 +1284,11 @@
           "type": "integer",
           "format": "int32",
           "title": "每页返回数量, 最少返回5条"
+        },
+        "bizType": {
+          "type": "integer",
+          "format": "int32",
+          "title": "业务类型"
         },
         "opUser": {
           "type": "string",

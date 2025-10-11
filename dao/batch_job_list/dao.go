@@ -217,7 +217,7 @@ func Count(ctx context.Context, where map[string]any) (int64, error) {
 	return ret, nil
 }
 
-func UpdateOneModelWhereStatus(ctx context.Context, v *Model, whereStatus byte) (int64, error) {
+func ChangeJob(ctx context.Context, v *Model, whereStatus byte) (int64, error) {
 	if v == nil {
 		return 0, errors.New("UpdateOneModel v is empty")
 	}
@@ -304,4 +304,27 @@ limit 1;`
 		return 0, err
 	}
 	return result.RowsAffected()
+}
+
+func UpdateOne(ctx context.Context, jobId int, updateData map[string]interface{}) error {
+	where := map[string]any{
+		"job_id": jobId,
+		"_limit": 1,
+	}
+	cond, vals, err := builder.BuildUpdate(tableName, where, updateData)
+	if err != nil {
+		logger.Log.Error(ctx, "UpdateOne BuildUpdate err",
+			zap.Int("jobId", jobId),
+			zap.Any("updateData", updateData),
+			zap.Error(err),
+		)
+		return err
+	}
+
+	_, err = db.GetSqlx().Exec(ctx, cond, vals...)
+	if err != nil {
+		logger.Error(ctx, "UpdateOne fail.", zap.Int("jobId", jobId), zap.Any("updateData", updateData), zap.Error(err))
+		return err
+	}
+	return nil
 }
