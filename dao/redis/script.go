@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/spf13/cast"
 	"github.com/zly-app/zapp"
 	"github.com/zly-app/zapp/core"
 	"github.com/zly-app/zapp/handler"
@@ -55,7 +56,7 @@ if (v == ARGV[1]) then
     return 1
 end
 
-return 0
+return v
 `
 )
 
@@ -101,14 +102,14 @@ func CompareAndSwap(ctx context.Context, key, v1, v2 string) (bool, error) {
 		if err != nil {
 			return false, err
 		}
-		return v == "1", nil
+		return cast.ToString(v) == "1", nil
 	}
 
 	v, err := db.GetRedis().Eval(ctx, redisLua_CAS, []string{key}, v1, v2).Result()
 	if err != nil {
 		return false, err
 	}
-	return v == "1", nil
+	return cast.ToString(v) == "1", nil
 }
 
 // 原子删除, 如果key的值等于v1则删除, 如果删除成功或者key不存在则返回 true
@@ -118,14 +119,14 @@ func CompareAndDel(ctx context.Context, key, value string) (bool, error) {
 		if err != nil {
 			return false, err
 		}
-		return v == "1", nil
+		return cast.ToString(v) == "1", nil
 	}
 
 	v, err := db.GetRedis().Eval(ctx, redisLua_CAD, []string{key}, value).Result()
 	if err != nil {
 		return false, err
 	}
-	return v == "1", nil
+	return cast.ToString(v) == "1", nil
 }
 
 // 原子续期, 如果key的值等于value则续期, 续期成功返回1; 参数顺序 key value ttl
@@ -135,12 +136,15 @@ func CompareAndExpire(ctx context.Context, key, value string, ttl time.Duration)
 		if err != nil {
 			return false, err
 		}
-		return v == "1", nil
+		if cast.ToString(v) == "1" {
+			return true, nil
+		}
+		return false, nil
 	}
 
 	v, err := db.GetRedis().Eval(ctx, redisLua_CAE, []string{key}, value, int(ttl/time.Second)).Result()
 	if err != nil {
 		return false, err
 	}
-	return v == "1", nil
+	return cast.ToString(v) == "1", nil
 }

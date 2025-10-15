@@ -616,8 +616,8 @@ github.com/yusufpapurcu/wmi v1.2.3 h1:E1ctvB7uKFMOJw3fdOW32DwGE9I7t++CRUEMKvFoFi
 github.com/yusufpapurcu/wmi v1.2.3/go.mod h1:SBZ9tNy3G9/m5Oi98Zks0QjeHVDvuK0qfxQmPyzfmi0=
 github.com/zly-app/component/http v0.0.0-20240730094824-85f48a26539c h1:qEpmEfYrb528xaM/jq5t2BGGucvVo3E4vCZ6XNhOiwQ=
 github.com/zly-app/component/http v0.0.0-20240730094824-85f48a26539c/go.mod h1:rIEFYyTTl7aATBbpFQDFcUEfzqpI1pO58GE/z0gxFpc=
-github.com/zly-app/component/redis v0.0.0-20251011093137-f95c12b07f17 h1:2a51AyMH9UxGHo39Mn86uMvE25qcAOJXz2DUYEZMPng=
-github.com/zly-app/component/redis v0.0.0-20251011093137-f95c12b07f17/go.mod h1:UoqsaVAM3T60eZjsLuR+KnggcEC7mq8SBbcmljxB02A=
+github.com/zly-app/component/redis v0.0.0-20251012085149-e8a23f206e20 h1:6xM9HjCp5sJNRW4F5VGqAwlmgjVD3qW/7SIk4PGvyqI=
+github.com/zly-app/component/redis v0.0.0-20251012085149-e8a23f206e20/go.mod h1:UoqsaVAM3T60eZjsLuR+KnggcEC7mq8SBbcmljxB02A=
 github.com/zly-app/component/sqlx v0.0.0-20250113115202-54207e1efaeb h1:5T7e/3tNGNStk1OLzHGAIS6TLsBvy9L7o+LwSjDYKuk=
 github.com/zly-app/component/sqlx v0.0.0-20250113115202-54207e1efaeb/go.mod h1:96QDdK/NX/CkhUZ3aVHX7///auxO5M633nZeivqbOTg=
 github.com/zly-app/grpc v0.5.2 h1:/Wl63gkLbZSmkA0op/fKdkDr0sth8VWxSZNkeaiqAiY=

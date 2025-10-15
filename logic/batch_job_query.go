@@ -33,7 +33,7 @@ func (b *BatchJob) QueryAllBizName(ctx context.Context, req *pb.QueryAllBizNameR
 	ret := make([]*pb.QueryAllBizNameRsp_LineA, 0, len(lines))
 	for _, line := range lines {
 		ret = append(ret, &pb.QueryAllBizNameRsp_LineA{
-			BizId: int32(line.BizId),
+			BizId:   int32(line.BizId),
 			BizName: line.BizName,
 			Status:  pb.BizStatus(line.Status),
 		})
@@ -114,7 +114,7 @@ func (b *BatchJob) QueryBizList(ctx context.Context, req *pb.QueryBizListReq) (*
 
 func (*BatchJob) bizDbModel2Pb(line *batch_job_biz.Model) *pb.BizInfoA {
 	ret := &pb.BizInfoA{
-		BizId:               int32(line.BizId),
+		BizId:                 int32(line.BizId),
 		BizName:               line.BizName,
 		Remark:                line.Remark,
 		ExecType:              pb.ExecType(line.ExecType),
@@ -141,7 +141,7 @@ func (*BatchJob) bizDbModel2Pb(line *batch_job_biz.Model) *pb.BizInfoA {
 
 func (*BatchJob) bizDbModel2ListPb(line *batch_job_biz.Model) *pb.BizInfoByListA {
 	ret := &pb.BizInfoByListA{
-		BizId:  int32(line.BizId),
+		BizId:    int32(line.BizId),
 		BizName:  line.BizName,
 		Remark:   line.Remark,
 		ExecType: pb.ExecType(line.ExecType),
@@ -278,7 +278,7 @@ func (*BatchJob) batchRenderRunningJobProcess(ctx context.Context, ret []*pb.Job
 		es = append(es, pipe.Get(ctx, module.Job.GenErrCountCacheKey(int(l.JobId))))
 	}
 	_, err := pipe.Exec(ctx)
-	if err != nil {
+	if err != nil && err != redis.Nil {
 		logger.Error(ctx, "batchRenderRunningJobProcess call pipe.Exec", zap.Error(err))
 		return err
 	}
@@ -299,7 +299,7 @@ func (*BatchJob) jobDbModel2Pb(line *batch_job_list.Model) *pb.JobInfoA {
 	ret := &pb.JobInfoA{
 		JobId:            int64(line.JobID),
 		JobName:          line.JobName,
-		BizId:          int32(line.BizId),
+		BizId:            int32(line.BizId),
 		JobData:          line.JobData,
 		ProcessDataTotal: int64(line.ProcessDataTotal),
 		ProcessedCount:   int64(line.ProcessedCount),
@@ -323,7 +323,7 @@ func (*BatchJob) jobDbModel2Pb(line *batch_job_list.Model) *pb.JobInfoA {
 func (*BatchJob) jobDbModel2ListPb(line *batch_job_list.Model) *pb.JobInfoByListA {
 	ret := &pb.JobInfoByListA{
 		JobId:            int64(line.JobID),
-		BizId:          int32(line.BizId),
+		BizId:            int32(line.BizId),
 		ProcessDataTotal: int64(line.ProcessDataTotal),
 		ProcessedCount:   int64(line.ProcessedCount),
 		ErrLogCount:      int64(line.ErrLogCount),

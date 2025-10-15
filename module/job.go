@@ -31,6 +31,7 @@ func (*jobCli) SetStopFlag(ctx context.Context, jobId int, flag bool) error {
 	return err
 }
 
+// 获取停止标记
 func (*jobCli) GetStopFlag(ctx context.Context, jobId int) (bool, error) {
 	key := conf.Conf.JobStopFlagPrefix + strconv.Itoa(jobId)
 	v, err := db.GetRedis().Get(ctx, key).Result()

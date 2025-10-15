@@ -255,7 +255,10 @@ func (j *jobLauncher) Run() {
 	go j.loopWriteProgress() // 循环写入进度
 	go j.loopCheckStopFlag() // 循环检查停止flag
 
-	defer j.stopSideEffect() // 处理停止后副作用
+	defer func() {
+		j.submitStopFlag("stop") // 这里防止中途panic无法关闭上面的循环处理协程
+		j.stopSideEffect()       // 处理停止后副作用
+	}()
 
 	maxDataSn := int64(j.jobInfo.ProcessDataTotal - 1)
 	for {
@@ -309,7 +312,7 @@ func (j *jobLauncher) Run() {
 	}
 
 	// 等待任务完成
-	err := j.sw.Wait(j.ctx, int64(j.jobInfo.ProcessDataTotal))
+	err := j.sw.Wait(j.ctx, maxDataSn)
 	if err == sliding_window.ErrIsStop || err == context.Canceled { // 已停止直接退出
 		j.submitStopFlag("sliding_window stop")
 		return

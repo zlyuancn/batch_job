@@ -29,6 +29,7 @@ CREATE TABLE `batch_job_biz`
 
 CREATE TABLE `batch_job_list`
 (
+    `id`                 bigint unsigned    NOT NULL AUTO_INCREMENT,
     `job_id`             int unsigned       NOT NULL COMMENT '任务号',
     `job_name`           varchar(1024)      NOT NULL DEFAULT '' COMMENT '任务名称',
     `biz_id`             mediumint unsigned NOT NULL COMMENT '业务id',
@@ -47,24 +48,13 @@ CREATE TABLE `batch_job_list`
     `op_history`         json               NOT NULL COMMENT '操作历史信息',
     `rate_type`          tinyint unsigned   NOT NULL DEFAULT 0 COMMENT '速率类型. 0=通过rate_sec限速, 1=串行化',
     `rate_sec`           int unsigned       NOT NULL DEFAULT 0 COMMENT '每秒处理速率. 0表示不限制',
-    PRIMARY KEY (`job_id`),
+    PRIMARY KEY (`id`),
+    UNIQUE KEY (`job_id`),
     KEY `batch_job_list_biz_id` (biz_id, `status`, `update_time` DESC),
     KEY `batch_job_list_job_id_last_op_user_id_create_time_index` (biz_id, `last_op_user_id`, `status`, `create_time` DESC)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT ='批量任务列表';
-
-create index batch_job_list_biz_type
-    on batch_job.batch_job_list (biz_id);
-
-create index batch_job_list_job_id_create_time_biz_id_index
-    on batch_job.batch_job_list (create_time desc, biz_id asc);
-
-create index batch_job_list_job_id_last_op_user_id_create_time_index
-    on batch_job.batch_job_list (last_op_user_id asc, create_time desc);
-
-create index batch_job_list_job_id_update_time_biz_id_index
-    on batch_job.batch_job_list (update_time desc, biz_id asc);
 
 
 

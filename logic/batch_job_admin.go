@@ -127,7 +127,7 @@ func (*BatchJob) AdminCreateJob(ctx context.Context, req *pb.AdminCreateJobReq) 
 	}
 
 	// 生成任务id
-	jobIdKey := conf.Conf.JobIdGenKeyPrefix + strconv.Itoa(int(req.GetBizId()))
+	jobIdKey := conf.Conf.JobIdGenKey
 	jobId, err := db.GetRedis().Incr(ctx, jobIdKey).Result()
 	if err != nil {
 		logger.Error(ctx, "AdminCreateJob call Incr fail.", zap.Error(err))

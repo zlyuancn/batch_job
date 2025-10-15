@@ -6,7 +6,7 @@ const (
 	defSqlxName  = "batch_job"
 	defRedisName = "batch_job"
 
-	defJobIdGenKeyPrefix                    = "batch_job:job_id_gen:"
+	defJobIdGenKey                          = "batch_job:job_id_gen"
 	defJobOpLockKeyPrefix                   = "batch_job:op_lock:"
 	defJobStopFlagPrefix                    = "batch_job:stop:"
 	defJobStopFlagTtl                       = 86400 // 1天
@@ -31,7 +31,7 @@ var Conf = Config{
 	SqlxName:  defSqlxName,
 	RedisName: defRedisName,
 
-	JobIdGenKeyPrefix:                    defJobIdGenKeyPrefix,
+	JobIdGenKey:                          defJobIdGenKey,
 	JobOpLockKeyPrefix:                   defJobOpLockKeyPrefix,
 	JobStopFlagPrefix:                    defJobStopFlagPrefix,
 	JobStopFlagTtl:                       defJobStopFlagTtl,
@@ -57,7 +57,7 @@ type Config struct {
 	RedisName string // redis组件名
 
 	// redisKey
-	JobIdGenKeyPrefix                    string // 任务id生成key前缀
+	JobIdGenKey                          string // 任务id生成key前缀
 	JobOpLockKeyPrefix                   string // 任务操作锁前缀
 	JobStopFlagPrefix                    string // 任务停止flag前缀
 	JobStopFlagTtl                       int    // 任务停止标记有效时间, 单位秒
@@ -86,8 +86,8 @@ func (conf *Config) Check() {
 		conf.RedisName = defRedisName
 	}
 
-	if conf.JobIdGenKeyPrefix == "" {
-		conf.JobIdGenKeyPrefix = defJobIdGenKeyPrefix
+	if conf.JobIdGenKey == "" {
+		conf.JobIdGenKey = defJobIdGenKey
 	}
 	if conf.JobOpLockKeyPrefix == "" {
 		conf.JobOpLockKeyPrefix = defJobOpLockKeyPrefix
