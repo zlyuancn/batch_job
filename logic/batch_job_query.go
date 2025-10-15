@@ -21,9 +21,9 @@ func (b *BatchJob) QueryAllBizName(ctx context.Context, req *pb.QueryAllBizNameR
 	// todo 优化性能, 改为从redis获取, 相关的增删改要去删除redisKey
 
 	where := map[string]interface{}{
-		"_orderby": "biz_type asc",
+		"_orderby": "biz_id asc",
 	}
-	selectField := []string{"biz_type", "biz_name", "status"}
+	selectField := []string{"biz_id", "biz_name", "status"}
 	lines, err := batch_job_biz.MultiGetBySelect(ctx, where, selectField)
 	if err != nil {
 		logger.Error(ctx, "QueryAllBizName call batch_job_biz.MultiGetBySelect", zap.Error(err))
@@ -33,7 +33,7 @@ func (b *BatchJob) QueryAllBizName(ctx context.Context, req *pb.QueryAllBizNameR
 	ret := make([]*pb.QueryAllBizNameRsp_LineA, 0, len(lines))
 	for _, line := range lines {
 		ret = append(ret, &pb.QueryAllBizNameRsp_LineA{
-			BizType: int32(line.BizType),
+			BizId: int32(line.BizId),
 			BizName: line.BizName,
 			Status:  pb.BizStatus(line.Status),
 		})
@@ -47,15 +47,15 @@ func (b *BatchJob) QueryBizInfo(ctx context.Context, req *pb.QueryBizInfoReq) (*
 	var err error
 
 	if req.GetNeedOpHistory() {
-		line, err = batch_job_biz.GetOneByBizType(ctx, int(req.GetBizType()))
+		line, err = batch_job_biz.GetOneByBizId(ctx, int(req.GetBizId()))
 		if err != nil {
-			logger.Error(ctx, "QueryBizInfo call batch_job_biz.GetOneByBizType fail.", zap.Error(err))
+			logger.Error(ctx, "QueryBizInfo call batch_job_biz.GetOneByBizId fail.", zap.Error(err))
 			return nil, err
 		}
 	} else {
-		line, err = batch_job_biz.GetOneBaseInfoByBizType(ctx, int(req.GetBizType()))
+		line, err = batch_job_biz.GetOneBaseInfoByBizId(ctx, int(req.GetBizId()))
 		if err != nil {
-			logger.Error(ctx, "QueryBizInfo call batch_job_biz.GetOneBaseInfoByBizType fail.", zap.Error(err))
+			logger.Error(ctx, "QueryBizInfo call batch_job_biz.GetOneBaseInfoByBizId fail.", zap.Error(err))
 			return nil, err
 		}
 	}
@@ -69,8 +69,8 @@ func (b *BatchJob) QueryBizList(ctx context.Context, req *pb.QueryBizListReq) (*
 	where := map[string]interface{}{
 		"status": int(req.GetStatus()),
 	}
-	if req.GetBizType() > 0 {
-		where["biz_type"] = req.GetBizType()
+	if req.GetBizId() > 0 {
+		where["biz_id"] = req.GetBizId()
 	}
 	if req.GetOpUser() != "" {
 		where["_or"] = []map[string]interface{}{
@@ -92,7 +92,7 @@ func (b *BatchJob) QueryBizList(ctx context.Context, req *pb.QueryBizListReq) (*
 	page, pageSize := req.GetPage(), req.GetPageSize()
 	page = int32(math.Max(float64(page), 1))
 	pageSize = int32(math.Max(float64(pageSize), 20))
-	where["_orderby"] = "id desc"
+	where["_orderby"] = "biz_id desc"
 	where["_limit"] = []uint{uint(page-1) * uint(pageSize), uint(pageSize)}
 
 	lines, err := batch_job_biz.MultiGet(ctx, where)
@@ -114,7 +114,7 @@ func (b *BatchJob) QueryBizList(ctx context.Context, req *pb.QueryBizListReq) (*
 
 func (*BatchJob) bizDbModel2Pb(line *batch_job_biz.Model) *pb.BizInfoA {
 	ret := &pb.BizInfoA{
-		BizType:               int32(line.BizType),
+		BizId:               int32(line.BizId),
 		BizName:               line.BizName,
 		Remark:                line.Remark,
 		ExecType:              pb.ExecType(line.ExecType),
@@ -141,7 +141,7 @@ func (*BatchJob) bizDbModel2Pb(line *batch_job_biz.Model) *pb.BizInfoA {
 
 func (*BatchJob) bizDbModel2ListPb(line *batch_job_biz.Model) *pb.BizInfoByListA {
 	ret := &pb.BizInfoByListA{
-		BizType:  int32(line.BizType),
+		BizId:  int32(line.BizId),
 		BizName:  line.BizName,
 		Remark:   line.Remark,
 		ExecType: pb.ExecType(line.ExecType),
@@ -183,10 +183,10 @@ func (b *BatchJob) QueryJobInfo(ctx context.Context, req *pb.QueryJobInfoReq) (*
 // 查询任务列表
 func (b *BatchJob) QueryJobList(ctx context.Context, req *pb.QueryJobListReq) (*pb.QueryJobListRsp, error) {
 	where := map[string]interface{}{}
-	if req.GetBizType() == 0 {
+	if req.GetBizId() == 0 {
 		return nil, nil
 	}
-	where["biz_type"] = req.GetBizType()
+	where["biz_id"] = req.GetBizId()
 	switch req.GetStatus() {
 	case pb.JobStatusQ_JobStatusQ_Running:
 		where["status in"] = []int{int(pb.JobStatus_JobStatus_Running), int(pb.JobStatus_JobStatus_WaitBizRun), int(pb.JobStatus_JobStatus_Stopping)}
@@ -299,7 +299,7 @@ func (*BatchJob) jobDbModel2Pb(line *batch_job_list.Model) *pb.JobInfoA {
 	ret := &pb.JobInfoA{
 		JobId:            int64(line.JobID),
 		JobName:          line.JobName,
-		BizType:          int32(line.BizType),
+		BizId:          int32(line.BizId),
 		JobData:          line.JobData,
 		ProcessDataTotal: int64(line.ProcessDataTotal),
 		ProcessedCount:   int64(line.ProcessedCount),
@@ -323,7 +323,7 @@ func (*BatchJob) jobDbModel2Pb(line *batch_job_list.Model) *pb.JobInfoA {
 func (*BatchJob) jobDbModel2ListPb(line *batch_job_list.Model) *pb.JobInfoByListA {
 	ret := &pb.JobInfoByListA{
 		JobId:            int64(line.JobID),
-		BizType:          int32(line.BizType),
+		BizId:          int32(line.BizId),
 		ProcessDataTotal: int64(line.ProcessDataTotal),
 		ProcessedCount:   int64(line.ProcessedCount),
 		ErrLogCount:      int64(line.ErrLogCount),

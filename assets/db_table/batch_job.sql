@@ -1,28 +1,26 @@
 CREATE TABLE `batch_job_biz`
 (
-    `id`                       int unsigned       NOT NULL AUTO_INCREMENT,
-    `biz_type`                 mediumint unsigned NOT NULL COMMENT '业务类型',
-    `biz_name`                 varchar(32)        NOT NULL COMMENT '业务名',
-    `remark`                   varchar(1024)      NOT NULL DEFAULT '' COMMENT '备注',
-    `exec_type`                tinyint unsigned   NOT NULL DEFAULT 0 COMMENT '执行类型',
-    `cb_before_create`         varchar(256)       NOT NULL DEFAULT '' COMMENT '创建和修改任务回调url',
-    `cb_before_run`            varchar(256)       NOT NULL DEFAULT '' COMMENT '启动前回调. 一旦配置, 则任务必须由业务主动调用 BizStartJob 执行任务. 否则任务将一直处于 JobStatus.WaitBizRun 状态',
-    `cb_process`               varchar(256)       NOT NULL DEFAULT '' COMMENT '处理任务回调. 必填',
-    `cb_process_stop`          varchar(256)       NOT NULL DEFAULT '' COMMENT '任务停止回调. 用于业务方做一些清理. 选填',
-    `cb_before_create_timeout` int unsigned       NOT NULL DEFAULT 30 COMMENT '创建和修改任务前回调超时秒数',
-    `cb_before_run_timeout`    int unsigned       NOT NULL DEFAULT 30 COMMENT '启动前回调超时秒数',
-    `cb_process_timeout`       int unsigned       NOT NULL DEFAULT 30 COMMENT '处理任务回调超时秒数',
-    `cb_process_stop_timeout`  int unsigned       NOT NULL DEFAULT 30 COMMENT '任务停止回调超时秒数',
-    `create_time`              datetime           NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `update_time`              datetime           NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    `last_op_source`           varchar(32)        NOT NULL DEFAULT '' COMMENT '最后操作来源',
-    `last_op_user_id`          varchar(32)        NOT NULL DEFAULT '' COMMENT '最后操作用户id',
-    `last_op_user_name`        varchar(32)        NOT NULL DEFAULT '' COMMENT '最后操作用户名',
-    `last_op_remark`           varchar(1024)      NOT NULL DEFAULT '' COMMENT '最后操作备注',
-    `op_history`               json               NOT NULL COMMENT '操作历史信息',
-    `status`                   tinyint unsigned   NOT NULL DEFAULT 0 COMMENT '状态 0=正常 1=隐藏',
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `batch_job_biz_biz_type` (`biz_type`),
+    `biz_id`                   int unsigned     NOT NULL AUTO_INCREMENT COMMENT '业务id',
+    `biz_name`                 varchar(32)      NOT NULL COMMENT '业务名',
+    `remark`                   varchar(1024)    NOT NULL DEFAULT '' COMMENT '备注',
+    `exec_type`                tinyint unsigned NOT NULL DEFAULT 0 COMMENT '执行类型',
+    `cb_before_create`         varchar(256)     NOT NULL DEFAULT '' COMMENT '创建和修改任务回调url',
+    `cb_before_run`            varchar(256)     NOT NULL DEFAULT '' COMMENT '启动前回调. 一旦配置, 则任务必须由业务主动调用 BizStartJob 执行任务. 否则任务将一直处于 JobStatus.WaitBizRun 状态',
+    `cb_process`               varchar(256)     NOT NULL DEFAULT '' COMMENT '处理任务回调. 必填',
+    `cb_process_stop`          varchar(256)     NOT NULL DEFAULT '' COMMENT '任务停止回调. 用于业务方做一些清理. 选填',
+    `cb_before_create_timeout` int unsigned     NOT NULL DEFAULT 30 COMMENT '创建和修改任务前回调超时秒数',
+    `cb_before_run_timeout`    int unsigned     NOT NULL DEFAULT 30 COMMENT '启动前回调超时秒数',
+    `cb_process_timeout`       int unsigned     NOT NULL DEFAULT 30 COMMENT '处理任务回调超时秒数',
+    `cb_process_stop_timeout`  int unsigned     NOT NULL DEFAULT 30 COMMENT '任务停止回调超时秒数',
+    `create_time`              datetime         NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `update_time`              datetime         NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `last_op_source`           varchar(32)      NOT NULL DEFAULT '' COMMENT '最后操作来源',
+    `last_op_user_id`          varchar(32)      NOT NULL DEFAULT '' COMMENT '最后操作用户id',
+    `last_op_user_name`        varchar(32)      NOT NULL DEFAULT '' COMMENT '最后操作用户名',
+    `last_op_remark`           varchar(1024)    NOT NULL DEFAULT '' COMMENT '最后操作备注',
+    `op_history`               json             NOT NULL COMMENT '操作历史信息',
+    `status`                   tinyint unsigned NOT NULL DEFAULT 0 COMMENT '状态 0=正常 1=隐藏',
+    PRIMARY KEY (`biz_id`),
     KEY `batch_job_biz_create_time` (`create_time` DESC),
     KEY `batch_job_biz_status_create_time` (`status`, `create_time` DESC)
 ) ENGINE = InnoDB
@@ -31,10 +29,9 @@ CREATE TABLE `batch_job_biz`
 
 CREATE TABLE `batch_job_list`
 (
-    `id`                 int unsigned       NOT NULL AUTO_INCREMENT,
     `job_id`             int unsigned       NOT NULL COMMENT '任务号',
     `job_name`           varchar(1024)      NOT NULL DEFAULT '' COMMENT '任务名称',
-    `biz_type`           mediumint unsigned NOT NULL COMMENT '业务类型',
+    `biz_id`             mediumint unsigned NOT NULL COMMENT '业务id',
     `job_data`           varchar(8192)      NOT NULL DEFAULT '' COMMENT '任务数据, 让业务知道应该做什么',
     `process_data_total` bigint unsigned    NOT NULL DEFAULT 0 COMMENT '需要处理数据总数',
     `processed_count`    bigint unsigned    NOT NULL DEFAULT 0 COMMENT '已处理过的数据量, 无论成功还是失败. 如果任务在运行中, 则真实进度存在于redis',
@@ -50,13 +47,26 @@ CREATE TABLE `batch_job_list`
     `op_history`         json               NOT NULL COMMENT '操作历史信息',
     `rate_type`          tinyint unsigned   NOT NULL DEFAULT 0 COMMENT '速率类型. 0=通过rate_sec限速, 1=串行化',
     `rate_sec`           int unsigned       NOT NULL DEFAULT 0 COMMENT '每秒处理速率. 0表示不限制',
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `batch_job_list_id` (`job_id`),
-    KEY `batch_job_list_biz_type` (`biz_type`, `status`, `update_time` DESC),
-    KEY `batch_job_list_job_id_last_op_user_id_create_time_index` (`biz_type`, `last_op_user_id`, `status`, `create_time` DESC)
+    PRIMARY KEY (`job_id`),
+    KEY `batch_job_list_biz_id` (biz_id, `status`, `update_time` DESC),
+    KEY `batch_job_list_job_id_last_op_user_id_create_time_index` (biz_id, `last_op_user_id`, `status`, `create_time` DESC)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT ='批量任务列表';
+
+create index batch_job_list_biz_type
+    on batch_job.batch_job_list (biz_id);
+
+create index batch_job_list_job_id_create_time_biz_id_index
+    on batch_job.batch_job_list (create_time desc, biz_id asc);
+
+create index batch_job_list_job_id_last_op_user_id_create_time_index
+    on batch_job.batch_job_list (last_op_user_id asc, create_time desc);
+
+create index batch_job_list_job_id_update_time_biz_id_index
+    on batch_job.batch_job_list (update_time desc, biz_id asc);
+
+
 
 CREATE TABLE `batch_job_log`
 (

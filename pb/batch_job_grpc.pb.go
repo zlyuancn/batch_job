@@ -46,7 +46,7 @@ type BatchJobServiceClient interface {
 	// 业务注册
 	AdminRegistryBiz(ctx context.Context, in *AdminRegistryBizReq, opts ...grpc.CallOption) (*AdminRegistryBizRsp, error)
 	// 修改业务
-	AdminChangeBiz(ctx context.Context, in *AdminRegistryBizReq, opts ...grpc.CallOption) (*AdminRegistryBizRsp, error)
+	AdminChangeBiz(ctx context.Context, in *AdminChangeBizReq, opts ...grpc.CallOption) (*AdminChangeBizRsp, error)
 	// 创建任务
 	AdminCreateJob(ctx context.Context, in *AdminCreateJobReq, opts ...grpc.CallOption) (*AdminCreateJobRsp, error)
 	// 修改任务
@@ -71,7 +71,7 @@ type BatchJobServiceClient interface {
 	BizStartJob(ctx context.Context, in *BizStartJobReq, opts ...grpc.CallOption) (*BizStartJobRsp, error)
 	// 要求业务停止运行. 一般为业务判断任务无法继续的时候
 	BizStopJob(ctx context.Context, in *BizStopJobReq, opts ...grpc.CallOption) (*BizStopJobRsp, error)
-	// 更新任务数据. 要求任务必须处于 JobStatus.WaitBizRun 状态或者串行化速率类型的任务可以使用
+	// 更新任务数据. 要求任务必须处于 JobStatus.WaitBizRun 状态可以使用
 	BizUpdateJobData(ctx context.Context, in *BizUpdateJobDataReq, opts ...grpc.CallOption) (*BizUpdateJobDataRsp, error)
 	// 增加数据日志
 	BizAddDataLog(ctx context.Context, in *BizAddDataLogReq, opts ...grpc.CallOption) (*BizAddDataLogRsp, error)
@@ -95,9 +95,9 @@ func (c *batchJobServiceClient) AdminRegistryBiz(ctx context.Context, in *AdminR
 	return out, nil
 }
 
-func (c *batchJobServiceClient) AdminChangeBiz(ctx context.Context, in *AdminRegistryBizReq, opts ...grpc.CallOption) (*AdminRegistryBizRsp, error) {
+func (c *batchJobServiceClient) AdminChangeBiz(ctx context.Context, in *AdminChangeBizReq, opts ...grpc.CallOption) (*AdminChangeBizRsp, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(AdminRegistryBizRsp)
+	out := new(AdminChangeBizRsp)
 	err := c.cc.Invoke(ctx, BatchJobService_AdminChangeBiz_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -254,7 +254,7 @@ type BatchJobServiceServer interface {
 	// 业务注册
 	AdminRegistryBiz(context.Context, *AdminRegistryBizReq) (*AdminRegistryBizRsp, error)
 	// 修改业务
-	AdminChangeBiz(context.Context, *AdminRegistryBizReq) (*AdminRegistryBizRsp, error)
+	AdminChangeBiz(context.Context, *AdminChangeBizReq) (*AdminChangeBizRsp, error)
 	// 创建任务
 	AdminCreateJob(context.Context, *AdminCreateJobReq) (*AdminCreateJobRsp, error)
 	// 修改任务
@@ -279,7 +279,7 @@ type BatchJobServiceServer interface {
 	BizStartJob(context.Context, *BizStartJobReq) (*BizStartJobRsp, error)
 	// 要求业务停止运行. 一般为业务判断任务无法继续的时候
 	BizStopJob(context.Context, *BizStopJobReq) (*BizStopJobRsp, error)
-	// 更新任务数据. 要求任务必须处于 JobStatus.WaitBizRun 状态或者串行化速率类型的任务可以使用
+	// 更新任务数据. 要求任务必须处于 JobStatus.WaitBizRun 状态可以使用
 	BizUpdateJobData(context.Context, *BizUpdateJobDataReq) (*BizUpdateJobDataRsp, error)
 	// 增加数据日志
 	BizAddDataLog(context.Context, *BizAddDataLogReq) (*BizAddDataLogRsp, error)
@@ -296,7 +296,7 @@ type UnimplementedBatchJobServiceServer struct{}
 func (UnimplementedBatchJobServiceServer) AdminRegistryBiz(context.Context, *AdminRegistryBizReq) (*AdminRegistryBizRsp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AdminRegistryBiz not implemented")
 }
-func (UnimplementedBatchJobServiceServer) AdminChangeBiz(context.Context, *AdminRegistryBizReq) (*AdminRegistryBizRsp, error) {
+func (UnimplementedBatchJobServiceServer) AdminChangeBiz(context.Context, *AdminChangeBizReq) (*AdminChangeBizRsp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AdminChangeBiz not implemented")
 }
 func (UnimplementedBatchJobServiceServer) AdminCreateJob(context.Context, *AdminCreateJobReq) (*AdminCreateJobRsp, error) {
@@ -381,7 +381,7 @@ func _BatchJobService_AdminRegistryBiz_Handler(srv interface{}, ctx context.Cont
 }
 
 func _BatchJobService_AdminChangeBiz_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AdminRegistryBizReq)
+	in := new(AdminChangeBizReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -393,7 +393,7 @@ func _BatchJobService_AdminChangeBiz_Handler(srv interface{}, ctx context.Contex
 		FullMethod: BatchJobService_AdminChangeBiz_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BatchJobServiceServer).AdminChangeBiz(ctx, req.(*AdminRegistryBizReq))
+		return srv.(BatchJobServiceServer).AdminChangeBiz(ctx, req.(*AdminChangeBizReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }

@@ -37,7 +37,7 @@ func (h *httpCallbackBiz) BeforeRun(ctx context.Context, jobInfo *batch_job_list
 	args := &pb.JobBeforeRunReq{
 		JobId:            int64(jobInfo.JobID),
 		JobName:          jobInfo.JobName,
-		BizType:          int32(jobInfo.BizType),
+		BizId:          int32(jobInfo.BizId),
 		BizName:          h.v.BizName,
 		JobData:          jobInfo.JobData,
 		ProcessDataTotal: int64(jobInfo.ProcessDataTotal),
@@ -70,7 +70,7 @@ func (h *httpCallbackBiz) ProcessStop(ctx context.Context, jobInfo *batch_job_li
 	args := &pb.JobProcessStopReq{
 		JobId:            int64(jobInfo.JobID),
 		JobName:          jobInfo.JobName,
-		BizType:          int32(jobInfo.BizType),
+		BizId:          int32(jobInfo.BizId),
 		BizName:          h.v.BizName,
 		JobData:          jobInfo.JobData,
 		ProcessDataTotal: int64(jobInfo.ProcessDataTotal),

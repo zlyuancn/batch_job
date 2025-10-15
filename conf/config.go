@@ -6,7 +6,7 @@ const (
 	defSqlxName  = "batch_job"
 	defRedisName = "batch_job"
 
-	defJobIdGenKeyPrefix                    = "batch_job:id_gen:"
+	defJobIdGenKeyPrefix                    = "batch_job:job_id_gen:"
 	defJobOpLockKeyPrefix                   = "batch_job:op_lock:"
 	defJobStopFlagPrefix                    = "batch_job:stop:"
 	defJobStopFlagTtl                       = 86400 // 1天
@@ -90,7 +90,7 @@ func (conf *Config) Check() {
 		conf.JobIdGenKeyPrefix = defJobIdGenKeyPrefix
 	}
 	if conf.JobOpLockKeyPrefix == "" {
-		conf.JobOpLockKeyPrefix = conf.JobIdGenKeyPrefix
+		conf.JobOpLockKeyPrefix = defJobOpLockKeyPrefix
 	}
 	if conf.JobStopFlagPrefix == "" {
 		conf.JobStopFlagPrefix = defJobStopFlagPrefix
@@ -105,7 +105,7 @@ func (conf *Config) Check() {
 		conf.JobBeforeRunLockExtraTtl = defJobBeforeRunLockExtraTtl
 	}
 	if conf.JobRunLockKeyPrefix == "" {
-		conf.JobRunLockKeyPrefix = conf.JobIdGenKeyPrefix
+		conf.JobRunLockKeyPrefix = defJobRunLockKeyPrefix
 	}
 	if conf.JobRunLockExtraTtl < 1 {
 		conf.JobRunLockExtraTtl = defJobRunLockExtraTtl

@@ -31,7 +31,7 @@ var (
 
 	selectBaseField = []string{
 		"job_id",
-		"biz_type",
+		"biz_id",
 		"job_name",
 		"job_data",
 		"process_data_total",
@@ -51,7 +51,7 @@ var (
 
 	selectFieldByQueryList = []string{
 		"job_id",
-		"biz_type",
+		"biz_id",
 		"job_name",
 		"process_data_total",
 		"processed_count",
@@ -74,10 +74,9 @@ const (
 )
 
 type Model struct {
-	ID               uint      `db:"id" json:"-"`
 	JobID            uint      `db:"job_id" json:"-"`        // "任务号"
 	JobName          string    `db:"job_name"`               // "任务名称"
-	BizType          uint      `db:"biz_type" json:"-"`      // "业务类型"
+	BizId            uint      `db:"biz_id" json:"-"`        // "业务id"
 	JobData          string    `db:"job_data"`               // "任务数据, 让业务知道应该做什么"
 	ProcessDataTotal uint64    `db:"process_data_total"`     // "需要处理数据总数"
 	ProcessedCount   uint64    `db:"processed_count"`        // "已处理过的数据量, 无论成功还是失败. 如果任务在运行中, 则真实进度存在于redis"
@@ -104,7 +103,7 @@ func CreateOneModel(ctx context.Context, v *Model) (int64, error) {
 	data = append(data, map[string]any{
 		"job_id":             v.JobID,
 		"job_name":           v.JobName,
-		"biz_type":           v.BizType,
+		"biz_id":             v.BizId,
 		"job_data":           v.JobData,
 		"process_data_total": v.ProcessDataTotal,
 		"processed_count":    v.ProcessedCount,
@@ -221,8 +220,8 @@ func ChangeJob(ctx context.Context, v *Model, whereStatus byte) (int64, error) {
 	if v == nil {
 		return 0, errors.New("UpdateOneModel v is empty")
 	}
-	if v.BizType == 0 {
-		return 0, errors.New("UpdateOneModel BizType is empty")
+	if v.BizId == 0 {
+		return 0, errors.New("UpdateOneModel BizId is empty")
 	}
 	const cond = `
 update batch_job_list

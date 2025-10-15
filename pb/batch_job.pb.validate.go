@@ -57,17 +57,6 @@ func (m *AdminRegistryBizReq) validate(all bool) error {
 
 	var errors []error
 
-	if m.GetBizType() <= 0 {
-		err := AdminRegistryBizReqValidationError{
-			field:  "BizType",
-			reason: "value must be greater than 0",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
-
 	if utf8.RuneCountInString(m.GetBizName()) < 1 {
 		err := AdminRegistryBizReqValidationError{
 			field:  "BizName",
@@ -356,6 +345,8 @@ func (m *AdminRegistryBizRsp) validate(all bool) error {
 
 	var errors []error
 
+	// no validation rules for BizId
+
 	if len(errors) > 0 {
 		return AdminRegistryBizRspMultiError(errors)
 	}
@@ -435,6 +426,407 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = AdminRegistryBizRspValidationError{}
+
+// Validate checks the field values on AdminChangeBizReq with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *AdminChangeBizReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AdminChangeBizReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// AdminChangeBizReqMultiError, or nil if none found.
+func (m *AdminChangeBizReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AdminChangeBizReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if m.GetBizId() <= 0 {
+		err := AdminChangeBizReqValidationError{
+			field:  "BizId",
+			reason: "value must be greater than 0",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if utf8.RuneCountInString(m.GetBizName()) < 1 {
+		err := AdminChangeBizReqValidationError{
+			field:  "BizName",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	// no validation rules for Remark
+
+	// no validation rules for ExecType
+
+	if m.GetCbBeforeCreate() != "" {
+
+		if uri, err := url.Parse(m.GetCbBeforeCreate()); err != nil {
+			err = AdminChangeBizReqValidationError{
+				field:  "CbBeforeCreate",
+				reason: "value must be a valid URI",
+				cause:  err,
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		} else if !uri.IsAbs() {
+			err := AdminChangeBizReqValidationError{
+				field:  "CbBeforeCreate",
+				reason: "value must be absolute",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+	}
+
+	if m.GetCbBeforeRun() != "" {
+
+		if uri, err := url.Parse(m.GetCbBeforeRun()); err != nil {
+			err = AdminChangeBizReqValidationError{
+				field:  "CbBeforeRun",
+				reason: "value must be a valid URI",
+				cause:  err,
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		} else if !uri.IsAbs() {
+			err := AdminChangeBizReqValidationError{
+				field:  "CbBeforeRun",
+				reason: "value must be absolute",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+	}
+
+	if uri, err := url.Parse(m.GetCbProcess()); err != nil {
+		err = AdminChangeBizReqValidationError{
+			field:  "CbProcess",
+			reason: "value must be a valid URI",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	} else if !uri.IsAbs() {
+		err := AdminChangeBizReqValidationError{
+			field:  "CbProcess",
+			reason: "value must be absolute",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if m.GetCbProcessStop() != "" {
+
+		if uri, err := url.Parse(m.GetCbProcessStop()); err != nil {
+			err = AdminChangeBizReqValidationError{
+				field:  "CbProcessStop",
+				reason: "value must be a valid URI",
+				cause:  err,
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		} else if !uri.IsAbs() {
+			err := AdminChangeBizReqValidationError{
+				field:  "CbProcessStop",
+				reason: "value must be absolute",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+	}
+
+	if m.GetCbBeforeCreateTimeout() < 0 {
+		err := AdminChangeBizReqValidationError{
+			field:  "CbBeforeCreateTimeout",
+			reason: "value must be greater than or equal to 0",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if m.GetCbBeforeRunTimeout() < 0 {
+		err := AdminChangeBizReqValidationError{
+			field:  "CbBeforeRunTimeout",
+			reason: "value must be greater than or equal to 0",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if m.GetCbProcessTimeout() < 0 {
+		err := AdminChangeBizReqValidationError{
+			field:  "CbProcessTimeout",
+			reason: "value must be greater than or equal to 0",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if m.GetCbProcessStopTimeout() < 0 {
+		err := AdminChangeBizReqValidationError{
+			field:  "CbProcessStopTimeout",
+			reason: "value must be greater than or equal to 0",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if all {
+		switch v := interface{}(m.GetOp()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, AdminChangeBizReqValidationError{
+					field:  "Op",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, AdminChangeBizReqValidationError{
+					field:  "Op",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetOp()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return AdminChangeBizReqValidationError{
+				field:  "Op",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for Status
+
+	if len(errors) > 0 {
+		return AdminChangeBizReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// AdminChangeBizReqMultiError is an error wrapping multiple validation errors
+// returned by AdminChangeBizReq.ValidateAll() if the designated constraints
+// aren't met.
+type AdminChangeBizReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AdminChangeBizReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AdminChangeBizReqMultiError) AllErrors() []error { return m }
+
+// AdminChangeBizReqValidationError is the validation error returned by
+// AdminChangeBizReq.Validate if the designated constraints aren't met.
+type AdminChangeBizReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AdminChangeBizReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AdminChangeBizReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AdminChangeBizReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AdminChangeBizReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AdminChangeBizReqValidationError) ErrorName() string {
+	return "AdminChangeBizReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e AdminChangeBizReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAdminChangeBizReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = AdminChangeBizReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AdminChangeBizReqValidationError{}
+
+// Validate checks the field values on AdminChangeBizRsp with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *AdminChangeBizRsp) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AdminChangeBizRsp with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// AdminChangeBizRspMultiError, or nil if none found.
+func (m *AdminChangeBizRsp) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AdminChangeBizRsp) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return AdminChangeBizRspMultiError(errors)
+	}
+
+	return nil
+}
+
+// AdminChangeBizRspMultiError is an error wrapping multiple validation errors
+// returned by AdminChangeBizRsp.ValidateAll() if the designated constraints
+// aren't met.
+type AdminChangeBizRspMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AdminChangeBizRspMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AdminChangeBizRspMultiError) AllErrors() []error { return m }
+
+// AdminChangeBizRspValidationError is the validation error returned by
+// AdminChangeBizRsp.Validate if the designated constraints aren't met.
+type AdminChangeBizRspValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AdminChangeBizRspValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AdminChangeBizRspValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AdminChangeBizRspValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AdminChangeBizRspValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AdminChangeBizRspValidationError) ErrorName() string {
+	return "AdminChangeBizRspValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e AdminChangeBizRspValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAdminChangeBizRsp.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = AdminChangeBizRspValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AdminChangeBizRspValidationError{}
 
 // Validate checks the field values on OpInfoQ with the rules defined in the
 // proto definition for this message. If any rules are violated, the first
@@ -830,7 +1222,7 @@ func (m *BizInfoA) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for BizType
+	// no validation rules for BizId
 
 	// no validation rules for BizName
 
@@ -986,7 +1378,7 @@ func (m *BizInfoByListA) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for BizType
+	// no validation rules for BizId
 
 	// no validation rules for BizName
 
@@ -1129,7 +1521,7 @@ func (m *JobInfoA) validate(all bool) error {
 
 	// no validation rules for JobName
 
-	// no validation rules for BizType
+	// no validation rules for BizId
 
 	// no validation rules for JobData
 
@@ -1281,7 +1673,7 @@ func (m *JobInfoByListA) validate(all bool) error {
 
 	// no validation rules for JobName
 
-	// no validation rules for BizType
+	// no validation rules for BizId
 
 	// no validation rules for ProcessDataTotal
 
@@ -1645,9 +2037,9 @@ func (m *AdminCreateJobReq) validate(all bool) error {
 
 	var errors []error
 
-	if m.GetBizType() <= 0 {
+	if m.GetBizId() <= 0 {
 		err := AdminCreateJobReqValidationError{
-			field:  "BizType",
+			field:  "BizId",
 			reason: "value must be greater than 0",
 		}
 		if !all {
@@ -1905,9 +2297,9 @@ func (m *AdminChangeJobReq) validate(all bool) error {
 
 	var errors []error
 
-	if m.GetBizType() <= 0 {
+	if m.GetBizId() <= 0 {
 		err := AdminChangeJobReqValidationError{
-			field:  "BizType",
+			field:  "BizId",
 			reason: "value must be greater than 0",
 		}
 		if !all {
@@ -2881,9 +3273,9 @@ func (m *QueryBizInfoReq) validate(all bool) error {
 
 	var errors []error
 
-	if m.GetBizType() <= 0 {
+	if m.GetBizId() <= 0 {
 		err := QueryBizInfoReqValidationError{
-			field:  "BizType",
+			field:  "BizId",
 			reason: "value must be greater than 0",
 		}
 		if !all {
@@ -3145,9 +3537,9 @@ func (m *QueryBizListReq) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if m.GetBizType() < 0 {
+	if m.GetBizId() < 0 {
 		err := QueryBizListReqValidationError{
-			field:  "BizType",
+			field:  "BizId",
 			reason: "value must be greater than or equal to 0",
 		}
 		if !all {
@@ -3662,9 +4054,9 @@ func (m *QueryJobListReq) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if m.GetBizType() < 0 {
+	if m.GetBizId() < 0 {
 		err := QueryJobListReqValidationError{
-			field:  "BizType",
+			field:  "BizId",
 			reason: "value must be greater than or equal to 0",
 		}
 		if !all {
@@ -5081,7 +5473,7 @@ func (m *JobBeforeCreateAndChangeReq) validate(all bool) error {
 
 	// no validation rules for JobName
 
-	// no validation rules for BizType
+	// no validation rules for BizId
 
 	// no validation rules for JobData
 
@@ -5307,7 +5699,7 @@ func (m *JobBeforeRunReq) validate(all bool) error {
 
 	// no validation rules for JobName
 
-	// no validation rules for BizType
+	// no validation rules for BizId
 
 	// no validation rules for BizName
 
@@ -5725,7 +6117,7 @@ func (m *JobProcessStopReq) validate(all bool) error {
 
 	// no validation rules for JobName
 
-	// no validation rules for BizType
+	// no validation rules for BizId
 
 	// no validation rules for BizName
 
@@ -5941,7 +6333,7 @@ func (m *QueryAllBizNameRsp_LineA) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for BizType
+	// no validation rules for BizId
 
 	// no validation rules for BizName
 

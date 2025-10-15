@@ -24,7 +24,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/batch_jobAdminRegistryBizRsp"
+              "$ref": "#/definitions/batch_jobAdminChangeBizRsp"
             }
           },
           "default": {
@@ -40,7 +40,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/batch_jobAdminRegistryBizReq"
+              "$ref": "#/definitions/batch_jobAdminChangeBizReq"
             }
           }
         ],
@@ -315,7 +315,7 @@
     },
     "/BatchJob/BizUpdateJobData": {
       "post": {
-        "summary": "更新任务数据. 要求任务必须处于 JobStatus.WaitBizRun 状态或者串行化速率类型的任务可以使用",
+        "summary": "更新任务数据. 要求任务必须处于 JobStatus.WaitBizRun 状态可以使用",
         "operationId": "BatchJobService_BizUpdateJobData",
         "responses": {
           "200": {
@@ -549,10 +549,10 @@
     "QueryAllBizNameRspLineA": {
       "type": "object",
       "properties": {
-        "bizType": {
+        "bizId": {
           "type": "integer",
           "format": "int32",
-          "title": "业务类型. 必填"
+          "title": "业务id. 必填"
         },
         "bizName": {
           "type": "string",
@@ -564,117 +564,13 @@
         }
       }
     },
-    "batch_jobAdminChangeJobReq": {
+    "batch_jobAdminChangeBizReq": {
       "type": "object",
       "properties": {
-        "bizType": {
+        "bizId": {
           "type": "integer",
           "format": "int32",
-          "title": "业务类型. 必填"
-        },
-        "jobName": {
-          "type": "string",
-          "title": "任务名称"
-        },
-        "jobData": {
-          "type": "string",
-          "title": "任务数据, 让业务知道应该做什么"
-        },
-        "processDataTotal": {
-          "type": "string",
-          "format": "int64",
-          "title": "需要处理数据总数"
-        },
-        "processedCount": {
-          "type": "string",
-          "format": "int64",
-          "title": "已处理过的数据量, 无论成功还是失败"
-        },
-        "rateType": {
-          "$ref": "#/definitions/batch_jobRateType",
-          "title": "速率类型"
-        },
-        "rateSec": {
-          "type": "integer",
-          "format": "int32",
-          "title": "每秒处理速率. 0表示不限制"
-        },
-        "op": {
-          "$ref": "#/definitions/batch_jobOpInfoQ",
-          "title": "操作信息"
-        },
-        "jobId": {
-          "type": "string",
-          "format": "int64",
-          "title": "任务id"
-        }
-      }
-    },
-    "batch_jobAdminChangeJobRsp": {
-      "type": "object"
-    },
-    "batch_jobAdminCreateJobReq": {
-      "type": "object",
-      "properties": {
-        "bizType": {
-          "type": "integer",
-          "format": "int32",
-          "title": "业务类型. 必填"
-        },
-        "jobName": {
-          "type": "string",
-          "title": "任务名称"
-        },
-        "jobData": {
-          "type": "string",
-          "title": "任务数据, 让业务知道应该做什么"
-        },
-        "processDataTotal": {
-          "type": "string",
-          "format": "int64",
-          "title": "需要处理数据总数"
-        },
-        "processedCount": {
-          "type": "string",
-          "format": "int64",
-          "title": "已处理过的数据量, 无论成功还是失败"
-        },
-        "rateType": {
-          "$ref": "#/definitions/batch_jobRateType",
-          "title": "速率类型"
-        },
-        "rateSec": {
-          "type": "integer",
-          "format": "int32",
-          "title": "每秒处理速率. 0表示不限制"
-        },
-        "op": {
-          "$ref": "#/definitions/batch_jobOpInfoQ",
-          "title": "操作信息"
-        },
-        "startNow": {
-          "type": "boolean",
-          "title": "创建后是否立即启动"
-        }
-      }
-    },
-    "batch_jobAdminCreateJobRsp": {
-      "type": "object",
-      "properties": {
-        "jobId": {
-          "type": "string",
-          "format": "int64",
-          "title": "创建的任务id"
-        }
-      }
-    },
-    "batch_jobAdminRegistryBizReq": {
-      "type": "object",
-      "properties": {
-        "bizType": {
-          "type": "integer",
-          "format": "int32",
-          "title": "业务类型. 必填"
+          "title": "业务id. 必填"
         },
         "bizName": {
           "type": "string",
@@ -734,8 +630,183 @@
         }
       }
     },
-    "batch_jobAdminRegistryBizRsp": {
+    "batch_jobAdminChangeBizRsp": {
       "type": "object"
+    },
+    "batch_jobAdminChangeJobReq": {
+      "type": "object",
+      "properties": {
+        "bizId": {
+          "type": "integer",
+          "format": "int32",
+          "title": "业务id. 必填"
+        },
+        "jobName": {
+          "type": "string",
+          "title": "任务名称"
+        },
+        "jobData": {
+          "type": "string",
+          "title": "任务数据, 让业务知道应该做什么"
+        },
+        "processDataTotal": {
+          "type": "string",
+          "format": "int64",
+          "title": "需要处理数据总数"
+        },
+        "processedCount": {
+          "type": "string",
+          "format": "int64",
+          "title": "已处理过的数据量, 无论成功还是失败"
+        },
+        "rateType": {
+          "$ref": "#/definitions/batch_jobRateType",
+          "title": "速率类型"
+        },
+        "rateSec": {
+          "type": "integer",
+          "format": "int32",
+          "title": "每秒处理速率. 0表示不限制"
+        },
+        "op": {
+          "$ref": "#/definitions/batch_jobOpInfoQ",
+          "title": "操作信息"
+        },
+        "jobId": {
+          "type": "string",
+          "format": "int64",
+          "title": "任务id"
+        }
+      }
+    },
+    "batch_jobAdminChangeJobRsp": {
+      "type": "object"
+    },
+    "batch_jobAdminCreateJobReq": {
+      "type": "object",
+      "properties": {
+        "bizId": {
+          "type": "integer",
+          "format": "int32",
+          "title": "业务id. 必填"
+        },
+        "jobName": {
+          "type": "string",
+          "title": "任务名称"
+        },
+        "jobData": {
+          "type": "string",
+          "title": "任务数据, 让业务知道应该做什么"
+        },
+        "processDataTotal": {
+          "type": "string",
+          "format": "int64",
+          "title": "需要处理数据总数"
+        },
+        "processedCount": {
+          "type": "string",
+          "format": "int64",
+          "title": "已处理过的数据量, 无论成功还是失败"
+        },
+        "rateType": {
+          "$ref": "#/definitions/batch_jobRateType",
+          "title": "速率类型"
+        },
+        "rateSec": {
+          "type": "integer",
+          "format": "int32",
+          "title": "每秒处理速率. 0表示不限制"
+        },
+        "op": {
+          "$ref": "#/definitions/batch_jobOpInfoQ",
+          "title": "操作信息"
+        },
+        "startNow": {
+          "type": "boolean",
+          "title": "创建后是否立即启动"
+        }
+      }
+    },
+    "batch_jobAdminCreateJobRsp": {
+      "type": "object",
+      "properties": {
+        "jobId": {
+          "type": "string",
+          "format": "int64",
+          "title": "创建的任务id"
+        }
+      }
+    },
+    "batch_jobAdminRegistryBizReq": {
+      "type": "object",
+      "properties": {
+        "bizName": {
+          "type": "string",
+          "title": "业务名"
+        },
+        "remark": {
+          "type": "string",
+          "title": "备注"
+        },
+        "execType": {
+          "$ref": "#/definitions/batch_jobExecType",
+          "title": "执行类型"
+        },
+        "cbBeforeCreate": {
+          "type": "string",
+          "title": "创建和修改任务回调url"
+        },
+        "cbBeforeRun": {
+          "type": "string",
+          "title": "启动前回调. 一旦配置, 则任务必须由业务主动调用 BizStartJob 执行任务. 否则任务将一直处于 JobStatus.WaitBizRun 状态"
+        },
+        "cbProcess": {
+          "type": "string",
+          "title": "处理任务回调. 必填"
+        },
+        "cbProcessStop": {
+          "type": "string",
+          "title": "任务停止回调. 用于业务方做一些清理. 选填"
+        },
+        "cbBeforeCreateTimeout": {
+          "type": "integer",
+          "format": "int32",
+          "title": "启动前回调超时秒数"
+        },
+        "cbBeforeRunTimeout": {
+          "type": "integer",
+          "format": "int32",
+          "title": "启动前回调超时秒数"
+        },
+        "cbProcessTimeout": {
+          "type": "integer",
+          "format": "int32",
+          "title": "处理任务回调超时秒数"
+        },
+        "cbProcessStopTimeout": {
+          "type": "integer",
+          "format": "int32",
+          "title": "处理任务停止回调超时秒数"
+        },
+        "op": {
+          "$ref": "#/definitions/batch_jobOpInfoQ",
+          "title": "操作信息"
+        },
+        "status": {
+          "$ref": "#/definitions/batch_jobBizStatus",
+          "title": "状态 0=正常 1=隐藏"
+        }
+      }
+    },
+    "batch_jobAdminRegistryBizRsp": {
+      "type": "object",
+      "properties": {
+        "bizId": {
+          "type": "integer",
+          "format": "int32",
+          "title": "创建的业务id"
+        }
+      }
     },
     "batch_jobAdminStartJobReq": {
       "type": "object",
@@ -795,10 +866,10 @@
     "batch_jobBizInfoA": {
       "type": "object",
       "properties": {
-        "bizType": {
+        "bizId": {
           "type": "integer",
           "format": "int32",
-          "title": "业务类型. 必填"
+          "title": "业务id"
         },
         "bizName": {
           "type": "string",
@@ -867,10 +938,10 @@
     "batch_jobBizInfoByListA": {
       "type": "object",
       "properties": {
-        "bizType": {
+        "bizId": {
           "type": "integer",
           "format": "int32",
-          "title": "业务类型. 必填"
+          "title": "业务id. 必填"
         },
         "bizName": {
           "type": "string",
@@ -1019,10 +1090,10 @@
           "type": "string",
           "title": "任务名称"
         },
-        "bizType": {
+        "bizId": {
           "type": "integer",
           "format": "int32",
-          "title": "业务类型"
+          "title": "业务id"
         },
         "jobData": {
           "type": "string",
@@ -1084,10 +1155,10 @@
           "type": "string",
           "title": "任务名称"
         },
-        "bizType": {
+        "bizId": {
           "type": "integer",
           "format": "int32",
-          "title": "业务类型"
+          "title": "业务id"
         },
         "processDataTotal": {
           "type": "string",
@@ -1252,10 +1323,10 @@
     "batch_jobQueryBizInfoReq": {
       "type": "object",
       "properties": {
-        "bizType": {
+        "bizId": {
           "type": "integer",
           "format": "int32",
-          "title": "创建的业务类型. 必填"
+          "title": "创建的业务id. 必填"
         },
         "needOpHistory": {
           "type": "boolean",
@@ -1285,10 +1356,10 @@
           "format": "int32",
           "title": "每页返回数量, 最少返回5条"
         },
-        "bizType": {
+        "bizId": {
           "type": "integer",
           "format": "int32",
-          "title": "业务类型"
+          "title": "业务id"
         },
         "opUser": {
           "type": "string",
@@ -1419,10 +1490,10 @@
           "format": "int32",
           "title": "每页返回数量, 最少返回5条"
         },
-        "bizType": {
+        "bizId": {
           "type": "integer",
           "format": "int32",
-          "title": "业务类型"
+          "title": "业务id"
         },
         "status": {
           "$ref": "#/definitions/batch_jobJobStatusQ",

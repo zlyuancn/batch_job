@@ -30,7 +30,7 @@ var (
 	}()
 
 	selectBaseField = []string{
-		"biz_type",
+		"biz_id",
 		"biz_name",
 		"exec_type",
 		"remark",
@@ -52,7 +52,7 @@ var (
 	}
 
 	selectFieldByQueryList = []string{
-		"biz_type",
+		"biz_id",
 		"biz_name",
 		"exec_type",
 		"remark",
@@ -70,8 +70,7 @@ const (
 )
 
 type Model struct {
-	ID                    uint      `db:"id" json:"-"`
-	BizType               uint      `db:"biz_type"`                 // "业务类型"
+	BizId                 uint      `db:"biz_id"`                   // "业务id"
 	BizName               string    `db:"biz_name"`                 // "业务名"
 	ExecType              byte      `db:"exec_type"`                // "执行类型"
 	Remark                string    `db:"remark"`                   // "备注"
@@ -100,7 +99,6 @@ func CreateOneModel(ctx context.Context, v *Model) (int64, error) {
 
 	var data []map[string]any
 	data = append(data, map[string]any{
-		"biz_type":                 v.BizType,
 		"biz_name":                 v.BizName,
 		"exec_type":                v.ExecType,
 		"remark":                   v.Remark,
@@ -139,8 +137,8 @@ func UpdateOneModel(ctx context.Context, v *Model) (int64, error) {
 	if v == nil {
 		return 0, errors.New("UpdateOneModel v is empty")
 	}
-	if v.BizType == 0 {
-		return 0, errors.New("UpdateOneModel BizType is empty")
+	if v.BizId == 0 {
+		return 0, errors.New("UpdateOneModel BizId is empty")
 	}
 	const cond = `
 update batch_job_biz
@@ -163,7 +161,7 @@ set
     last_op_remark=?,
     op_history=json_array_insert(op_history, '$[0]', json_extract(?, '$')),
     status=?
-where biz_type = ?
+where biz_id = ?
 limit 1;`
 	vals := []interface{}{
 		v.BizName,
@@ -183,7 +181,7 @@ limit 1;`
 		v.LastOpRemark,
 		v.OpHistory,
 		v.Status,
-		v.BizType,
+		v.BizId,
 	}
 	result, err := db.GetSqlx().Exec(ctx, cond, vals...)
 	if nil != err {
@@ -269,25 +267,25 @@ func Count(ctx context.Context, where map[string]any) (int64, error) {
 	return ret, nil
 }
 
-func GetOneByBizType(ctx context.Context, bizType int) (*Model, error) {
+func GetOneByBizId(ctx context.Context, bizId int) (*Model, error) {
 	where := map[string]interface{}{
-		"biz_type": bizType,
+		"biz_id": bizId,
 	}
 	v, err := GetOne(ctx, where, selectField)
 	if err != nil {
-		logger.Error(ctx, "GetOneByBizType fail.", zap.Error(err))
+		logger.Error(ctx, "GetOneByBizId fail.", zap.Error(err))
 		return nil, err
 	}
 	return v, nil
 }
 
-func GetOneBaseInfoByBizType(ctx context.Context, bizType int) (*Model, error) {
+func GetOneBaseInfoByBizId(ctx context.Context, bizId int) (*Model, error) {
 	where := map[string]interface{}{
-		"biz_type": bizType,
+		"biz_id": bizId,
 	}
 	v, err := GetOne(ctx, where, selectBaseField)
 	if err != nil {
-		logger.Error(ctx, "GetOneBaseInfoByBizType fail.", zap.Error(err))
+		logger.Error(ctx, "GetOneBaseInfoByBizId fail.", zap.Error(err))
 		return nil, err
 	}
 	return v, nil

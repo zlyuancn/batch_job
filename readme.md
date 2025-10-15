@@ -37,7 +37,7 @@ participant f as 业务
 opt 注册业务
 a ->> b: 注册业务
 b -->> b: 数据检查
-b ->> c: 增加业务类型
+b ->> c: 增加业务id
 b ->> a: ok
 end
 

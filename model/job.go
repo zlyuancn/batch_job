@@ -6,7 +6,7 @@ import (
 
 type JobInfo struct {
 	JobId            int64        // "任务号"
-	BizType          int32        // "业务类型"
+	BizId          int32        // "业务id"
 	JobData          string       // "任务数据, 让业务知道应该做什么"
 	ProcessDataTotal int          // "业务中需要处理数据总数"
 	ProcessedNum     int          // "已处理过的数据量."

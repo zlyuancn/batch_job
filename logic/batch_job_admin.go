@@ -24,7 +24,6 @@ import (
 // 业务注册
 func (*BatchJob) AdminRegistryBiz(ctx context.Context, req *pb.AdminRegistryBizReq) (*pb.AdminRegistryBizRsp, error) {
 	v := &batch_job_biz.Model{
-		BizType:               uint(req.GetBizType()),
 		BizName:               req.GetBizName(),
 		ExecType:              byte(req.GetExecType()),
 		Remark:                req.GetRemark(),
@@ -51,24 +50,24 @@ func (*BatchJob) AdminRegistryBiz(ctx context.Context, req *pb.AdminRegistryBizR
 	history := model.BizHistoryOpInfos{hop}
 	historyText, err := sonic.MarshalString(history)
 	if err != nil {
-		logger.Error(ctx, "AdminCreateJob call MarshalString history fail.", zap.Error(err))
+		logger.Error(ctx, "AdminRegistryBiz call MarshalString history fail.", zap.Error(err))
 		return nil, err
 	}
 
 	v.OpHistory = historyText
 
-	_, err = batch_job_biz.CreateOneModel(ctx, v)
+	bizId, err := batch_job_biz.CreateOneModel(ctx, v)
 	if err != nil {
 		logger.Error(ctx, "AdminRegistryBiz call CreateOneModel fail.", zap.Error(err))
 		return nil, err
 	}
-	return &pb.AdminRegistryBizRsp{}, nil
+	return &pb.AdminRegistryBizRsp{BizId: int32(bizId)}, nil
 }
 
 // 修改业务
-func (*BatchJob) AdminChangeBiz(ctx context.Context, req *pb.AdminRegistryBizReq) (*pb.AdminRegistryBizRsp, error) {
+func (*BatchJob) AdminChangeBiz(ctx context.Context, req *pb.AdminChangeBizReq) (*pb.AdminChangeBizRsp, error) {
 	v := &batch_job_biz.Model{
-		BizType:               uint(req.GetBizType()),
+		BizId:                 uint(req.GetBizId()),
 		BizName:               req.GetBizName(),
 		ExecType:              byte(req.GetExecType()),
 		Remark:                req.GetRemark(),
@@ -108,27 +107,27 @@ func (*BatchJob) AdminChangeBiz(ctx context.Context, req *pb.AdminRegistryBizReq
 		logger.Error(ctx, "AdminChangeBiz call batch_job_biz.UpdateOneModel fail.", zap.Error(err))
 		return nil, err
 	}
-	return &pb.AdminRegistryBizRsp{}, nil
+	return &pb.AdminChangeBizRsp{}, nil
 }
 
 // 创建任务
 func (*BatchJob) AdminCreateJob(ctx context.Context, req *pb.AdminCreateJobReq) (*pb.AdminCreateJobRsp, error) {
 	// 获取业务信息
-	bizInfo, err := batch_job_biz.GetOneBaseInfoByBizType(ctx, int(req.GetBizType()))
+	bizInfo, err := batch_job_biz.GetOneBaseInfoByBizId(ctx, int(req.GetBizId()))
 	if err != nil {
-		logger.Error(ctx, "AdminStartJob call batch_job_biz.GetOneByBizType fail.", zap.Error(err))
+		logger.Error(ctx, "AdminStartJob call batch_job_biz.GetOneByBizId fail.", zap.Error(err))
 		return nil, err
 	}
 
 	// 获取业务
 	b, err := module.Biz.GetBizByDbModel(ctx, bizInfo)
 	if err != nil {
-		logger.Error(ctx, "AdminCreateJob call GetBiz fail.", zap.Int32("bizType", req.GetBizType()), zap.Error(err))
+		logger.Error(ctx, "AdminCreateJob call GetBiz fail.", zap.Int32("bizId", req.GetBizId()), zap.Error(err))
 		return nil, err
 	}
 
 	// 生成任务id
-	jobIdKey := conf.Conf.JobIdGenKeyPrefix + strconv.Itoa(int(req.BizType))
+	jobIdKey := conf.Conf.JobIdGenKeyPrefix + strconv.Itoa(int(req.GetBizId()))
 	jobId, err := db.GetRedis().Incr(ctx, jobIdKey).Result()
 	if err != nil {
 		logger.Error(ctx, "AdminCreateJob call Incr fail.", zap.Error(err))
@@ -138,7 +137,7 @@ func (*BatchJob) AdminCreateJob(ctx context.Context, req *pb.AdminCreateJobReq) 
 	// 创建前回调
 	args := &pb.JobBeforeCreateAndChangeReq{
 		JobName:          req.GetJobName(),
-		BizType:          req.GetBizType(),
+		BizId:            req.GetBizId(),
 		JobData:          req.GetJobData(),
 		ProcessDataTotal: req.GetProcessDataTotal(),
 		ProcessedCount:   req.GetProcessedCount(),
@@ -157,7 +156,7 @@ func (*BatchJob) AdminCreateJob(ctx context.Context, req *pb.AdminCreateJobReq) 
 	v := &batch_job_list.Model{
 		JobID:            uint(jobId),
 		JobName:          req.GetJobName(),
-		BizType:          uint(req.GetBizType()),
+		BizId:            uint(req.GetBizId()),
 		JobData:          req.GetJobData(),
 		ProcessDataTotal: uint64(req.GetProcessDataTotal()),
 		ProcessedCount:   uint64(req.GetProcessedCount()),
@@ -233,23 +232,23 @@ func (*BatchJob) AdminChangeJob(ctx context.Context, req *pb.AdminChangeJobReq) 
 	}
 
 	// 获取业务信息
-	bizInfo, err := batch_job_biz.GetOneBaseInfoByBizType(ctx, int(req.GetBizType()))
+	bizInfo, err := batch_job_biz.GetOneBaseInfoByBizId(ctx, int(req.GetBizId()))
 	if err != nil {
-		logger.Error(ctx, "AdminStartJob call batch_job_biz.GetOneByBizType fail.", zap.Error(err))
+		logger.Error(ctx, "AdminStartJob call batch_job_biz.GetOneByBizId fail.", zap.Error(err))
 		return nil, err
 	}
 
 	// 获取业务
 	b, err := module.Biz.GetBizByDbModel(ctx, bizInfo)
 	if err != nil {
-		logger.Error(ctx, "AdminCreateJob call GetBiz fail.", zap.Int32("bizType", req.GetBizType()), zap.Error(err))
+		logger.Error(ctx, "AdminCreateJob call GetBiz fail.", zap.Int32("bizId", req.GetBizId()), zap.Error(err))
 		return nil, err
 	}
 
 	// 修改前回调
 	args := &pb.JobBeforeCreateAndChangeReq{
 		JobName:          req.GetJobName(),
-		BizType:          req.GetBizType(),
+		BizId:            req.GetBizId(),
 		JobData:          req.GetJobData(),
 		ProcessDataTotal: req.GetProcessDataTotal(),
 		ProcessedCount:   req.GetProcessedCount(),
@@ -267,7 +266,7 @@ func (*BatchJob) AdminChangeJob(ctx context.Context, req *pb.AdminChangeJobReq) 
 	// 写入数据库
 	v := &batch_job_list.Model{
 		JobID:            uint(req.GetJobId()),
-		BizType:          uint(req.GetBizType()),
+		BizId:            uint(req.GetBizId()),
 		JobName:          req.GetJobName(),
 		JobData:          req.GetJobData(),
 		ProcessDataTotal: uint64(req.GetProcessDataTotal()),
@@ -331,9 +330,9 @@ func (*BatchJob) AdminStartJob(ctx context.Context, req *pb.AdminStartJobReq) (*
 	}
 
 	// 获取业务信息
-	bizInfo, err := batch_job_biz.GetOneBaseInfoByBizType(ctx, int(jobInfo.BizType))
+	bizInfo, err := batch_job_biz.GetOneBaseInfoByBizId(ctx, int(jobInfo.BizId))
 	if err != nil {
-		logger.Error(ctx, "AdminStartJob call batch_job_biz.GetOneByBizType fail.", zap.Error(err))
+		logger.Error(ctx, "AdminStartJob call batch_job_biz.GetOneByBizId fail.", zap.Error(err))
 		return nil, err
 	}
 

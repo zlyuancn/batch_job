@@ -64,7 +64,7 @@ func local_request_BatchJobService_AdminRegistryBiz_0(ctx context.Context, marsh
 
 func request_BatchJobService_AdminChangeBiz_0(ctx context.Context, marshaler runtime.Marshaler, client BatchJobServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
-		protoReq AdminRegistryBizReq
+		protoReq AdminChangeBizReq
 		metadata runtime.ServerMetadata
 	)
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
@@ -79,7 +79,7 @@ func request_BatchJobService_AdminChangeBiz_0(ctx context.Context, marshaler run
 
 func local_request_BatchJobService_AdminChangeBiz_0(ctx context.Context, marshaler runtime.Marshaler, server BatchJobServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
-		protoReq AdminRegistryBizReq
+		protoReq AdminChangeBizReq
 		metadata runtime.ServerMetadata
 	)
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
