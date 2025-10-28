@@ -3,6 +3,7 @@ package module
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/zly-app/zapp/logger"
 
@@ -12,8 +13,16 @@ import (
 )
 
 type Business interface {
+	// 获取业务信息
+	GetBizInfo() *batch_job_biz.Model
+	// 获取执行器扩展数据
+	GetExecExtendData() *pb.ExecExtendDataA
+
 	// 是否存在启动前回调
 	HasBeforeRunCallback() bool
+	// 获取启动前回调超时时间
+	GetCbBeforeRunTimeout() time.Duration
+
 	// 创建业务回调
 	BeforeCreateAndChange(ctx context.Context, args *pb.JobBeforeCreateAndChangeReq) error
 	// 业务启动前回调

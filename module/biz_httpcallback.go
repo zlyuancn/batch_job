@@ -2,7 +2,10 @@ package module
 
 import (
 	"context"
+	"fmt"
+	"time"
 
+	"github.com/bytedance/sonic"
 	"github.com/zly-app/zapp/logger"
 	"go.uber.org/zap"
 
@@ -12,15 +15,28 @@ import (
 )
 
 type httpCallbackBiz struct {
-	v *batch_job_biz.Model
+	v              *batch_job_biz.Model
+	ExecExtendData *pb.ExecExtendDataA
+}
+
+func (h *httpCallbackBiz) GetBizInfo() *batch_job_biz.Model {
+	return h.v
+}
+
+func (h *httpCallbackBiz) GetExecExtendData() *pb.ExecExtendDataA {
+	return h.ExecExtendData
 }
 
 func (h *httpCallbackBiz) HasBeforeRunCallback() bool {
-	return h.v.CbBeforeRun != ""
+	return h.ExecExtendData.GetHttpCallback().GetCbBeforeRun() != ""
+}
+
+func (h *httpCallbackBiz) GetCbBeforeRunTimeout() time.Duration {
+	return time.Duration(h.ExecExtendData.GetHttpCallback().GetCbBeforeRunTimeout()) * time.Second
 }
 
 func (h *httpCallbackBiz) BeforeCreateAndChange(ctx context.Context, args *pb.JobBeforeCreateAndChangeReq) error {
-	if h.v.CbBeforeCreate == "" {
+	if h.ExecExtendData.GetHttpCallback().GetCbBeforeCreate() == "" {
 		return nil
 	}
 
@@ -30,14 +46,14 @@ func (h *httpCallbackBiz) BeforeCreateAndChange(ctx context.Context, args *pb.Jo
 }
 
 func (h *httpCallbackBiz) BeforeRun(ctx context.Context, jobInfo *batch_job_list.Model) {
-	if h.v.CbBeforeRun == "" {
+	if h.ExecExtendData.GetHttpCallback().GetCbBeforeRun() == "" {
 		return
 	}
 
 	args := &pb.JobBeforeRunReq{
 		JobId:            int64(jobInfo.JobID),
 		JobName:          jobInfo.JobName,
-		BizId:          int32(jobInfo.BizId),
+		BizId:            int32(jobInfo.BizId),
 		BizName:          h.v.BizName,
 		JobData:          jobInfo.JobData,
 		ProcessDataTotal: int64(jobInfo.ProcessDataTotal),
@@ -63,14 +79,14 @@ func (h *httpCallbackBiz) Process(ctx context.Context, jobInfo *batch_job_list.M
 }
 
 func (h *httpCallbackBiz) ProcessStop(ctx context.Context, jobInfo *batch_job_list.Model, isFinished bool) error {
-	if h.v.CbProcessStop == "" {
+	if h.ExecExtendData.GetHttpCallback().GetCbProcessStop() == "" {
 		return nil
 	}
 
 	args := &pb.JobProcessStopReq{
 		JobId:            int64(jobInfo.JobID),
 		JobName:          jobInfo.JobName,
-		BizId:          int32(jobInfo.BizId),
+		BizId:            int32(jobInfo.BizId),
 		BizName:          h.v.BizName,
 		JobData:          jobInfo.JobData,
 		ProcessDataTotal: int64(jobInfo.ProcessDataTotal),
@@ -85,6 +101,15 @@ func (h *httpCallbackBiz) ProcessStop(ctx context.Context, jobInfo *batch_job_li
 }
 
 func newHttpCallbackBiz(ctx context.Context, v *batch_job_biz.Model) (Business, error) {
-	h := &httpCallbackBiz{v: v}
+	eed := &pb.ExecExtendDataA{}
+	err := sonic.UnmarshalString(v.ExecExtendData, eed)
+	if err != nil {
+		err = fmt.Errorf("UnmarshalString ExecExtendData fail. err=%s", err)
+		return nil, err
+	}
+	h := &httpCallbackBiz{
+		v:              v,
+		ExecExtendData: eed,
+	}
 	return h, nil
 }

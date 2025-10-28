@@ -33,21 +33,14 @@ var (
 		"biz_id",
 		"biz_name",
 		"exec_type",
+		"exec_extend_data",
 		"remark",
-		"cb_before_create",
-		"cb_before_run",
-		"cb_process",
-		"cb_process_stop",
-		"cb_before_create_timeout",
-		"cb_before_run_timeout",
-		"cb_process_timeout",
-		"cb_process_stop_timeout",
 		"create_time",
 		"update_time",
-		"last_op_source",
-		"last_op_user_id",
-		"last_op_user_name",
-		"last_op_remark",
+		"op_source",
+		"op_user_id",
+		"op_user_name",
+		"op_remark",
 		"status",
 	}
 
@@ -57,10 +50,10 @@ var (
 		"exec_type",
 		"remark",
 		"update_time",
-		"last_op_source",
-		"last_op_user_id",
-		"last_op_user_name",
-		"last_op_remark",
+		"op_source",
+		"op_user_id",
+		"op_user_name",
+		"op_remark",
 		"status",
 	}
 )
@@ -70,26 +63,18 @@ const (
 )
 
 type Model struct {
-	BizId                 uint      `db:"biz_id"`                   // "业务id"
-	BizName               string    `db:"biz_name"`                 // "业务名"
-	ExecType              byte      `db:"exec_type"`                // "执行类型"
-	Remark                string    `db:"remark"`                   // "备注"
-	CbBeforeCreate        string    `db:"cb_before_create"`         // "创建任务回调url"
-	CbBeforeRun           string    `db:"cb_before_run"`            // "启动前回调. 一旦配置, 则任务必须由业务主动调用 BizStartJob 执行任务. 否则任务将一直处于 JobStatus.WaitBizRun 状态"
-	CbProcess             string    `db:"cb_process"`               // "处理任务回调. 必填"
-	CbProcessStop         string    `db:"cb_process_stop"`          // "处理任务完成回调. 用于业务方做一些清理. 选填"
-	CbBeforeCreateTimeout uint      `db:"cb_before_create_timeout"` // "启动前回调超时秒数"
-	CbBeforeRunTimeout    uint      `db:"cb_before_run_timeout"`    // "启动前回调超时秒数"
-	CbProcessTimeout      uint      `db:"cb_process_timeout"`       // "处理任务回调超时秒数"
-	CbProcessStopTimeout  uint      `db:"cb_process_stop_timeout"`  // "处理任务完成回调超时秒数"
-	CreateTime            time.Time `db:"create_time" json:"-"`
-	UpdateTime            time.Time `db:"update_time" json:"-"`
-	LastOpSource          string    `db:"last_op_source" json:"-"`    // "最后操作来源"
-	LastOpUserID          string    `db:"last_op_user_id" json:"-"`   // "最后操作用户id"
-	LastOpUserName        string    `db:"last_op_user_name" json:"-"` // "最后操作用户名"
-	LastOpRemark          string    `db:"last_op_remark" json:"-"`    // "最后操作备注"
-	OpHistory             string    `db:"op_history" json:"-"`        // "操作历史信息"
-	Status                byte      `db:"status"`                     // "状态 0=正常 1=隐藏"
+	BizId          uint      `db:"biz_id"`           // "业务id"
+	BizName        string    `db:"biz_name"`         // "业务名"
+	ExecType       byte      `db:"exec_type"`        // "执行类型"
+	ExecExtendData string    `db:"exec_extend_data"` // "执行器扩展数据"
+	Remark         string    `db:"remark"`           // "备注"
+	CreateTime     time.Time `db:"create_time"`
+	UpdateTime     time.Time `db:"update_time"`
+	OpSource       string    `db:"op_source"`    // "最后操作来源"
+	OpUserID       string    `db:"op_user_id"`   // "最后操作用户id"
+	OpUserName     string    `db:"op_user_name"` // "最后操作用户名"
+	OpRemark       string    `db:"op_remark"`    // "最后操作备注"
+	Status         byte      `db:"status"`       // "状态 0=正常 1=隐藏"
 }
 
 func CreateOneModel(ctx context.Context, v *Model) (int64, error) {
@@ -99,22 +84,14 @@ func CreateOneModel(ctx context.Context, v *Model) (int64, error) {
 
 	var data []map[string]any
 	data = append(data, map[string]any{
-		"biz_name":                 v.BizName,
-		"exec_type":                v.ExecType,
-		"remark":                   v.Remark,
-		"cb_before_create":         v.CbBeforeCreate,
-		"cb_before_run":            v.CbBeforeRun,
-		"cb_process":               v.CbProcess,
-		"cb_process_stop":          v.CbProcessStop,
-		"cb_before_create_timeout": v.CbBeforeCreateTimeout,
-		"cb_before_run_timeout":    v.CbBeforeRunTimeout,
-		"cb_process_timeout":       v.CbProcessTimeout,
-		"cb_process_stop_timeout":  v.CbProcessStopTimeout,
-		"last_op_source":           v.LastOpSource,
-		"last_op_user_id":          v.LastOpUserID,
-		"last_op_user_name":        v.LastOpUserName,
-		"last_op_remark":           v.LastOpRemark,
-		"op_history":               v.OpHistory,
+		"biz_name":         v.BizName,
+		"exec_type":        v.ExecType,
+		"exec_extend_data": v.ExecExtendData,
+		"remark":           v.Remark,
+		"op_source":        v.OpSource,
+		"op_user_id":       v.OpUserID,
+		"op_user_name":     v.OpUserName,
+		"op_remark":        v.OpRemark,
 	})
 	cond, vals, err := builder.BuildInsert(tableName, data)
 	if err != nil {
@@ -145,41 +122,25 @@ update batch_job_biz
 set 
     biz_name=?,
     exec_type=?,
+    exec_extend_data=?,
     remark=?,
-    cb_before_create=?,
-    cb_before_run=?,
-    cb_process=?,
-    cb_process_stop=?,
-    cb_before_create_timeout=?,
-    cb_before_run_timeout=?,
-    cb_process_timeout=?,
-    cb_process_stop_timeout=?,
     update_time=now(),
-    last_op_source=?,
-    last_op_user_id=?,
-    last_op_user_name=?,
-    last_op_remark=?,
-    op_history=json_array_insert(op_history, '$[0]', json_extract(?, '$')),
+    op_source=?,
+    op_user_id=?,
+    op_user_name=?,
+    op_remark=?,
     status=?
 where biz_id = ?
 limit 1;`
 	vals := []interface{}{
 		v.BizName,
 		v.ExecType,
+		v.ExecExtendData,
 		v.Remark,
-		v.CbBeforeCreate,
-		v.CbBeforeRun,
-		v.CbProcess,
-		v.CbProcessStop,
-		v.CbBeforeCreateTimeout,
-		v.CbBeforeRunTimeout,
-		v.CbProcessTimeout,
-		v.CbProcessStopTimeout,
-		v.LastOpSource,
-		v.LastOpUserID,
-		v.LastOpUserName,
-		v.LastOpRemark,
-		v.OpHistory,
+		v.OpSource,
+		v.OpUserID,
+		v.OpUserName,
+		v.OpRemark,
 		v.Status,
 		v.BizId,
 	}

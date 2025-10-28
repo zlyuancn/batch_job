@@ -584,41 +584,9 @@
           "$ref": "#/definitions/batch_jobExecType",
           "title": "执行类型"
         },
-        "cbBeforeCreate": {
-          "type": "string",
-          "title": "创建和修改任务回调url"
-        },
-        "cbBeforeRun": {
-          "type": "string",
-          "title": "启动前回调. 一旦配置, 则任务必须由业务主动调用 BizStartJob 执行任务. 否则任务将一直处于 JobStatus.WaitBizRun 状态"
-        },
-        "cbProcess": {
-          "type": "string",
-          "title": "处理任务回调. 必填"
-        },
-        "cbProcessStop": {
-          "type": "string",
-          "title": "任务停止回调. 用于业务方做一些清理. 选填"
-        },
-        "cbBeforeCreateTimeout": {
-          "type": "integer",
-          "format": "int32",
-          "title": "启动前回调超时秒数"
-        },
-        "cbBeforeRunTimeout": {
-          "type": "integer",
-          "format": "int32",
-          "title": "启动前回调超时秒数"
-        },
-        "cbProcessTimeout": {
-          "type": "integer",
-          "format": "int32",
-          "title": "处理任务回调超时秒数"
-        },
-        "cbProcessStopTimeout": {
-          "type": "integer",
-          "format": "int32",
-          "title": "处理任务停止回调超时秒数"
+        "execExtendData": {
+          "$ref": "#/definitions/batch_jobExecExtendDataQ",
+          "title": "执行器扩展数据"
         },
         "op": {
           "$ref": "#/definitions/batch_jobOpInfoQ",
@@ -636,11 +604,6 @@
     "batch_jobAdminChangeJobReq": {
       "type": "object",
       "properties": {
-        "bizId": {
-          "type": "integer",
-          "format": "int32",
-          "title": "业务id. 必填"
-        },
         "jobName": {
           "type": "string",
           "title": "任务名称"
@@ -752,41 +715,9 @@
           "$ref": "#/definitions/batch_jobExecType",
           "title": "执行类型"
         },
-        "cbBeforeCreate": {
-          "type": "string",
-          "title": "创建和修改任务回调url"
-        },
-        "cbBeforeRun": {
-          "type": "string",
-          "title": "启动前回调. 一旦配置, 则任务必须由业务主动调用 BizStartJob 执行任务. 否则任务将一直处于 JobStatus.WaitBizRun 状态"
-        },
-        "cbProcess": {
-          "type": "string",
-          "title": "处理任务回调. 必填"
-        },
-        "cbProcessStop": {
-          "type": "string",
-          "title": "任务停止回调. 用于业务方做一些清理. 选填"
-        },
-        "cbBeforeCreateTimeout": {
-          "type": "integer",
-          "format": "int32",
-          "title": "启动前回调超时秒数"
-        },
-        "cbBeforeRunTimeout": {
-          "type": "integer",
-          "format": "int32",
-          "title": "启动前回调超时秒数"
-        },
-        "cbProcessTimeout": {
-          "type": "integer",
-          "format": "int32",
-          "title": "处理任务回调超时秒数"
-        },
-        "cbProcessStopTimeout": {
-          "type": "integer",
-          "format": "int32",
-          "title": "处理任务停止回调超时秒数"
+        "execExtendData": {
+          "$ref": "#/definitions/batch_jobExecExtendDataQ",
+          "title": "执行器扩展数据"
         },
         "op": {
           "$ref": "#/definitions/batch_jobOpInfoQ",
@@ -883,41 +814,9 @@
           "$ref": "#/definitions/batch_jobExecType",
           "title": "执行类型"
         },
-        "cbBeforeCreate": {
-          "type": "string",
-          "title": "创建任务回调url"
-        },
-        "cbBeforeRun": {
-          "type": "string",
-          "title": "启动前回调. 一旦配置, 则任务必须由业务主动调用 BizStartJob 执行任务. 否则任务将一直处于 JobStatus.WaitBizRun 状态"
-        },
-        "cbProcess": {
-          "type": "string",
-          "title": "处理任务回调"
-        },
-        "cbProcessStop": {
-          "type": "string",
-          "title": "处理任务停止回调. 用于业务方做一些清理"
-        },
-        "cbBeforeCreateTimeout": {
-          "type": "integer",
-          "format": "int32",
-          "title": "启动前回调超时秒数"
-        },
-        "cbBeforeRunTimeout": {
-          "type": "integer",
-          "format": "int32",
-          "title": "启动前回调超时秒数"
-        },
-        "cbProcessTimeout": {
-          "type": "integer",
-          "format": "int32",
-          "title": "处理任务回调超时秒数"
-        },
-        "cbProcessStopTimeout": {
-          "type": "integer",
-          "format": "int32",
-          "title": "处理任务停止回调超时秒数"
+        "execExtendData": {
+          "$ref": "#/definitions/batch_jobExecExtendDataA",
+          "title": "执行器扩展数据"
         },
         "op": {
           "$ref": "#/definitions/batch_jobOpInfoA",
@@ -1067,6 +966,108 @@
       "default": "DataLogType_Debug",
       "description": "- DataLogType_Debug: 调试\n - DataLogType_Info: 信息\n - DataLogType_Warn: 警告\n - DataLogType_Err: 错误\n - DataLogType_ErrData: 错误数据, 表示放弃处理这个数据了. 这个日志会被认为是错误计数",
       "title": "数据的日志类型"
+    },
+    "batch_jobExecExtendDataA": {
+      "type": "object",
+      "properties": {
+        "httpCallback": {
+          "$ref": "#/definitions/batch_jobExecExtendDataHttpCallbackA"
+        }
+      },
+      "title": "执行器扩展数据-响应"
+    },
+    "batch_jobExecExtendDataHttpCallbackA": {
+      "type": "object",
+      "properties": {
+        "cbBeforeCreate": {
+          "type": "string",
+          "title": "创建和修改任务回调url"
+        },
+        "cbBeforeRun": {
+          "type": "string",
+          "title": "启动前回调. 一旦配置, 则任务必须由业务主动调用 BizStartJob 执行任务. 否则任务将一直处于 JobStatus.WaitBizRun 状态"
+        },
+        "cbProcess": {
+          "type": "string",
+          "title": "处理任务回调. 必填"
+        },
+        "cbProcessStop": {
+          "type": "string",
+          "title": "任务停止回调. 用于业务方做一些清理. 选填"
+        },
+        "cbBeforeCreateTimeout": {
+          "type": "integer",
+          "format": "int32",
+          "title": "启动前回调超时秒数"
+        },
+        "cbBeforeRunTimeout": {
+          "type": "integer",
+          "format": "int32",
+          "title": "启动前回调超时秒数"
+        },
+        "cbProcessTimeout": {
+          "type": "integer",
+          "format": "int32",
+          "title": "处理任务回调超时秒数"
+        },
+        "cbProcessStopTimeout": {
+          "type": "integer",
+          "format": "int32",
+          "title": "处理任务停止回调超时秒数"
+        }
+      },
+      "title": "执行器扩展数据-响应-HttpCallback"
+    },
+    "batch_jobExecExtendDataHttpCallbackQ": {
+      "type": "object",
+      "properties": {
+        "cbBeforeCreate": {
+          "type": "string",
+          "title": "创建和修改任务回调url"
+        },
+        "cbBeforeRun": {
+          "type": "string",
+          "title": "启动前回调. 一旦配置, 则任务必须由业务主动调用 BizStartJob 执行任务. 否则任务将一直处于 JobStatus.WaitBizRun 状态"
+        },
+        "cbProcess": {
+          "type": "string",
+          "title": "处理任务回调. 必填"
+        },
+        "cbProcessStop": {
+          "type": "string",
+          "title": "任务停止回调. 用于业务方做一些清理. 选填"
+        },
+        "cbBeforeCreateTimeout": {
+          "type": "integer",
+          "format": "int32",
+          "title": "启动前回调超时秒数"
+        },
+        "cbBeforeRunTimeout": {
+          "type": "integer",
+          "format": "int32",
+          "title": "启动前回调超时秒数"
+        },
+        "cbProcessTimeout": {
+          "type": "integer",
+          "format": "int32",
+          "title": "处理任务回调超时秒数"
+        },
+        "cbProcessStopTimeout": {
+          "type": "integer",
+          "format": "int32",
+          "title": "处理任务停止回调超时秒数"
+        }
+      },
+      "title": "执行器扩展数据-请求-HttpCallback"
+    },
+    "batch_jobExecExtendDataQ": {
+      "type": "object",
+      "properties": {
+        "httpCallback": {
+          "$ref": "#/definitions/batch_jobExecExtendDataHttpCallbackQ"
+        }
+      },
+      "title": "执行器扩展数据-请求"
     },
     "batch_jobExecType": {
       "type": "string",

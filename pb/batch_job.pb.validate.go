@@ -35,6 +35,626 @@ var (
 	_ = sort.Sort
 )
 
+// Validate checks the field values on ExecExtendDataQ with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *ExecExtendDataQ) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ExecExtendDataQ with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ExecExtendDataQMultiError, or nil if none found.
+func (m *ExecExtendDataQ) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ExecExtendDataQ) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if all {
+		switch v := interface{}(m.GetHttpCallback()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, ExecExtendDataQValidationError{
+					field:  "HttpCallback",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, ExecExtendDataQValidationError{
+					field:  "HttpCallback",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetHttpCallback()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ExecExtendDataQValidationError{
+				field:  "HttpCallback",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return ExecExtendDataQMultiError(errors)
+	}
+
+	return nil
+}
+
+// ExecExtendDataQMultiError is an error wrapping multiple validation errors
+// returned by ExecExtendDataQ.ValidateAll() if the designated constraints
+// aren't met.
+type ExecExtendDataQMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ExecExtendDataQMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ExecExtendDataQMultiError) AllErrors() []error { return m }
+
+// ExecExtendDataQValidationError is the validation error returned by
+// ExecExtendDataQ.Validate if the designated constraints aren't met.
+type ExecExtendDataQValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ExecExtendDataQValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ExecExtendDataQValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ExecExtendDataQValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ExecExtendDataQValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ExecExtendDataQValidationError) ErrorName() string { return "ExecExtendDataQValidationError" }
+
+// Error satisfies the builtin error interface
+func (e ExecExtendDataQValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sExecExtendDataQ.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ExecExtendDataQValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ExecExtendDataQValidationError{}
+
+// Validate checks the field values on ExecExtendDataHttpCallbackQ with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ExecExtendDataHttpCallbackQ) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ExecExtendDataHttpCallbackQ with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ExecExtendDataHttpCallbackQMultiError, or nil if none found.
+func (m *ExecExtendDataHttpCallbackQ) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ExecExtendDataHttpCallbackQ) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if m.GetCbBeforeCreate() != "" {
+
+		if uri, err := url.Parse(m.GetCbBeforeCreate()); err != nil {
+			err = ExecExtendDataHttpCallbackQValidationError{
+				field:  "CbBeforeCreate",
+				reason: "value must be a valid URI",
+				cause:  err,
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		} else if !uri.IsAbs() {
+			err := ExecExtendDataHttpCallbackQValidationError{
+				field:  "CbBeforeCreate",
+				reason: "value must be absolute",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+	}
+
+	if m.GetCbBeforeRun() != "" {
+
+		if uri, err := url.Parse(m.GetCbBeforeRun()); err != nil {
+			err = ExecExtendDataHttpCallbackQValidationError{
+				field:  "CbBeforeRun",
+				reason: "value must be a valid URI",
+				cause:  err,
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		} else if !uri.IsAbs() {
+			err := ExecExtendDataHttpCallbackQValidationError{
+				field:  "CbBeforeRun",
+				reason: "value must be absolute",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+	}
+
+	if uri, err := url.Parse(m.GetCbProcess()); err != nil {
+		err = ExecExtendDataHttpCallbackQValidationError{
+			field:  "CbProcess",
+			reason: "value must be a valid URI",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	} else if !uri.IsAbs() {
+		err := ExecExtendDataHttpCallbackQValidationError{
+			field:  "CbProcess",
+			reason: "value must be absolute",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if m.GetCbProcessStop() != "" {
+
+		if uri, err := url.Parse(m.GetCbProcessStop()); err != nil {
+			err = ExecExtendDataHttpCallbackQValidationError{
+				field:  "CbProcessStop",
+				reason: "value must be a valid URI",
+				cause:  err,
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		} else if !uri.IsAbs() {
+			err := ExecExtendDataHttpCallbackQValidationError{
+				field:  "CbProcessStop",
+				reason: "value must be absolute",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+	}
+
+	if m.GetCbBeforeCreateTimeout() < 0 {
+		err := ExecExtendDataHttpCallbackQValidationError{
+			field:  "CbBeforeCreateTimeout",
+			reason: "value must be greater than or equal to 0",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if m.GetCbBeforeRunTimeout() < 0 {
+		err := ExecExtendDataHttpCallbackQValidationError{
+			field:  "CbBeforeRunTimeout",
+			reason: "value must be greater than or equal to 0",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if m.GetCbProcessTimeout() < 0 {
+		err := ExecExtendDataHttpCallbackQValidationError{
+			field:  "CbProcessTimeout",
+			reason: "value must be greater than or equal to 0",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if m.GetCbProcessStopTimeout() < 0 {
+		err := ExecExtendDataHttpCallbackQValidationError{
+			field:  "CbProcessStopTimeout",
+			reason: "value must be greater than or equal to 0",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return ExecExtendDataHttpCallbackQMultiError(errors)
+	}
+
+	return nil
+}
+
+// ExecExtendDataHttpCallbackQMultiError is an error wrapping multiple
+// validation errors returned by ExecExtendDataHttpCallbackQ.ValidateAll() if
+// the designated constraints aren't met.
+type ExecExtendDataHttpCallbackQMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ExecExtendDataHttpCallbackQMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ExecExtendDataHttpCallbackQMultiError) AllErrors() []error { return m }
+
+// ExecExtendDataHttpCallbackQValidationError is the validation error returned
+// by ExecExtendDataHttpCallbackQ.Validate if the designated constraints
+// aren't met.
+type ExecExtendDataHttpCallbackQValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ExecExtendDataHttpCallbackQValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ExecExtendDataHttpCallbackQValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ExecExtendDataHttpCallbackQValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ExecExtendDataHttpCallbackQValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ExecExtendDataHttpCallbackQValidationError) ErrorName() string {
+	return "ExecExtendDataHttpCallbackQValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ExecExtendDataHttpCallbackQValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sExecExtendDataHttpCallbackQ.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ExecExtendDataHttpCallbackQValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ExecExtendDataHttpCallbackQValidationError{}
+
+// Validate checks the field values on ExecExtendDataA with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *ExecExtendDataA) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ExecExtendDataA with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ExecExtendDataAMultiError, or nil if none found.
+func (m *ExecExtendDataA) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ExecExtendDataA) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if all {
+		switch v := interface{}(m.GetHttpCallback()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, ExecExtendDataAValidationError{
+					field:  "HttpCallback",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, ExecExtendDataAValidationError{
+					field:  "HttpCallback",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetHttpCallback()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ExecExtendDataAValidationError{
+				field:  "HttpCallback",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return ExecExtendDataAMultiError(errors)
+	}
+
+	return nil
+}
+
+// ExecExtendDataAMultiError is an error wrapping multiple validation errors
+// returned by ExecExtendDataA.ValidateAll() if the designated constraints
+// aren't met.
+type ExecExtendDataAMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ExecExtendDataAMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ExecExtendDataAMultiError) AllErrors() []error { return m }
+
+// ExecExtendDataAValidationError is the validation error returned by
+// ExecExtendDataA.Validate if the designated constraints aren't met.
+type ExecExtendDataAValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ExecExtendDataAValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ExecExtendDataAValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ExecExtendDataAValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ExecExtendDataAValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ExecExtendDataAValidationError) ErrorName() string { return "ExecExtendDataAValidationError" }
+
+// Error satisfies the builtin error interface
+func (e ExecExtendDataAValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sExecExtendDataA.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ExecExtendDataAValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ExecExtendDataAValidationError{}
+
+// Validate checks the field values on ExecExtendDataHttpCallbackA with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ExecExtendDataHttpCallbackA) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ExecExtendDataHttpCallbackA with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ExecExtendDataHttpCallbackAMultiError, or nil if none found.
+func (m *ExecExtendDataHttpCallbackA) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ExecExtendDataHttpCallbackA) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for CbBeforeCreate
+
+	// no validation rules for CbBeforeRun
+
+	// no validation rules for CbProcess
+
+	// no validation rules for CbProcessStop
+
+	// no validation rules for CbBeforeCreateTimeout
+
+	// no validation rules for CbBeforeRunTimeout
+
+	// no validation rules for CbProcessTimeout
+
+	// no validation rules for CbProcessStopTimeout
+
+	if len(errors) > 0 {
+		return ExecExtendDataHttpCallbackAMultiError(errors)
+	}
+
+	return nil
+}
+
+// ExecExtendDataHttpCallbackAMultiError is an error wrapping multiple
+// validation errors returned by ExecExtendDataHttpCallbackA.ValidateAll() if
+// the designated constraints aren't met.
+type ExecExtendDataHttpCallbackAMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ExecExtendDataHttpCallbackAMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ExecExtendDataHttpCallbackAMultiError) AllErrors() []error { return m }
+
+// ExecExtendDataHttpCallbackAValidationError is the validation error returned
+// by ExecExtendDataHttpCallbackA.Validate if the designated constraints
+// aren't met.
+type ExecExtendDataHttpCallbackAValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ExecExtendDataHttpCallbackAValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ExecExtendDataHttpCallbackAValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ExecExtendDataHttpCallbackAValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ExecExtendDataHttpCallbackAValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ExecExtendDataHttpCallbackAValidationError) ErrorName() string {
+	return "ExecExtendDataHttpCallbackAValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ExecExtendDataHttpCallbackAValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sExecExtendDataHttpCallbackA.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ExecExtendDataHttpCallbackAValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ExecExtendDataHttpCallbackAValidationError{}
+
 // Validate checks the field values on AdminRegistryBizReq with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -72,144 +692,33 @@ func (m *AdminRegistryBizReq) validate(all bool) error {
 
 	// no validation rules for ExecType
 
-	if m.GetCbBeforeCreate() != "" {
-
-		if uri, err := url.Parse(m.GetCbBeforeCreate()); err != nil {
-			err = AdminRegistryBizReqValidationError{
-				field:  "CbBeforeCreate",
-				reason: "value must be a valid URI",
+	if all {
+		switch v := interface{}(m.GetExecExtendData()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, AdminRegistryBizReqValidationError{
+					field:  "ExecExtendData",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, AdminRegistryBizReqValidationError{
+					field:  "ExecExtendData",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetExecExtendData()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return AdminRegistryBizReqValidationError{
+				field:  "ExecExtendData",
+				reason: "embedded message failed validation",
 				cause:  err,
 			}
-			if !all {
-				return err
-			}
-			errors = append(errors, err)
-		} else if !uri.IsAbs() {
-			err := AdminRegistryBizReqValidationError{
-				field:  "CbBeforeCreate",
-				reason: "value must be absolute",
-			}
-			if !all {
-				return err
-			}
-			errors = append(errors, err)
 		}
-
-	}
-
-	if m.GetCbBeforeRun() != "" {
-
-		if uri, err := url.Parse(m.GetCbBeforeRun()); err != nil {
-			err = AdminRegistryBizReqValidationError{
-				field:  "CbBeforeRun",
-				reason: "value must be a valid URI",
-				cause:  err,
-			}
-			if !all {
-				return err
-			}
-			errors = append(errors, err)
-		} else if !uri.IsAbs() {
-			err := AdminRegistryBizReqValidationError{
-				field:  "CbBeforeRun",
-				reason: "value must be absolute",
-			}
-			if !all {
-				return err
-			}
-			errors = append(errors, err)
-		}
-
-	}
-
-	if uri, err := url.Parse(m.GetCbProcess()); err != nil {
-		err = AdminRegistryBizReqValidationError{
-			field:  "CbProcess",
-			reason: "value must be a valid URI",
-			cause:  err,
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	} else if !uri.IsAbs() {
-		err := AdminRegistryBizReqValidationError{
-			field:  "CbProcess",
-			reason: "value must be absolute",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
-
-	if m.GetCbProcessStop() != "" {
-
-		if uri, err := url.Parse(m.GetCbProcessStop()); err != nil {
-			err = AdminRegistryBizReqValidationError{
-				field:  "CbProcessStop",
-				reason: "value must be a valid URI",
-				cause:  err,
-			}
-			if !all {
-				return err
-			}
-			errors = append(errors, err)
-		} else if !uri.IsAbs() {
-			err := AdminRegistryBizReqValidationError{
-				field:  "CbProcessStop",
-				reason: "value must be absolute",
-			}
-			if !all {
-				return err
-			}
-			errors = append(errors, err)
-		}
-
-	}
-
-	if m.GetCbBeforeCreateTimeout() < 0 {
-		err := AdminRegistryBizReqValidationError{
-			field:  "CbBeforeCreateTimeout",
-			reason: "value must be greater than or equal to 0",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
-
-	if m.GetCbBeforeRunTimeout() < 0 {
-		err := AdminRegistryBizReqValidationError{
-			field:  "CbBeforeRunTimeout",
-			reason: "value must be greater than or equal to 0",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
-
-	if m.GetCbProcessTimeout() < 0 {
-		err := AdminRegistryBizReqValidationError{
-			field:  "CbProcessTimeout",
-			reason: "value must be greater than or equal to 0",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
-
-	if m.GetCbProcessStopTimeout() < 0 {
-		err := AdminRegistryBizReqValidationError{
-			field:  "CbProcessStopTimeout",
-			reason: "value must be greater than or equal to 0",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
 	}
 
 	if all {
@@ -475,144 +984,33 @@ func (m *AdminChangeBizReq) validate(all bool) error {
 
 	// no validation rules for ExecType
 
-	if m.GetCbBeforeCreate() != "" {
-
-		if uri, err := url.Parse(m.GetCbBeforeCreate()); err != nil {
-			err = AdminChangeBizReqValidationError{
-				field:  "CbBeforeCreate",
-				reason: "value must be a valid URI",
+	if all {
+		switch v := interface{}(m.GetExecExtendData()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, AdminChangeBizReqValidationError{
+					field:  "ExecExtendData",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, AdminChangeBizReqValidationError{
+					field:  "ExecExtendData",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetExecExtendData()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return AdminChangeBizReqValidationError{
+				field:  "ExecExtendData",
+				reason: "embedded message failed validation",
 				cause:  err,
 			}
-			if !all {
-				return err
-			}
-			errors = append(errors, err)
-		} else if !uri.IsAbs() {
-			err := AdminChangeBizReqValidationError{
-				field:  "CbBeforeCreate",
-				reason: "value must be absolute",
-			}
-			if !all {
-				return err
-			}
-			errors = append(errors, err)
 		}
-
-	}
-
-	if m.GetCbBeforeRun() != "" {
-
-		if uri, err := url.Parse(m.GetCbBeforeRun()); err != nil {
-			err = AdminChangeBizReqValidationError{
-				field:  "CbBeforeRun",
-				reason: "value must be a valid URI",
-				cause:  err,
-			}
-			if !all {
-				return err
-			}
-			errors = append(errors, err)
-		} else if !uri.IsAbs() {
-			err := AdminChangeBizReqValidationError{
-				field:  "CbBeforeRun",
-				reason: "value must be absolute",
-			}
-			if !all {
-				return err
-			}
-			errors = append(errors, err)
-		}
-
-	}
-
-	if uri, err := url.Parse(m.GetCbProcess()); err != nil {
-		err = AdminChangeBizReqValidationError{
-			field:  "CbProcess",
-			reason: "value must be a valid URI",
-			cause:  err,
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	} else if !uri.IsAbs() {
-		err := AdminChangeBizReqValidationError{
-			field:  "CbProcess",
-			reason: "value must be absolute",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
-
-	if m.GetCbProcessStop() != "" {
-
-		if uri, err := url.Parse(m.GetCbProcessStop()); err != nil {
-			err = AdminChangeBizReqValidationError{
-				field:  "CbProcessStop",
-				reason: "value must be a valid URI",
-				cause:  err,
-			}
-			if !all {
-				return err
-			}
-			errors = append(errors, err)
-		} else if !uri.IsAbs() {
-			err := AdminChangeBizReqValidationError{
-				field:  "CbProcessStop",
-				reason: "value must be absolute",
-			}
-			if !all {
-				return err
-			}
-			errors = append(errors, err)
-		}
-
-	}
-
-	if m.GetCbBeforeCreateTimeout() < 0 {
-		err := AdminChangeBizReqValidationError{
-			field:  "CbBeforeCreateTimeout",
-			reason: "value must be greater than or equal to 0",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
-
-	if m.GetCbBeforeRunTimeout() < 0 {
-		err := AdminChangeBizReqValidationError{
-			field:  "CbBeforeRunTimeout",
-			reason: "value must be greater than or equal to 0",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
-
-	if m.GetCbProcessTimeout() < 0 {
-		err := AdminChangeBizReqValidationError{
-			field:  "CbProcessTimeout",
-			reason: "value must be greater than or equal to 0",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
-
-	if m.GetCbProcessStopTimeout() < 0 {
-		err := AdminChangeBizReqValidationError{
-			field:  "CbProcessStopTimeout",
-			reason: "value must be greater than or equal to 0",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
 	}
 
 	if all {
@@ -1230,21 +1628,34 @@ func (m *BizInfoA) validate(all bool) error {
 
 	// no validation rules for ExecType
 
-	// no validation rules for CbBeforeCreate
-
-	// no validation rules for CbBeforeRun
-
-	// no validation rules for CbProcess
-
-	// no validation rules for CbProcessStop
-
-	// no validation rules for CbBeforeCreateTimeout
-
-	// no validation rules for CbBeforeRunTimeout
-
-	// no validation rules for CbProcessTimeout
-
-	// no validation rules for CbProcessStopTimeout
+	if all {
+		switch v := interface{}(m.GetExecExtendData()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, BizInfoAValidationError{
+					field:  "ExecExtendData",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, BizInfoAValidationError{
+					field:  "ExecExtendData",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetExecExtendData()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return BizInfoAValidationError{
+				field:  "ExecExtendData",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
 
 	if all {
 		switch v := interface{}(m.GetOp()).(type) {
@@ -2296,17 +2707,6 @@ func (m *AdminChangeJobReq) validate(all bool) error {
 	}
 
 	var errors []error
-
-	if m.GetBizId() <= 0 {
-		err := AdminChangeJobReqValidationError{
-			field:  "BizId",
-			reason: "value must be greater than 0",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
 
 	// no validation rules for JobName
 

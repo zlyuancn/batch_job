@@ -4,6 +4,7 @@ import (
 	"context"
 	"math"
 
+	"github.com/bytedance/sonic"
 	"github.com/zly-app/component/redis"
 	"github.com/zly-app/zapp/logger"
 	"go.uber.org/zap"
@@ -113,24 +114,19 @@ func (b *BatchJob) QueryBizList(ctx context.Context, req *pb.QueryBizListReq) (*
 }
 
 func (*BatchJob) bizDbModel2Pb(line *batch_job_biz.Model) *pb.BizInfoA {
+	eed := &pb.ExecExtendDataA{}
+	_ = sonic.UnmarshalString(line.ExecExtendData, eed)
 	ret := &pb.BizInfoA{
-		BizId:                 int32(line.BizId),
-		BizName:               line.BizName,
-		Remark:                line.Remark,
-		ExecType:              pb.ExecType(line.ExecType),
-		CbBeforeCreate:        line.CbBeforeCreate,
-		CbBeforeRun:           line.CbBeforeRun,
-		CbProcess:             line.CbProcess,
-		CbProcessStop:         line.CbProcessStop,
-		CbBeforeCreateTimeout: int32(line.CbBeforeCreateTimeout),
-		CbBeforeRunTimeout:    int32(line.CbBeforeRunTimeout),
-		CbProcessTimeout:      int32(line.CbProcessTimeout),
-		CbProcessStopTimeout:  int32(line.CbProcessStopTimeout),
+		BizId:          int32(line.BizId),
+		BizName:        line.BizName,
+		Remark:         line.Remark,
+		ExecType:       pb.ExecType(line.ExecType),
+		ExecExtendData: eed,
 		Op: &pb.OpInfoA{
-			OpSource:   line.LastOpSource,
-			OpUserid:   line.LastOpUserID,
-			OpUserName: line.LastOpUserName,
-			OpRemark:   line.LastOpRemark,
+			OpSource:   line.OpSource,
+			OpUserid:   line.OpUserID,
+			OpUserName: line.OpUserName,
+			OpRemark:   line.OpRemark,
 			OpTime:     line.UpdateTime.Unix(),
 		},
 		Status:     pb.BizStatus(line.Status),
@@ -146,10 +142,10 @@ func (*BatchJob) bizDbModel2ListPb(line *batch_job_biz.Model) *pb.BizInfoByListA
 		Remark:   line.Remark,
 		ExecType: pb.ExecType(line.ExecType),
 		Op: &pb.OpInfoA{
-			OpSource:   line.LastOpSource,
-			OpUserid:   line.LastOpUserID,
-			OpUserName: line.LastOpUserName,
-			OpRemark:   line.LastOpRemark,
+			OpSource:   line.OpSource,
+			OpUserid:   line.OpUserID,
+			OpUserName: line.OpUserName,
+			OpRemark:   line.OpRemark,
 			OpTime:     line.UpdateTime.Unix(),
 		},
 		Status: pb.BizStatus(line.Status),
@@ -309,10 +305,10 @@ func (*BatchJob) jobDbModel2Pb(line *batch_job_list.Model) *pb.JobInfoA {
 		RateType:         pb.RateType(line.RateType),
 		RateSec:          int32(line.RateSec),
 		Op: &pb.OpInfoA{
-			OpSource:   line.LastOpSource,
-			OpUserid:   line.LastOpUserID,
-			OpUserName: line.LastOpUserName,
-			OpRemark:   line.LastOpRemark,
+			OpSource:   line.OpSource,
+			OpUserid:   line.OpUserID,
+			OpUserName: line.OpUserName,
+			OpRemark:   line.OpRemark,
 			OpTime:     line.UpdateTime.Unix(),
 		},
 		StatusInfo: line.StatusInfo,
@@ -332,10 +328,10 @@ func (*BatchJob) jobDbModel2ListPb(line *batch_job_list.Model) *pb.JobInfoByList
 		RateType:         pb.RateType(line.RateType),
 		RateSec:          int32(line.RateSec),
 		Op: &pb.OpInfoA{
-			OpSource:   line.LastOpSource,
-			OpUserid:   line.LastOpUserID,
-			OpUserName: line.LastOpUserName,
-			OpRemark:   line.LastOpRemark,
+			OpSource:   line.OpSource,
+			OpUserid:   line.OpUserID,
+			OpUserName: line.OpUserName,
+			OpRemark:   line.OpRemark,
 			OpTime:     line.UpdateTime.Unix(),
 		},
 		StatusInfo: line.StatusInfo,

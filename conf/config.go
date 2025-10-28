@@ -11,7 +11,7 @@ const (
 	defJobStopFlagPrefix                    = "batch_job:stop:"
 	defJobStopFlagTtl                       = 86400 // 1天
 	defJobBeforeRunLockKeyPrefix            = "batch_job:before_run_lock:"
-	defJobBeforeRunLockExtraTtl             = 60 // 60秒
+	defJobBeforeRunLockAppendTtl            = 60 // 60秒
 	defJobRunLockKeyPrefix                  = "batch_job:run_lock:"
 	defJobRunLockExtraTtl                   = 600 // 10分钟
 	defJobRunLockRenewInterval              = 120 // 2分钟
@@ -36,7 +36,7 @@ var Conf = Config{
 	JobStopFlagPrefix:                    defJobStopFlagPrefix,
 	JobStopFlagTtl:                       defJobStopFlagTtl,
 	JobBeforeRunLockKeyPrefix:            defJobBeforeRunLockKeyPrefix,
-	JobBeforeRunLockExtraTtl:             defJobBeforeRunLockExtraTtl,
+	JobBeforeRunLockAppendTtl:            defJobBeforeRunLockAppendTtl,
 	JobRunLockKeyPrefix:                  defJobRunLockKeyPrefix,
 	JobRunLockExtraTtl:                   defJobRunLockExtraTtl,
 	JobRunLockRenewInterval:              defJobRunLockRenewInterval,
@@ -62,7 +62,7 @@ type Config struct {
 	JobStopFlagPrefix                    string // 任务停止flag前缀
 	JobStopFlagTtl                       int    // 任务停止标记有效时间, 单位秒
 	JobBeforeRunLockKeyPrefix            string // 任务启动前回调锁
-	JobBeforeRunLockExtraTtl             int    // 任务启动前回调锁额外的ttl, 单位秒, 在回调超时时间上再加多长时间的ttl, 用于防止重复创建启动器
+	JobBeforeRunLockAppendTtl            int    // 任务启动前回调锁追加的ttl, 单位秒, 在回调超时时间上再加多长时间的ttl, 用于防止重复创建启动器
 	JobRunLockKeyPrefix                  string // 任务启动锁
 	JobRunLockExtraTtl                   int    // 任务启动的ttl, 单位秒, 用于防止重复启动器
 	JobRunLockRenewInterval              int    // 任务启动锁续期间隔时间, 单位秒
@@ -101,8 +101,8 @@ func (conf *Config) Check() {
 	if conf.JobBeforeRunLockKeyPrefix == "" {
 		conf.JobBeforeRunLockKeyPrefix = defJobBeforeRunLockKeyPrefix
 	}
-	if conf.JobBeforeRunLockExtraTtl < 1 {
-		conf.JobBeforeRunLockExtraTtl = defJobBeforeRunLockExtraTtl
+	if conf.JobBeforeRunLockAppendTtl < 1 {
+		conf.JobBeforeRunLockAppendTtl = defJobBeforeRunLockAppendTtl
 	}
 	if conf.JobRunLockKeyPrefix == "" {
 		conf.JobRunLockKeyPrefix = defJobRunLockKeyPrefix

@@ -40,10 +40,10 @@ var (
 		"status",
 		"create_time",
 		"update_time",
-		"last_op_source",
-		"last_op_user_id",
-		"last_op_user_name",
-		"last_op_remark",
+		"op_source",
+		"op_user_id",
+		"op_user_name",
+		"op_remark",
 		"status_info",
 		"rate_sec",
 		"rate_type",
@@ -59,10 +59,10 @@ var (
 		"status",
 		"create_time",
 		"update_time",
-		"last_op_source",
-		"last_op_user_id",
-		"last_op_user_name",
-		"last_op_remark",
+		"op_source",
+		"op_user_id",
+		"op_user_name",
+		"op_remark",
 		"status_info",
 		"rate_sec",
 		"rate_type",
@@ -74,24 +74,23 @@ const (
 )
 
 type Model struct {
-	JobID            uint      `db:"job_id" json:"-"`        // "任务号"
-	JobName          string    `db:"job_name"`               // "任务名称"
-	BizId            uint      `db:"biz_id" json:"-"`        // "业务id"
-	JobData          string    `db:"job_data"`               // "任务数据, 让业务知道应该做什么"
-	ProcessDataTotal uint64    `db:"process_data_total"`     // "需要处理数据总数"
-	ProcessedCount   uint64    `db:"processed_count"`        // "已处理过的数据量, 无论成功还是失败. 如果任务在运行中, 则真实进度存在于redis"
-	ErrLogCount      uint64    `db:"err_log_count" json:"-"` // "错误日志数"
-	Status           byte      `db:"status"`                 // "任务状态 0=已创建 1=等待业务主动启动 2=运行中 3=已完成 4=正在停止 5=已停止"
-	CreateTime       time.Time `db:"create_time" json:"-"`
-	UpdateTime       time.Time `db:"update_time" json:"-"`
-	LastOpSource     string    `db:"last_op_source" json:"-"`    // "最后操作来源"
-	LastOpUserID     string    `db:"last_op_user_id" json:"-"`   // "最后操作用户id"
-	LastOpUserName   string    `db:"last_op_user_name" json:"-"` // "最后操作用户名"
-	LastOpRemark     string    `db:"last_op_remark" json:"-"`    // "最后操作备注"
-	OpHistory        string    `db:"op_history" json:"-"`        // "操作历史信息"
-	RateSec          uint      `db:"rate_sec"`                   // "每秒处理速率. 0表示不限制"
-	RateType         byte      `db:"rate_type"`                  // "速率类型. 0=通过rate_sec限速, 1=串行化"
-	StatusInfo       string    `db:"status_info"`                // "状态信息"
+	JobID            uint      `db:"job_id"`             // "任务号"
+	JobName          string    `db:"job_name"`           // "任务名称"
+	BizId            uint      `db:"biz_id"`             // "业务id"
+	JobData          string    `db:"job_data"`           // "任务数据, 让业务知道应该做什么"
+	ProcessDataTotal uint64    `db:"process_data_total"` // "需要处理数据总数"
+	ProcessedCount   uint64    `db:"processed_count"`    // "已处理过的数据量, 无论成功还是失败. 如果任务在运行中, 则真实进度存在于redis"
+	ErrLogCount      uint64    `db:"err_log_count"`      // "错误日志数"
+	Status           byte      `db:"status"`             // "任务状态 0=已创建 1=等待业务主动启动 2=运行中 3=已完成 4=正在停止 5=已停止"
+	CreateTime       time.Time `db:"create_time"`
+	UpdateTime       time.Time `db:"update_time"`
+	OpSource         string    `db:"op_source"`    // "最后操作来源"
+	OpUserID         string    `db:"op_user_id"`   // "最后操作用户id"
+	OpUserName       string    `db:"op_user_name"` // "最后操作用户名"
+	OpRemark         string    `db:"op_remark"`    // "最后操作备注"
+	RateSec          uint      `db:"rate_sec"`     // "每秒处理速率. 0表示不限制"
+	RateType         byte      `db:"rate_type"`    // "速率类型. 0=通过rate_sec限速, 1=串行化"
+	StatusInfo       string    `db:"status_info"`  // "状态信息"
 }
 
 func CreateOneModel(ctx context.Context, v *Model) (int64, error) {
@@ -109,12 +108,11 @@ func CreateOneModel(ctx context.Context, v *Model) (int64, error) {
 		"processed_count":    v.ProcessedCount,
 		"err_log_count":      v.ErrLogCount,
 		"status":             v.Status,
-		"last_op_source":     v.LastOpSource,
-		"last_op_user_id":    v.LastOpUserID,
-		"last_op_user_name":  v.LastOpUserName,
-		"last_op_remark":     v.LastOpRemark,
+		"op_source":          v.OpSource,
+		"op_user_id":         v.OpUserID,
+		"op_user_name":       v.OpUserName,
+		"op_remark":          v.OpRemark,
 		"status_info":        v.StatusInfo,
-		"op_history":         v.OpHistory,
 		"rate_sec":           v.RateSec,
 		"rate_type":          v.RateType,
 	})
@@ -231,12 +229,11 @@ set
     process_data_total=?,
     processed_count=?,
     update_time=now(),
-    last_op_source=?,
-    last_op_user_id=?,
-    last_op_user_name=?,
-    last_op_remark=?,
+    op_source=?,
+    op_user_id=?,
+    op_user_name=?,
+    op_remark=?,
     status_info=?,
-    op_history=json_array_insert(op_history, '$[0]', json_extract(?, '$')),
     rate_sec=?,
     rate_type=?
 where job_id = ?
@@ -247,12 +244,11 @@ limit 1;`
 		v.JobData,
 		v.ProcessDataTotal,
 		v.ProcessedCount,
-		v.LastOpSource,
-		v.LastOpUserID,
-		v.LastOpUserName,
-		v.LastOpRemark,
+		v.OpSource,
+		v.OpUserID,
+		v.OpUserName,
+		v.OpRemark,
 		v.StatusInfo,
-		v.OpHistory,
 		v.RateSec,
 		v.RateType,
 		v.JobID,
@@ -283,18 +279,16 @@ set
     last_op_user_id=?,
     last_op_user_name=?,
     last_op_remark=?,
-    status_info=?,
-    op_history=json_array_insert(op_history, '$[0]', json_extract(?, '$'))
+    status_info=?
 where job_id = ?
 limit 1;`
 	vals := []interface{}{
 		v.Status,
-		v.LastOpSource,
-		v.LastOpUserID,
-		v.LastOpUserName,
-		v.LastOpRemark,
+		v.OpSource,
+		v.OpUserID,
+		v.OpUserName,
+		v.OpRemark,
 		v.StatusInfo,
-		v.OpHistory,
 		v.JobID,
 	}
 	result, err := db.GetSqlx().Exec(ctx, cond, vals...)
