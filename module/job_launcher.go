@@ -36,7 +36,7 @@ func (*jobCli) createLauncher(ctx context.Context, bizInfo *batch_job_biz.Model,
 	}
 
 	// 如果有启动前回调. 则交给业务处理
-	if b.HasBeforeRunCallback() {
+	if b.HasBeforeRunCallback() && pb.JobStatus(bizInfo.Status) == pb.JobStatus_JobStatus_WaitBizRun {
 		// 加等待业务主动启动锁, 这个时间比较长, 防止自动扫描运行中的任务时其它线程抢锁启动
 		ttl := time.Duration(conf.Conf.JobBeforeRunLockAppendTtl)*time.Second + b.GetCbBeforeRunTimeout()
 		lockKey := conf.Conf.JobBeforeRunLockKeyPrefix + strconv.Itoa(int(jobInfo.JobID))
