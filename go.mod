@@ -7,7 +7,9 @@ require (
 	github.com/didi/gendry v1.9.0
 	github.com/envoyproxy/protoc-gen-validate v1.2.1
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.1
-	github.com/zly-app/component/redis v0.0.0-20251012085149-e8a23f206e20
+	github.com/spf13/cast v1.3.1
+	github.com/zly-app/cache/v2 v2.0.9
+	github.com/zly-app/component/redis v0.0.0-20251028120309-789178b6dfbd
 	github.com/zly-app/component/sqlx v0.0.0-20250113115202-54207e1efaeb
 	github.com/zly-app/grpc v0.5.2
 	github.com/zly-app/uapp v0.0.0-20250721063824-0fef763876af
@@ -26,6 +28,7 @@ require (
 	github.com/CloudyKit/fastprinter v0.0.0-20200109182630-33d98a066a53 // indirect
 	github.com/CloudyKit/jet/v5 v5.1.1 // indirect
 	github.com/Shopify/goreferrer v0.0.0-20181106222321-ec9c9a553398 // indirect
+	github.com/allegro/bigcache/v3 v3.1.0 // indirect
 	github.com/andybalholm/brotli v1.0.1 // indirect
 	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/aymerick/raymond v2.0.3-0.20180322193309-b565731e1464+incompatible // indirect
@@ -36,6 +39,7 @@ require (
 	github.com/chris-ramon/douceur v0.2.0 // indirect
 	github.com/cloudflare/golz4 v0.0.0-20150217214814-ef862a3cdc58 // indirect
 	github.com/cloudwego/base64x v0.1.6 // indirect
+	github.com/coocood/freecache v1.2.1 // indirect
 	github.com/denisenkom/go-mssqldb v0.10.0 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/eknkc/amber v0.0.0-20171010120322-cdade1c07385 // indirect
@@ -94,7 +98,6 @@ require (
 	github.com/schollz/closestmatch v2.1.0+incompatible // indirect
 	github.com/shirou/gopsutil/v3 v3.23.10 // indirect
 	github.com/spf13/afero v1.10.0 // indirect
-	github.com/spf13/cast v1.3.1 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/spf13/viper v1.8.1 // indirect

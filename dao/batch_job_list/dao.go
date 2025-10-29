@@ -29,26 +29,6 @@ var (
 		return selectAllFields
 	}()
 
-	selectBaseField = []string{
-		"job_id",
-		"biz_id",
-		"job_name",
-		"job_data",
-		"process_data_total",
-		"processed_count",
-		"err_log_count",
-		"status",
-		"create_time",
-		"update_time",
-		"op_source",
-		"op_user_id",
-		"op_user_name",
-		"op_remark",
-		"status_info",
-		"rate_sec",
-		"rate_type",
-	}
-
 	selectFieldByQueryList = []string{
 		"job_id",
 		"biz_id",
@@ -164,18 +144,6 @@ func GetOneByJobId(ctx context.Context, jobId int) (*Model, error) {
 	return v, nil
 }
 
-func GetOneBaseInfoByJobId(ctx context.Context, jobId int) (*Model, error) {
-	where := map[string]interface{}{
-		"job_id": jobId,
-	}
-	v, err := GetOne(ctx, where, selectBaseField)
-	if err != nil {
-		logger.Error(ctx, "GetOneBaseInfoByJobId fail.", zap.Error(err))
-		return nil, err
-	}
-	return v, nil
-}
-
 func MultiGet(ctx context.Context, where map[string]any) ([]*Model, error) {
 	cond, vals, err := builder.BuildSelect(tableName, where, selectFieldByQueryList)
 	if err != nil {
@@ -190,6 +158,26 @@ func MultiGet(ctx context.Context, where map[string]any) ([]*Model, error) {
 	err = db.GetSqlx().Find(ctx, &ret, cond, vals...)
 	if err != nil {
 		logger.Error(ctx, "MultiGet Find fail.", zap.String("cond", cond), zap.Any("vals", vals), zap.Error(err))
+		return nil, err
+	}
+	return ret, nil
+}
+
+func MultiGetJobId(ctx context.Context, where map[string]any) ([]uint, error) {
+	selectField := []string{"job_id"}
+	cond, vals, err := builder.BuildSelect(tableName, where, selectField)
+	if err != nil {
+		logger.Log.Error(ctx, "MultiGetJobId BuildSelect err",
+			zap.Any("where", where),
+			zap.Error(err),
+		)
+		return nil, err
+	}
+
+	ret := []uint{}
+	err = db.GetSqlx().Find(ctx, &ret, cond, vals...)
+	if err != nil {
+		logger.Error(ctx, "MultiGetJobId Find fail.", zap.String("cond", cond), zap.Any("vals", vals), zap.Error(err))
 		return nil, err
 	}
 	return ret, nil

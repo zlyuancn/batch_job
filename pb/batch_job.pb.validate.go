@@ -3684,8 +3684,6 @@ func (m *QueryBizInfoReq) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	// no validation rules for NeedOpHistory
-
 	if len(errors) > 0 {
 		return QueryBizInfoReqMultiError(errors)
 	}
@@ -4201,8 +4199,6 @@ func (m *QueryJobInfoReq) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	// no validation rules for NeedOpHistory
-
 	if len(errors) > 0 {
 		return QueryJobInfoReqMultiError(errors)
 	}
@@ -4688,6 +4684,384 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = QueryJobListRspValidationError{}
+
+// Validate checks the field values on QueryJobStateInfoReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *QueryJobStateInfoReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on QueryJobStateInfoReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// QueryJobStateInfoReqMultiError, or nil if none found.
+func (m *QueryJobStateInfoReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *QueryJobStateInfoReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return QueryJobStateInfoReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// QueryJobStateInfoReqMultiError is an error wrapping multiple validation
+// errors returned by QueryJobStateInfoReq.ValidateAll() if the designated
+// constraints aren't met.
+type QueryJobStateInfoReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m QueryJobStateInfoReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m QueryJobStateInfoReqMultiError) AllErrors() []error { return m }
+
+// QueryJobStateInfoReqValidationError is the validation error returned by
+// QueryJobStateInfoReq.Validate if the designated constraints aren't met.
+type QueryJobStateInfoReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e QueryJobStateInfoReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e QueryJobStateInfoReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e QueryJobStateInfoReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e QueryJobStateInfoReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e QueryJobStateInfoReqValidationError) ErrorName() string {
+	return "QueryJobStateInfoReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e QueryJobStateInfoReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sQueryJobStateInfoReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = QueryJobStateInfoReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = QueryJobStateInfoReqValidationError{}
+
+// Validate checks the field values on JobStateInfo with the rules defined in
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *JobStateInfo) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on JobStateInfo with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in JobStateInfoMultiError, or
+// nil if none found.
+func (m *JobStateInfo) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *JobStateInfo) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for JobId
+
+	// no validation rules for ProcessDataTotal
+
+	// no validation rules for ProcessedCount
+
+	// no validation rules for ErrLogCount
+
+	// no validation rules for Status
+
+	if all {
+		switch v := interface{}(m.GetOp()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, JobStateInfoValidationError{
+					field:  "Op",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, JobStateInfoValidationError{
+					field:  "Op",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetOp()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return JobStateInfoValidationError{
+				field:  "Op",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for StatusInfo
+
+	if len(errors) > 0 {
+		return JobStateInfoMultiError(errors)
+	}
+
+	return nil
+}
+
+// JobStateInfoMultiError is an error wrapping multiple validation errors
+// returned by JobStateInfo.ValidateAll() if the designated constraints aren't met.
+type JobStateInfoMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m JobStateInfoMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m JobStateInfoMultiError) AllErrors() []error { return m }
+
+// JobStateInfoValidationError is the validation error returned by
+// JobStateInfo.Validate if the designated constraints aren't met.
+type JobStateInfoValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e JobStateInfoValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e JobStateInfoValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e JobStateInfoValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e JobStateInfoValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e JobStateInfoValidationError) ErrorName() string { return "JobStateInfoValidationError" }
+
+// Error satisfies the builtin error interface
+func (e JobStateInfoValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sJobStateInfo.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = JobStateInfoValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = JobStateInfoValidationError{}
+
+// Validate checks the field values on QueryJobStateInfoRsp with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *QueryJobStateInfoRsp) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on QueryJobStateInfoRsp with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// QueryJobStateInfoRspMultiError, or nil if none found.
+func (m *QueryJobStateInfoRsp) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *QueryJobStateInfoRsp) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	for idx, item := range m.GetJobStateInfos() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, QueryJobStateInfoRspValidationError{
+						field:  fmt.Sprintf("JobStateInfos[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, QueryJobStateInfoRspValidationError{
+						field:  fmt.Sprintf("JobStateInfos[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return QueryJobStateInfoRspValidationError{
+					field:  fmt.Sprintf("JobStateInfos[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if len(errors) > 0 {
+		return QueryJobStateInfoRspMultiError(errors)
+	}
+
+	return nil
+}
+
+// QueryJobStateInfoRspMultiError is an error wrapping multiple validation
+// errors returned by QueryJobStateInfoRsp.ValidateAll() if the designated
+// constraints aren't met.
+type QueryJobStateInfoRspMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m QueryJobStateInfoRspMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m QueryJobStateInfoRspMultiError) AllErrors() []error { return m }
+
+// QueryJobStateInfoRspValidationError is the validation error returned by
+// QueryJobStateInfoRsp.Validate if the designated constraints aren't met.
+type QueryJobStateInfoRspValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e QueryJobStateInfoRspValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e QueryJobStateInfoRspValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e QueryJobStateInfoRspValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e QueryJobStateInfoRspValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e QueryJobStateInfoRspValidationError) ErrorName() string {
+	return "QueryJobStateInfoRspValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e QueryJobStateInfoRspValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sQueryJobStateInfoRsp.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = QueryJobStateInfoRspValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = QueryJobStateInfoRspValidationError{}
 
 // Validate checks the field values on QueryJobDataLogReq with the rules
 // defined in the proto definition for this message. If any rules are

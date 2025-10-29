@@ -18,11 +18,16 @@ const (
 	defJobRunLockRenewMaxContinuousErrCount = 3   // 续期最大连续错误次数
 	defJobProcessedCountKeyPrefix           = "batch_job:processed_count:"
 	defJobErrLogCountKeyPrefix              = "batch_job:err_log_count:"
+	defAllBizNameCacheKey                   = "batch_job:all_biz_name"
+	defBizInfoCacheKeyPrefix                = "batch_job:biz_info:"
+	defBizInfoCacheTtl                      = 3600
+	defJobInfoKeyPrefix                     = "batch_job:job_info:"
+	defJobInfoCacheTtl                      = 3600
 
 	defJobRunThreadCount                = 10
 	defJobSlidingWindowSize             = 20
-	defJobFlushProcessedCountInterval   = 5
-	defJobFlushCheckStopFlagInterval    = 5
+	defJobFlushProcessedCountInterval   = 1
+	defJobFlushCheckStopFlagInterval    = 1
 	defJobProcessCumulativeErrorRate    = 10
 	defJobProcessOneDataMaxAttemptCount = 10
 )
@@ -43,6 +48,11 @@ var Conf = Config{
 	JobRunLockRenewMaxContinuousErrCount: defJobRunLockRenewMaxContinuousErrCount,
 	JobProcessedCountKeyPrefix:           defJobProcessedCountKeyPrefix,
 	JobErrLogCountKeyPrefix:              defJobErrLogCountKeyPrefix,
+	AllBizNameCacheKey:                   defAllBizNameCacheKey,
+	BizInfoCacheKeyPrefix:                defBizInfoCacheKeyPrefix,
+	BizInfoCacheTtl:                      defBizInfoCacheTtl,
+	JobInfoKeyPrefix:                     defJobInfoKeyPrefix,
+	JobInfoCacheTtl:                      defJobInfoCacheTtl,
 
 	JobRunThreadCount:                defJobRunThreadCount,
 	JobSlidingWindowSize:             defJobSlidingWindowSize,
@@ -69,6 +79,11 @@ type Config struct {
 	JobRunLockRenewMaxContinuousErrCount int    // 续期最大连续错误次数, 达到该次数后将自动停止运行防止多线程抢到锁
 	JobProcessedCountKeyPrefix           string // 缓存的已完成数key前缀
 	JobErrLogCountKeyPrefix              string // 错误日志数key前缀
+	AllBizNameCacheKey                   string // 所有业务名缓存key
+	BizInfoCacheKeyPrefix                string // 缓存业务信息的key前缀
+	BizInfoCacheTtl                      int    // 业务信息缓存ttl秒数
+	JobInfoKeyPrefix                     string // 缓存任务信息的key前缀
+	JobInfoCacheTtl                      int    // 任务信息的缓存ttl秒数
 
 	JobRunThreadCount                int // 任务运行时使用多少线程
 	JobSlidingWindowSize             int // 任务运行时使用的滑动窗口大小. 一般设置为线程的2倍, 为了避免性能浪费不应该小于线程数
@@ -121,6 +136,18 @@ func (conf *Config) Check() {
 	}
 	if conf.JobErrLogCountKeyPrefix == "" {
 		conf.JobErrLogCountKeyPrefix = defJobErrLogCountKeyPrefix
+	}
+	if conf.BizInfoCacheKeyPrefix == "" {
+		conf.BizInfoCacheKeyPrefix = defBizInfoCacheKeyPrefix
+	}
+	if conf.BizInfoCacheTtl < 1 {
+		conf.BizInfoCacheTtl = defBizInfoCacheTtl
+	}
+	if conf.JobInfoKeyPrefix == "" {
+		conf.JobInfoKeyPrefix = defJobInfoKeyPrefix
+	}
+	if conf.JobInfoCacheTtl < 1 {
+		conf.JobInfoCacheTtl = defJobInfoCacheTtl
 	}
 
 	if conf.JobRunThreadCount < 1 {

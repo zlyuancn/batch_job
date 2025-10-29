@@ -24,8 +24,7 @@ import (
 
 // 创建启动器
 func (j *jobCli) CreateLauncherByData(ctx context.Context, bizInfo *batch_job_biz.Model, jobInfo *batch_job_list.Model) {
-	cloneCtx := utils.Ctx.CloneContext(ctx)
-	go j.createLauncher(cloneCtx, bizInfo, jobInfo)
+	j.createLauncher(ctx, bizInfo, jobInfo)
 }
 
 func (*jobCli) createLauncher(ctx context.Context, bizInfo *batch_job_biz.Model, jobInfo *batch_job_list.Model) {
@@ -41,7 +40,7 @@ func (*jobCli) createLauncher(ctx context.Context, bizInfo *batch_job_biz.Model,
 		// 加等待业务主动启动锁, 这个时间比较长, 防止自动扫描运行中的任务时其它线程抢锁启动
 		ttl := time.Duration(conf.Conf.JobBeforeRunLockAppendTtl)*time.Second + b.GetCbBeforeRunTimeout()
 		lockKey := conf.Conf.JobBeforeRunLockKeyPrefix + strconv.Itoa(int(jobInfo.JobID))
-		unlock, _, err := redis.Lock(ctx, lockKey, ttl)
+		_, _, err := redis.Lock(ctx, lockKey, ttl)
 		if err == redis.LockManyErr { // 加锁失败
 			return
 		}
@@ -49,7 +48,6 @@ func (*jobCli) createLauncher(ctx context.Context, bizInfo *batch_job_biz.Model,
 			logger.Error("createLauncher call Lock fail.", zap.Error(err))
 			return
 		}
-		defer unlock()
 
 		b.BeforeRun(ctx, jobInfo)
 		return
@@ -128,10 +126,10 @@ func newJobLauncher(ctx context.Context, b Business, bizInfo *batch_job_biz.Mode
 		j.limiter = rate.NewLimiter(rate.Limit(jobInfo.RateSec), int(jobInfo.RateSec)) // 每秒限速
 	}
 
-	// 加载进度
-	err := j.loadProgress()
+	// 从cache加载进度
+	err := j.loadCacheProgress()
 	if err != nil {
-		logger.Error(ctx, "newJobLauncher call loadProgress fail.", zap.Error(err))
+		logger.Error(ctx, "newJobLauncher call loadCacheProgress fail.", zap.Error(err))
 		return nil, err
 	}
 
@@ -184,7 +182,10 @@ func (j *jobLauncher) loopWriteProgress() {
 		case <-j.stopChan:
 			return
 		case <-t.C:
-			j.writeProcess2Cache()
+			err := j.writeProcess2Cache()
+			if err != nil {
+				logger.Error(j.ctx, "loopWriteProgress call writeProcess2Cache fail.", zap.Error(err))
+			}
 		}
 	}
 }
@@ -210,7 +211,7 @@ func (j *jobLauncher) loopCheckStopFlag() {
 }
 
 // 从redis加载进度, 对于服务突然宕机, 进度是不会写入到db中, 而运行中的任务的实际进度都应该以redis为准
-func (j *jobLauncher) loadProgress() error {
+func (j *jobLauncher) loadCacheProgress() error {
 	p, ok, err := Job.LoadCacheProgress(j.ctx, int(j.jobInfo.JobID))
 	if err != nil {
 		return err
@@ -230,7 +231,7 @@ func (j *jobLauncher) writeErrCount2Cache() error {
 	}
 
 	// 写入到缓存
-	key := Job.GenErrCountCacheKey(int(j.jobInfo.JobID))
+	key := CacheKey.GetErrCount(int(j.jobInfo.JobID))
 	err = db.GetRedis().Set(j.ctx, key, count, 0).Err()
 	if err != nil {
 		logger.Error(j.ctx, "writeErrCount2Cache fail.", zap.Error(err))
@@ -239,15 +240,16 @@ func (j *jobLauncher) writeErrCount2Cache() error {
 	return nil
 }
 
-// 写入进度到缓存
-func (j *jobLauncher) writeProcess2Cache() {
-	key := Job.GenProgressCacheKey(int(j.jobInfo.JobID))
+// 写入进度到缓存, 失败的后果是重跑部分数据
+func (j *jobLauncher) writeProcess2Cache() error {
+	key := CacheKey.GetProcessedCount(int(j.jobInfo.JobID))
 	finishedCount := j.sw.GetProgress() + 1
 	err := db.GetRedis().Set(j.ctx, key, finishedCount, 0).Err()
 	if err != nil {
 		logger.Error(j.ctx, "writeProcess2Cache fail.", zap.Error(err))
-		return
+		return err
 	}
+	return nil
 }
 
 func (j *jobLauncher) Run() {
@@ -379,8 +381,12 @@ func (j *jobLauncher) stopSideEffect() {
 	// 替换ctx
 	j.ctx = utils.Ctx.CloneContext(j.ctx)
 
-	// 立即写入当前进度日志计数到redis, 失败的后果是重跑部分数据
-	j.writeProcess2Cache()
+	// 立即写入当前进度日志计数到redis
+	err := j.writeProcess2Cache()
+	if err != nil {
+		logger.Error(j.ctx, "stopSideEffect call writeProcess2Cache fail.", zap.Error(err))
+		// return
+	}
 
 	// 立即写入当前进度日志计数到db, 对于已完成任务刷新任务状态
 	finishedCount := j.sw.GetProgress() + 1 // 已完成数
@@ -398,20 +404,21 @@ func (j *jobLauncher) stopSideEffect() {
 
 		errLogCount, err := Job.GetErrCount(j.ctx, int(j.jobInfo.JobID))
 		if err != nil {
-			logger.Error(j.ctx, "stopSideEffect GetErrCount.", zap.Error(err))
+			logger.Error(j.ctx, "stopSideEffect call GetErrCount.", zap.Error(err))
 			return // 这里不再更新db了, 等重试
 		}
 		updateData["err_log_count"] = errLogCount
 	}
-	err := batch_job_list.UpdateOne(j.ctx, int(j.jobInfo.JobID), updateData)
+	err = batch_job_list.UpdateOne(j.ctx, int(j.jobInfo.JobID), updateData)
 	if err != nil {
-		logger.Error(j.ctx, "stopSideEffect UpdateOne fail.", zap.Error(err))
+		logger.Error(j.ctx, "stopSideEffect call UpdateOne fail.", zap.Error(err))
 		return // 这里失败等重试
 	}
 
-	// 删除redis进度和错误数
-	key1, key2 := Job.GenProgressCacheKey(int(j.jobInfo.JobID)), Job.GenErrCountCacheKey(int(j.jobInfo.ErrLogCount))
-	err = db.GetRedis().Del(j.ctx, key1, key2).Err()
+	// 删除redis进度和错误数, 以及任务数据缓存
+	key1, key2 := CacheKey.GetProcessedCount(int(j.jobInfo.JobID)), CacheKey.GetErrCount(int(j.jobInfo.ErrLogCount))
+	key3 := CacheKey.GetJobInfo(int(j.jobInfo.JobID))
+	err = db.GetRedis().Del(j.ctx, key1, key2, key3).Err()
 	if err != nil && err != zRedis.Nil {
 		logger.Error(j.ctx, "stopSideEffect Del cacheKey fail.", zap.Error(err))
 		// return // 这里不影响主流程

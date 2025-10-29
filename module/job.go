@@ -47,7 +47,7 @@ func (*jobCli) GetStopFlag(ctx context.Context, jobId int) (bool, error) {
 
 // 从redis加载进度, 对于服务突然宕机, 进度是不会写入到db中, 而运行中的任务的实际进度都应该以redis为准
 func (j *jobCli) LoadCacheProgress(ctx context.Context, jobId int) (int64, bool, error) {
-	key := j.GenProgressCacheKey(jobId)
+	key := CacheKey.GetProcessedCount(jobId)
 	p, err := db.GetRedis().Get(ctx, key).Int64()
 	if err == redis.Nil { // redis没有记录数据, 以db数据为准
 		return 0, false, nil
@@ -61,7 +61,7 @@ func (j *jobCli) LoadCacheProgress(ctx context.Context, jobId int) (int64, bool,
 
 // 从redis加载错误计数, 对于服务突然宕机, 进度是不会写入到db中, 而运行中的任务的实际进度都应该以redis为准
 func (j *jobCli) LoadCacheErrCount(ctx context.Context, jobId int) (int64, bool, error) {
-	key := j.GenErrCountCacheKey(jobId)
+	key := CacheKey.GetErrCount(jobId)
 	p, err := db.GetRedis().Get(ctx, key).Int64()
 	if err == redis.Nil { // redis没有记录数据, 以db数据为准
 		return 0, false, nil
@@ -85,14 +85,4 @@ func (*jobCli) GetErrCount(ctx context.Context, jobId int) (int64, error) {
 		return 0, err
 	}
 	return total, nil
-}
-
-// 生成进度缓存key
-func (*jobCli) GenProgressCacheKey(jobId int) string {
-	return conf.Conf.JobProcessedCountKeyPrefix + strconv.Itoa(jobId)
-}
-
-// 生成错误数缓存key
-func (*jobCli) GenErrCountCacheKey(jobId int) string {
-	return conf.Conf.JobErrLogCountKeyPrefix + strconv.Itoa(jobId)
 }

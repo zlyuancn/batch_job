@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/bytedance/sonic"
+	"github.com/zly-app/cache/v2"
 	"github.com/zly-app/zapp/component/gpool"
 	"github.com/zly-app/zapp/logger"
 	"github.com/zly-app/zapp/pkg/utils"
@@ -51,6 +52,7 @@ func (*BatchJob) AdminRegistryBiz(ctx context.Context, req *pb.AdminRegistryBizR
 		return nil, err
 	}
 
+	cloneCtx := utils.Ctx.CloneContext(ctx)
 	// 添加历史记录
 	h := &batch_job_biz_history.Model{
 		BizId:          uint(bizId),
@@ -64,12 +66,21 @@ func (*BatchJob) AdminRegistryBiz(ctx context.Context, req *pb.AdminRegistryBizR
 		OpRemark:       req.GetOp().GetOpRemark(),
 		Status:         0,
 	}
-	cloneCtx := utils.Ctx.CloneContext(ctx)
 	gpool.GetDefGPool().Go(func() error {
-		_, err = batch_job_biz_history.CreateOneModel(cloneCtx, h)
+		_, err := batch_job_biz_history.CreateOneModel(cloneCtx, h)
 		if err != nil {
 			logger.Error(cloneCtx, "AdminRegistryBiz call batch_job_biz_history.CreateOneModel fail.", zap.Error(err))
-			// return nil, err
+			// return err
+		}
+		return nil
+	}, nil)
+
+	// 清除缓存
+	gpool.GetDefGPool().Go(func() error {
+		err := cache.GetDefCache().Del(cloneCtx, module.CacheKey.QueryAllBizName(), module.CacheKey.GetBizInfo(int(bizId)))
+		if err != nil {
+			logger.Error(cloneCtx, "AdminRegistryBiz call clear Cache fail.", zap.Error(err))
+			// return err
 		}
 		return nil
 	}, nil)
@@ -108,6 +119,7 @@ func (*BatchJob) AdminChangeBiz(ctx context.Context, req *pb.AdminChangeBizReq) 
 		return nil, err
 	}
 
+	cloneCtx := utils.Ctx.CloneContext(ctx)
 	// 添加历史记录
 	h := &batch_job_biz_history.Model{
 		BizId:          uint(req.GetBizId()),
@@ -121,12 +133,21 @@ func (*BatchJob) AdminChangeBiz(ctx context.Context, req *pb.AdminChangeBizReq) 
 		OpRemark:       req.GetOp().GetOpRemark(),
 		Status:         byte(req.GetStatus()),
 	}
-	cloneCtx := utils.Ctx.CloneContext(ctx)
 	gpool.GetDefGPool().Go(func() error {
 		_, err = batch_job_biz_history.CreateOneModel(cloneCtx, h)
 		if err != nil {
 			logger.Error(cloneCtx, "AdminChangeBiz call batch_job_biz_history.CreateOneModel fail.", zap.Error(err))
 			// return nil, err
+		}
+		return nil
+	}, nil)
+
+	// 清除缓存
+	gpool.GetDefGPool().Go(func() error {
+		err := cache.GetDefCache().Del(cloneCtx, module.CacheKey.QueryAllBizName(), module.CacheKey.GetBizInfo(int(req.GetBizId())))
+		if err != nil {
+			logger.Error(cloneCtx, "AdminChangeBiz call clear Cache fail.", zap.Error(err))
+			// return err
 		}
 		return nil
 	}, nil)
@@ -137,7 +158,7 @@ func (*BatchJob) AdminChangeBiz(ctx context.Context, req *pb.AdminChangeBizReq) 
 // 创建任务
 func (*BatchJob) AdminCreateJob(ctx context.Context, req *pb.AdminCreateJobReq) (*pb.AdminCreateJobRsp, error) {
 	// 获取业务信息
-	bizInfo, err := batch_job_biz.GetOneBaseInfoByBizId(ctx, int(req.GetBizId()))
+	bizInfo, err := batch_job_biz.GetOneByBizId(ctx, int(req.GetBizId()))
 	if err != nil {
 		logger.Error(ctx, "AdminStartJob call batch_job_biz.GetOneByBizId fail.", zap.Error(err))
 		return nil, err
@@ -208,6 +229,7 @@ func (*BatchJob) AdminCreateJob(ctx context.Context, req *pb.AdminCreateJobReq) 
 		return nil, err
 	}
 
+	cloneCtx := utils.Ctx.CloneContext(ctx)
 	// 添加历史记录
 	h := &batch_job_list_history.Model{
 		JobID:            uint(jobId),
@@ -225,7 +247,6 @@ func (*BatchJob) AdminCreateJob(ctx context.Context, req *pb.AdminCreateJobReq) 
 		RateType:         byte(req.GetRateType()),
 		StatusInfo:       v.StatusInfo,
 	}
-	cloneCtx := utils.Ctx.CloneContext(ctx)
 	gpool.GetDefGPool().Go(func() error {
 		_, err = batch_job_list_history.CreateOneModel(cloneCtx, h)
 		if err != nil {
@@ -235,9 +256,22 @@ func (*BatchJob) AdminCreateJob(ctx context.Context, req *pb.AdminCreateJobReq) 
 		return nil
 	}, nil)
 
+	// 清除缓存
+	gpool.GetDefGPool().Go(func() error {
+		err := cache.GetDefCache().Del(cloneCtx, module.CacheKey.GetJobInfo(int(jobId)))
+		if err != nil {
+			logger.Error(cloneCtx, "AdminCreateJob call clear Cache fail.", zap.Error(err))
+			// return err
+		}
+		return nil
+	}, nil)
+
 	// 立即启动
 	if req.StartNow {
-		module.Job.CreateLauncherByData(ctx, bizInfo, v)
+		gpool.GetDefGPool().Go(func() error {
+			module.Job.CreateLauncherByData(cloneCtx, bizInfo, v)
+			return nil
+		}, nil)
 	}
 
 	return &pb.AdminCreateJobRsp{JobId: jobId}, nil
@@ -269,7 +303,7 @@ func (*BatchJob) AdminChangeJob(ctx context.Context, req *pb.AdminChangeJobReq) 
 	}
 
 	// 获取业务信息
-	bizInfo, err := batch_job_biz.GetOneBaseInfoByBizId(ctx, int(jobInfo.BizId))
+	bizInfo, err := batch_job_biz.GetOneByBizId(ctx, int(jobInfo.BizId))
 	if err != nil {
 		logger.Error(ctx, "AdminStartJob call batch_job_biz.GetOneByBizId fail.", zap.Error(err))
 		return nil, err
@@ -322,6 +356,7 @@ func (*BatchJob) AdminChangeJob(ctx context.Context, req *pb.AdminChangeJobReq) 
 		return nil, err
 	}
 
+	cloneCtx := utils.Ctx.CloneContext(ctx)
 	// 添加历史记录
 	h := &batch_job_list_history.Model{
 		JobID:            uint(req.GetJobId()),
@@ -339,12 +374,21 @@ func (*BatchJob) AdminChangeJob(ctx context.Context, req *pb.AdminChangeJobReq) 
 		RateType:         byte(req.GetRateType()),
 		StatusInfo:       v.StatusInfo,
 	}
-	cloneCtx := utils.Ctx.CloneContext(ctx)
 	gpool.GetDefGPool().Go(func() error {
 		_, err = batch_job_list_history.CreateOneModel(cloneCtx, h)
 		if err != nil {
 			logger.Error(cloneCtx, "AdminChangeJob call batch_job_list_history.CreateOneModel fail.", zap.Error(err))
 			// return nil, err
+		}
+		return nil
+	}, nil)
+
+	// 清除缓存
+	gpool.GetDefGPool().Go(func() error {
+		err := cache.GetDefCache().Del(cloneCtx, module.CacheKey.GetJobInfo(int(req.GetJobId())))
+		if err != nil {
+			logger.Error(cloneCtx, "AdminChangeJob call clear Cache fail.", zap.Error(err))
+			// return err
 		}
 		return nil
 	}, nil)
@@ -381,7 +425,7 @@ func (*BatchJob) AdminStartJob(ctx context.Context, req *pb.AdminStartJobReq) (*
 	}
 
 	// 获取业务信息
-	bizInfo, err := batch_job_biz.GetOneBaseInfoByBizId(ctx, int(jobInfo.BizId))
+	bizInfo, err := batch_job_biz.GetOneByBizId(ctx, int(jobInfo.BizId))
 	if err != nil {
 		logger.Error(ctx, "AdminStartJob call batch_job_biz.GetOneByBizId fail.", zap.Error(err))
 		return nil, err
@@ -418,6 +462,7 @@ func (*BatchJob) AdminStartJob(ctx context.Context, req *pb.AdminStartJobReq) (*
 		return nil, err
 	}
 
+	cloneCtx := utils.Ctx.CloneContext(ctx)
 	// 添加历史记录
 	h := &batch_job_list_history.Model{
 		JobID:      uint(req.GetJobId()),
@@ -429,7 +474,6 @@ func (*BatchJob) AdminStartJob(ctx context.Context, req *pb.AdminStartJobReq) (*
 		OpRemark:   req.GetOp().GetOpRemark(),
 		StatusInfo: model.StatusInfo_UserChangeStatus,
 	}
-	cloneCtx := utils.Ctx.CloneContext(ctx)
 	gpool.GetDefGPool().Go(func() error {
 		_, err = batch_job_list_history.CreateOneModel(cloneCtx, h)
 		if err != nil {
@@ -439,8 +483,21 @@ func (*BatchJob) AdminStartJob(ctx context.Context, req *pb.AdminStartJobReq) (*
 		return nil
 	}, nil)
 
+	// 清除缓存
+	gpool.GetDefGPool().Go(func() error {
+		err := cache.GetDefCache().Del(cloneCtx, module.CacheKey.GetJobInfo(int(req.GetJobId())))
+		if err != nil {
+			logger.Error(cloneCtx, "AdminStartJob call clear Cache fail.", zap.Error(err))
+			// return err
+		}
+		return nil
+	}, nil)
+
 	// 启动
-	module.Job.CreateLauncherByData(ctx, bizInfo, jobInfo)
+	gpool.GetDefGPool().Go(func() error {
+		module.Job.CreateLauncherByData(ctx, bizInfo, jobInfo)
+		return nil
+	}, nil)
 
 	return &pb.AdminStartJobRsp{}, nil
 }
@@ -498,6 +555,7 @@ func (*BatchJob) AdminStopJob(ctx context.Context, req *pb.AdminStopJobReq) (*pb
 		return nil, err
 	}
 
+	cloneCtx := utils.Ctx.CloneContext(ctx)
 	// 添加历史记录
 	h := &batch_job_list_history.Model{
 		JobID:      uint(req.GetJobId()),
@@ -509,12 +567,21 @@ func (*BatchJob) AdminStopJob(ctx context.Context, req *pb.AdminStopJobReq) (*pb
 		OpRemark:   req.GetOp().GetOpRemark(),
 		StatusInfo: model.StatusInfo_UserChangeStatus,
 	}
-	cloneCtx := utils.Ctx.CloneContext(ctx)
 	gpool.GetDefGPool().Go(func() error {
 		_, err = batch_job_list_history.CreateOneModel(cloneCtx, h)
 		if err != nil {
 			logger.Error(cloneCtx, "AdminStopJob call batch_job_list_history.CreateOneModel fail.", zap.Error(err))
 			// return nil, err
+		}
+		return nil
+	}, nil)
+
+	// 清除缓存
+	gpool.GetDefGPool().Go(func() error {
+		err := cache.GetDefCache().Del(cloneCtx, module.CacheKey.GetJobInfo(int(req.GetJobId())))
+		if err != nil {
+			logger.Error(cloneCtx, "AdminStopJob call clear Cache fail.", zap.Error(err))
+			// return err
 		}
 		return nil
 	}, nil)

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/bytedance/sonic"
 	"github.com/zly-app/zapp/logger"
 
 	"github.com/zlyuancn/batch_job/dao/batch_job_biz"
@@ -46,7 +47,7 @@ type bizCli struct{}
 // 获取业务
 func (b *bizCli) GetBizByBizId(ctx context.Context, bizId int) (Business, error) {
 	// 从db加载biz信息
-	v, err := batch_job_biz.GetOneBaseInfoByBizId(ctx, bizId)
+	v, err := batch_job_biz.GetOneByBizId(ctx, bizId)
 	if err != nil {
 		logger.Error(ctx, "GetBiz error: %v", err)
 		return nil, err
@@ -57,9 +58,16 @@ func (b *bizCli) GetBizByBizId(ctx context.Context, bizId int) (Business, error)
 
 // 获取业务
 func (*bizCli) GetBizByDbModel(ctx context.Context, v *batch_job_biz.Model) (Business, error) {
+	eed := &pb.ExecExtendDataA{}
+	err := sonic.UnmarshalString(v.ExecExtendData, eed)
+	if err != nil {
+		err = fmt.Errorf("GetBizByDbModel call UnmarshalString ExecExtendData fail. err=%s", err)
+		return nil, err
+	}
+
 	switch v.ExecType {
 	case byte(pb.ExecType_ExecType_HttpCallback): // http回调
-		return newHttpCallbackBiz(ctx, v)
+		return newHttpCallbackBiz(ctx, v, eed)
 	}
 
 	return nil, fmt.Errorf("biz type %d not support", v.ExecType)

@@ -543,6 +543,39 @@
           "BatchJobService"
         ]
       }
+    },
+    "/BatchJob/QueryJobStateInfo": {
+      "post": {
+        "summary": "查询任务状态信息, 用于获取运行中的任务的变化数据",
+        "operationId": "BatchJobService_QueryJobStateInfo",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/batch_jobQueryJobStateInfoRsp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/batch_jobQueryJobStateInfoReq"
+            }
+          }
+        ],
+        "tags": [
+          "BatchJobService"
+        ]
+      }
     }
   },
   "definitions": {
@@ -1205,6 +1238,43 @@
       },
       "title": "任务基础信息-响应"
     },
+    "batch_jobJobStateInfo": {
+      "type": "object",
+      "properties": {
+        "jobId": {
+          "type": "string",
+          "format": "int64",
+          "title": "任务id"
+        },
+        "processDataTotal": {
+          "type": "string",
+          "format": "int64",
+          "title": "业务中需要处理数据总数"
+        },
+        "processedCount": {
+          "type": "string",
+          "format": "int64",
+          "title": "已处理过的数据量, 无论成功还是失败"
+        },
+        "errLogCount": {
+          "type": "string",
+          "format": "int64",
+          "title": "错误日志数"
+        },
+        "status": {
+          "$ref": "#/definitions/batch_jobJobStatus",
+          "title": "任务状态"
+        },
+        "op": {
+          "$ref": "#/definitions/batch_jobOpInfoA",
+          "title": "操作信息"
+        },
+        "statusInfo": {
+          "type": "string",
+          "title": "状态信息"
+        }
+      }
+    },
     "batch_jobJobStatus": {
       "type": "string",
       "enum": [
@@ -1222,12 +1292,13 @@
     "batch_jobJobStatusQ": {
       "type": "string",
       "enum": [
+        "JobStatusQ_All",
         "JobStatusQ_Created",
         "JobStatusQ_Running",
         "JobStatusQ_Finished"
       ],
-      "default": "JobStatusQ_Created",
-      "description": "- JobStatusQ_Created: 待启动: 已创建/已停止\n - JobStatusQ_Running: 运行中: 运行中/等待业务主动启动/正在停止\n - JobStatusQ_Finished: 已完成",
+      "default": "JobStatusQ_All",
+      "description": "- JobStatusQ_All: 所有状态\n - JobStatusQ_Created: 待启动: 已创建/已停止\n - JobStatusQ_Running: 运行中: 运行中/等待业务主动启动/正在停止\n - JobStatusQ_Finished: 已完成",
       "title": "任务状态"
     },
     "batch_jobLogInfoByListA": {
@@ -1328,10 +1399,6 @@
           "type": "integer",
           "format": "int32",
           "title": "创建的业务id. 必填"
-        },
-        "needOpHistory": {
-          "type": "boolean",
-          "title": "是否需要操作历史"
         }
       }
     },
@@ -1462,10 +1529,6 @@
           "type": "string",
           "format": "int64",
           "title": "创建的任务id. 必填"
-        },
-        "needOpHistory": {
-          "type": "boolean",
-          "title": "是否需要操作历史"
         }
       }
     },
@@ -1474,7 +1537,7 @@
       "properties": {
         "line": {
           "$ref": "#/definitions/batch_jobJobInfoA",
-          "title": "任务基础信息"
+          "title": "任务信息"
         }
       }
     },
@@ -1536,6 +1599,31 @@
             "$ref": "#/definitions/batch_jobJobInfoByListA"
           },
           "title": "基础任务信息"
+        }
+      }
+    },
+    "batch_jobQueryJobStateInfoReq": {
+      "type": "object",
+      "properties": {
+        "jobIds": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "int64"
+          },
+          "title": "要查询的任务id列表"
+        }
+      }
+    },
+    "batch_jobQueryJobStateInfoRsp": {
+      "type": "object",
+      "properties": {
+        "jobStateInfos": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/batch_jobJobStateInfo"
+          }
         }
       }
     },

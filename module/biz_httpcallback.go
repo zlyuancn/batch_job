@@ -2,10 +2,8 @@ package module
 
 import (
 	"context"
-	"fmt"
 	"time"
 
-	"github.com/bytedance/sonic"
 	"github.com/zly-app/zapp/logger"
 	"go.uber.org/zap"
 
@@ -100,13 +98,7 @@ func (h *httpCallbackBiz) ProcessStop(ctx context.Context, jobInfo *batch_job_li
 	return nil
 }
 
-func newHttpCallbackBiz(ctx context.Context, v *batch_job_biz.Model) (Business, error) {
-	eed := &pb.ExecExtendDataA{}
-	err := sonic.UnmarshalString(v.ExecExtendData, eed)
-	if err != nil {
-		err = fmt.Errorf("UnmarshalString ExecExtendData fail. err=%s", err)
-		return nil, err
-	}
+func newHttpCallbackBiz(ctx context.Context, v *batch_job_biz.Model, eed *pb.ExecExtendDataA) (Business, error) {
 	h := &httpCallbackBiz{
 		v:              v,
 		ExecExtendData: eed,

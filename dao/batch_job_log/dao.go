@@ -44,7 +44,7 @@ const (
 
 type Model struct {
 	ID         uint64    `db:"id"`
-	JobID      uint64    `db:"job_id"`   // "任务号"
+	JobID      uint      `db:"job_id"`   // "任务号"
 	DataID     string    `db:"data_id"`  // "数据id"
 	Remark     string    `db:"remark"`   // "备注"
 	Extend     string    `db:"extend"`   // "扩展数据"

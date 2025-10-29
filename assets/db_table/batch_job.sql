@@ -94,7 +94,7 @@ CREATE TABLE `batch_job_list_history`
 CREATE TABLE `batch_job_log`
 (
     `id`          bigint unsigned  NOT NULL AUTO_INCREMENT,
-    `job_id`      bigint unsigned  NOT NULL COMMENT '任务号',
+    `job_id`      int unsigned     NOT NULL COMMENT '任务号',
     `data_id`     varchar(256)     NOT NULL COMMENT '数据id',
     `remark`      varchar(4096)    NOT NULL DEFAULT '' COMMENT '备注',
     `extend`      varchar(4096)    NOT NULL DEFAULT '' COMMENT '扩展数据',

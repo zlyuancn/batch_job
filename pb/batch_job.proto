@@ -85,6 +85,13 @@ service BatchJobService{
       body: "*",
     };
   }
+  // 查询任务状态信息, 用于获取运行中的任务的变化数据
+  rpc QueryJobStateInfo(QueryJobStateInfoReq) returns (QueryJobStateInfoRsp) {
+    option (google.api.http) = {
+      post: "/BatchJob/QueryJobStateInfo",
+      body: "*",
+    };
+  }
   // 查询任务的数据日志
   rpc QueryJobDataLog(QueryJobDataLogReq) returns (QueryJobDataLogRsp) {
     option (google.api.http) = {
@@ -238,7 +245,8 @@ enum JobStatus {
 
 // 任务状态
 enum JobStatusQ {
-  JobStatusQ_Created = 0; // 待启动: 已创建/已停止
+  JobStatusQ_All = 0; // 所有状态
+  JobStatusQ_Created = 1; // 待启动: 已创建/已停止
   JobStatusQ_Running = 2; // 运行中: 运行中/等待业务主动启动/正在停止
   JobStatusQ_Finished = 3; // 已完成
 }
@@ -377,7 +385,6 @@ message QueryAllBizNameRsp {
 
 message QueryBizInfoReq {
   int32 bizId = 1 [(validate.rules).int32.gt = 0]; // 创建的业务id. 必填
-  bool needOpHistory = 2; // 是否需要操作历史
 }
 message QueryBizInfoRsp {
   BizInfoA line = 1; // 业务信息
@@ -398,10 +405,9 @@ message QueryBizListRsp {
 
 message QueryJobInfoReq {
   int64 jobId = 1 [(validate.rules).int64.gt = 0]; // 创建的任务id. 必填
-  bool needOpHistory = 2; // 是否需要操作历史
 }
 message QueryJobInfoRsp {
-  JobInfoA line = 1; // 任务基础信息
+  JobInfoA line = 1; // 任务信息
 }
 
 message QueryJobListReq {
@@ -417,6 +423,22 @@ message QueryJobListRsp {
   int32 total = 1; // 总条数
   int32 pageSize = 2; // 当前分一页预期返回条数
   repeated JobInfoByListA line = 3; // 基础任务信息
+}
+
+message QueryJobStateInfoReq {
+  repeated int64 jobIds = 1; // 要查询的任务id列表
+}
+message JobStateInfo {
+  int64 jobId = 1; // 任务id
+  int64 processDataTotal = 2; // 业务中需要处理数据总数
+  int64 processedCount = 3; // 已处理过的数据量, 无论成功还是失败
+  int64 errLogCount = 4; // 错误日志数
+  JobStatus status = 5; // 任务状态
+  OpInfoA op = 6; // 操作信息
+  string statusInfo = 7; // 状态信息
+}
+message QueryJobStateInfoRsp {
+  repeated JobStateInfo jobStateInfos = 1;
 }
 
 message QueryJobDataLogReq {

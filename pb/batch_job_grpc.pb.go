@@ -19,22 +19,23 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	BatchJobService_AdminRegistryBiz_FullMethodName = "/batch_job.BatchJobService/AdminRegistryBiz"
-	BatchJobService_AdminChangeBiz_FullMethodName   = "/batch_job.BatchJobService/AdminChangeBiz"
-	BatchJobService_AdminCreateJob_FullMethodName   = "/batch_job.BatchJobService/AdminCreateJob"
-	BatchJobService_AdminChangeJob_FullMethodName   = "/batch_job.BatchJobService/AdminChangeJob"
-	BatchJobService_AdminStartJob_FullMethodName    = "/batch_job.BatchJobService/AdminStartJob"
-	BatchJobService_AdminStopJob_FullMethodName     = "/batch_job.BatchJobService/AdminStopJob"
-	BatchJobService_QueryAllBizName_FullMethodName  = "/batch_job.BatchJobService/QueryAllBizName"
-	BatchJobService_QueryBizInfo_FullMethodName     = "/batch_job.BatchJobService/QueryBizInfo"
-	BatchJobService_QueryBizList_FullMethodName     = "/batch_job.BatchJobService/QueryBizList"
-	BatchJobService_QueryJobInfo_FullMethodName     = "/batch_job.BatchJobService/QueryJobInfo"
-	BatchJobService_QueryJobList_FullMethodName     = "/batch_job.BatchJobService/QueryJobList"
-	BatchJobService_QueryJobDataLog_FullMethodName  = "/batch_job.BatchJobService/QueryJobDataLog"
-	BatchJobService_BizStartJob_FullMethodName      = "/batch_job.BatchJobService/BizStartJob"
-	BatchJobService_BizStopJob_FullMethodName       = "/batch_job.BatchJobService/BizStopJob"
-	BatchJobService_BizUpdateJobData_FullMethodName = "/batch_job.BatchJobService/BizUpdateJobData"
-	BatchJobService_BizAddDataLog_FullMethodName    = "/batch_job.BatchJobService/BizAddDataLog"
+	BatchJobService_AdminRegistryBiz_FullMethodName  = "/batch_job.BatchJobService/AdminRegistryBiz"
+	BatchJobService_AdminChangeBiz_FullMethodName    = "/batch_job.BatchJobService/AdminChangeBiz"
+	BatchJobService_AdminCreateJob_FullMethodName    = "/batch_job.BatchJobService/AdminCreateJob"
+	BatchJobService_AdminChangeJob_FullMethodName    = "/batch_job.BatchJobService/AdminChangeJob"
+	BatchJobService_AdminStartJob_FullMethodName     = "/batch_job.BatchJobService/AdminStartJob"
+	BatchJobService_AdminStopJob_FullMethodName      = "/batch_job.BatchJobService/AdminStopJob"
+	BatchJobService_QueryAllBizName_FullMethodName   = "/batch_job.BatchJobService/QueryAllBizName"
+	BatchJobService_QueryBizInfo_FullMethodName      = "/batch_job.BatchJobService/QueryBizInfo"
+	BatchJobService_QueryBizList_FullMethodName      = "/batch_job.BatchJobService/QueryBizList"
+	BatchJobService_QueryJobInfo_FullMethodName      = "/batch_job.BatchJobService/QueryJobInfo"
+	BatchJobService_QueryJobList_FullMethodName      = "/batch_job.BatchJobService/QueryJobList"
+	BatchJobService_QueryJobStateInfo_FullMethodName = "/batch_job.BatchJobService/QueryJobStateInfo"
+	BatchJobService_QueryJobDataLog_FullMethodName   = "/batch_job.BatchJobService/QueryJobDataLog"
+	BatchJobService_BizStartJob_FullMethodName       = "/batch_job.BatchJobService/BizStartJob"
+	BatchJobService_BizStopJob_FullMethodName        = "/batch_job.BatchJobService/BizStopJob"
+	BatchJobService_BizUpdateJobData_FullMethodName  = "/batch_job.BatchJobService/BizUpdateJobData"
+	BatchJobService_BizAddDataLog_FullMethodName     = "/batch_job.BatchJobService/BizAddDataLog"
 )
 
 // BatchJobServiceClient is the client API for BatchJobService service.
@@ -65,6 +66,8 @@ type BatchJobServiceClient interface {
 	QueryJobInfo(ctx context.Context, in *QueryJobInfoReq, opts ...grpc.CallOption) (*QueryJobInfoRsp, error)
 	// 查询任务列表
 	QueryJobList(ctx context.Context, in *QueryJobListReq, opts ...grpc.CallOption) (*QueryJobListRsp, error)
+	// 查询任务状态信息, 用于获取运行中的任务的变化数据
+	QueryJobStateInfo(ctx context.Context, in *QueryJobStateInfoReq, opts ...grpc.CallOption) (*QueryJobStateInfoRsp, error)
 	// 查询任务的数据日志
 	QueryJobDataLog(ctx context.Context, in *QueryJobDataLogReq, opts ...grpc.CallOption) (*QueryJobDataLogRsp, error)
 	// 业务启动. 要求任务必须处于 JobStatus.WaitBizRun 状态
@@ -195,6 +198,16 @@ func (c *batchJobServiceClient) QueryJobList(ctx context.Context, in *QueryJobLi
 	return out, nil
 }
 
+func (c *batchJobServiceClient) QueryJobStateInfo(ctx context.Context, in *QueryJobStateInfoReq, opts ...grpc.CallOption) (*QueryJobStateInfoRsp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(QueryJobStateInfoRsp)
+	err := c.cc.Invoke(ctx, BatchJobService_QueryJobStateInfo_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *batchJobServiceClient) QueryJobDataLog(ctx context.Context, in *QueryJobDataLogReq, opts ...grpc.CallOption) (*QueryJobDataLogRsp, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(QueryJobDataLogRsp)
@@ -273,6 +286,8 @@ type BatchJobServiceServer interface {
 	QueryJobInfo(context.Context, *QueryJobInfoReq) (*QueryJobInfoRsp, error)
 	// 查询任务列表
 	QueryJobList(context.Context, *QueryJobListReq) (*QueryJobListRsp, error)
+	// 查询任务状态信息, 用于获取运行中的任务的变化数据
+	QueryJobStateInfo(context.Context, *QueryJobStateInfoReq) (*QueryJobStateInfoRsp, error)
 	// 查询任务的数据日志
 	QueryJobDataLog(context.Context, *QueryJobDataLogReq) (*QueryJobDataLogRsp, error)
 	// 业务启动. 要求任务必须处于 JobStatus.WaitBizRun 状态
@@ -325,6 +340,9 @@ func (UnimplementedBatchJobServiceServer) QueryJobInfo(context.Context, *QueryJo
 }
 func (UnimplementedBatchJobServiceServer) QueryJobList(context.Context, *QueryJobListReq) (*QueryJobListRsp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method QueryJobList not implemented")
+}
+func (UnimplementedBatchJobServiceServer) QueryJobStateInfo(context.Context, *QueryJobStateInfoReq) (*QueryJobStateInfoRsp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method QueryJobStateInfo not implemented")
 }
 func (UnimplementedBatchJobServiceServer) QueryJobDataLog(context.Context, *QueryJobDataLogReq) (*QueryJobDataLogRsp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method QueryJobDataLog not implemented")
@@ -560,6 +578,24 @@ func _BatchJobService_QueryJobList_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _BatchJobService_QueryJobStateInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryJobStateInfoReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BatchJobServiceServer).QueryJobStateInfo(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BatchJobService_QueryJobStateInfo_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BatchJobServiceServer).QueryJobStateInfo(ctx, req.(*QueryJobStateInfoReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _BatchJobService_QueryJobDataLog_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(QueryJobDataLogReq)
 	if err := dec(in); err != nil {
@@ -700,6 +736,10 @@ var BatchJobService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "QueryJobList",
 			Handler:    _BatchJobService_QueryJobList_Handler,
+		},
+		{
+			MethodName: "QueryJobStateInfo",
+			Handler:    _BatchJobService_QueryJobStateInfo_Handler,
 		},
 		{
 			MethodName: "QueryJobDataLog",

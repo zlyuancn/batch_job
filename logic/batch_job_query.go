@@ -5,22 +5,38 @@ import (
 	"math"
 
 	"github.com/bytedance/sonic"
+	"github.com/zly-app/cache/v2"
 	"github.com/zly-app/component/redis"
+	"github.com/zly-app/component/sqlx"
 	"github.com/zly-app/zapp/logger"
 	"go.uber.org/zap"
 
 	"github.com/zlyuancn/batch_job/client/db"
+	"github.com/zlyuancn/batch_job/conf"
 	"github.com/zlyuancn/batch_job/dao/batch_job_biz"
 	"github.com/zlyuancn/batch_job/dao/batch_job_list"
 	"github.com/zlyuancn/batch_job/dao/batch_job_log"
 	"github.com/zlyuancn/batch_job/module"
 	"github.com/zlyuancn/batch_job/pb"
+	"github.com/zlyuancn/batch_job/utils"
 )
 
 // 查询所有业务名
 func (b *BatchJob) QueryAllBizName(ctx context.Context, req *pb.QueryAllBizNameReq) (*pb.QueryAllBizNameRsp, error) {
-	// todo 优化性能, 改为从redis获取, 相关的增删改要去删除redisKey
+	key := module.CacheKey.QueryAllBizName()
 
+	var ret []*pb.QueryAllBizNameRsp_LineA
+	err := cache.GetDefCache().Get(ctx, key, &ret, cache.WithLoadFn(func(ctx context.Context, key string) (interface{}, error) {
+		return b.queryAllBizName(ctx)
+	}))
+	if err != nil {
+		logger.Error(ctx, "QueryAllBizName call fail", zap.Error(err))
+		return nil, err
+	}
+
+	return &pb.QueryAllBizNameRsp{Line: ret}, nil
+}
+func (b *BatchJob) queryAllBizName(ctx context.Context) ([]*pb.QueryAllBizNameRsp_LineA, error) {
 	where := map[string]interface{}{
 		"_orderby": "biz_id asc",
 	}
@@ -39,30 +55,31 @@ func (b *BatchJob) QueryAllBizName(ctx context.Context, req *pb.QueryAllBizNameR
 			Status:  pb.BizStatus(line.Status),
 		})
 	}
-	return &pb.QueryAllBizNameRsp{Line: ret}, nil
+	return ret, nil
 }
 
 // 查询业务信息
 func (b *BatchJob) QueryBizInfo(ctx context.Context, req *pb.QueryBizInfoReq) (*pb.QueryBizInfoRsp, error) {
-	var line *batch_job_biz.Model
-	var err error
-
-	if req.GetNeedOpHistory() {
-		line, err = batch_job_biz.GetOneByBizId(ctx, int(req.GetBizId()))
-		if err != nil {
-			logger.Error(ctx, "QueryBizInfo call batch_job_biz.GetOneByBizId fail.", zap.Error(err))
-			return nil, err
-		}
-	} else {
-		line, err = batch_job_biz.GetOneBaseInfoByBizId(ctx, int(req.GetBizId()))
-		if err != nil {
-			logger.Error(ctx, "QueryBizInfo call batch_job_biz.GetOneBaseInfoByBizId fail.", zap.Error(err))
-			return nil, err
-		}
+	line, err := b.queryBizInfoByCache(ctx, int(req.GetBizId()))
+	if err != nil {
+		logger.Error(ctx, "QueryBizInfo call queryBizInfoByCache fail.", zap.Error(err))
+		return nil, err
 	}
-
 	ret := b.bizDbModel2Pb(line)
 	return &pb.QueryBizInfoRsp{Line: ret}, nil
+}
+
+func (b *BatchJob) queryBizInfoByCache(ctx context.Context, bizId int) (*batch_job_biz.Model, error) {
+	key := module.CacheKey.GetBizInfo(bizId)
+	ret := &batch_job_biz.Model{}
+	err := cache.GetDefCache().Get(ctx, key, ret, cache.WithLoadFn(func(ctx context.Context, key string) (interface{}, error) {
+		v, err := batch_job_biz.GetOneByBizId(ctx, bizId)
+		if err == sqlx.ErrNoRows {
+			return nil, nil
+		}
+		return v, err
+	}), cache.WithExpire(conf.Conf.BizInfoCacheTtl))
+	return ret, err
 }
 
 // 查询业务列表
@@ -96,12 +113,28 @@ func (b *BatchJob) QueryBizList(ctx context.Context, req *pb.QueryBizListReq) (*
 	where["_orderby"] = "biz_id desc"
 	where["_limit"] = []uint{uint(page-1) * uint(pageSize), uint(pageSize)}
 
-	lines, err := batch_job_biz.MultiGet(ctx, where)
+	// 获取id列表
+	ids, err := batch_job_biz.MultiGetBizId(ctx, where)
 	if err != nil {
-		logger.Error(ctx, "QueryBizList call batch_job_biz.MultiGet", zap.Error(err))
+		logger.Error(ctx, "QueryBizList call batch_job_biz.MultiGetBizId", zap.Error(err))
 		return nil, err
 	}
 
+	// 批量获取数据
+	lines, err := utils.GoQuery(ids, func(id uint) (*batch_job_biz.Model, error) {
+		line, err := b.queryBizInfoByCache(ctx, int(id))
+		if err != nil {
+			logger.Error(ctx, "QueryBizList call queryBizInfoByCache fail.", zap.Uint("id", id), zap.Error(err))
+			return nil, err
+		}
+		return line, nil
+	}, true)
+	if err != nil {
+		logger.Error(ctx, "QueryBizList call query fail.", zap.Error(err))
+		return nil, err
+	}
+
+	// 数据转换
 	ret := make([]*pb.BizInfoByListA, 0, len(lines))
 	for _, line := range lines {
 		ret = append(ret, b.bizDbModel2ListPb(line))
@@ -155,41 +188,40 @@ func (*BatchJob) bizDbModel2ListPb(line *batch_job_biz.Model) *pb.BizInfoByListA
 
 // 查询任务基本信息
 func (b *BatchJob) QueryJobInfo(ctx context.Context, req *pb.QueryJobInfoReq) (*pb.QueryJobInfoRsp, error) {
-	var line *batch_job_list.Model
-	var err error
-
-	if req.GetNeedOpHistory() {
-		line, err = batch_job_list.GetOneByJobId(ctx, int(req.GetJobId()))
-		if err != nil {
-			logger.Error(ctx, "QueryJobBaseInfo call batch_job_list.GetOneByJobId fail.", zap.Error(err))
-			return nil, err
-		}
-	} else {
-		line, err = batch_job_list.GetOneBaseInfoByJobId(ctx, int(req.GetJobId()))
-		if err != nil {
-			logger.Error(ctx, "QueryJobBaseInfo call batch_job_list.GetOneBaseInfoByJobId fail.", zap.Error(err))
-			return nil, err
-		}
+	line, err := b.queryJobInfoByCache(ctx, int(req.GetJobId()))
+	if err != nil {
+		logger.Error(ctx, "QueryJobInfo call queryJobInfoByCache fail.", zap.Error(err))
+		return nil, err
 	}
-
 	ret := b.jobDbModel2Pb(line)
 	return &pb.QueryJobInfoRsp{Line: ret}, nil
+}
+func (b *BatchJob) queryJobInfoByCache(ctx context.Context, jobId int) (*batch_job_list.Model, error) {
+	key := module.CacheKey.GetJobInfo(jobId)
+	ret := &batch_job_list.Model{}
+	err := cache.GetDefCache().Get(ctx, key, ret, cache.WithLoadFn(func(ctx context.Context, key string) (interface{}, error) {
+		v, err := batch_job_list.GetOneByJobId(ctx, jobId)
+		if err == sqlx.ErrNoRows {
+			return nil, nil
+		}
+		return v, err
+	}), cache.WithExpire(conf.Conf.JobInfoCacheTtl))
+	return ret, err
 }
 
 // 查询任务列表
 func (b *BatchJob) QueryJobList(ctx context.Context, req *pb.QueryJobListReq) (*pb.QueryJobListRsp, error) {
 	where := map[string]interface{}{}
-	if req.GetBizId() == 0 {
-		return nil, nil
+	if req.GetBizId() > 0 {
+		where["biz_id"] = req.GetBizId()
 	}
-	where["biz_id"] = req.GetBizId()
 	switch req.GetStatus() {
+	case pb.JobStatusQ_JobStatusQ_Created:
+		where["status in"] = []int{int(pb.JobStatus_JobStatus_Created), int(pb.JobStatus_JobStatus_Stopped)}
 	case pb.JobStatusQ_JobStatusQ_Running:
 		where["status in"] = []int{int(pb.JobStatus_JobStatus_Running), int(pb.JobStatus_JobStatus_WaitBizRun), int(pb.JobStatus_JobStatus_Stopping)}
 	case pb.JobStatusQ_JobStatusQ_Finished:
 		where["status in"] = []int{int(pb.JobStatus_JobStatus_Finished)}
-	default:
-		where["status in"] = []int{int(pb.JobStatus_JobStatus_Created), int(pb.JobStatus_JobStatus_Stopped)}
 	}
 	if req.GetStartTime() > 0 {
 		where["_or_start_time"] = []map[string]interface{}{
@@ -234,12 +266,28 @@ func (b *BatchJob) QueryJobList(ctx context.Context, req *pb.QueryJobListReq) (*
 	where["_orderby"] = "update_time desc"
 	where["_limit"] = []uint{uint(page-1) * uint(pageSize), uint(pageSize)}
 
-	lines, err := batch_job_list.MultiGet(ctx, where)
+	// 获取id列表
+	ids, err := batch_job_list.MultiGetJobId(ctx, where)
 	if err != nil {
-		logger.Error(ctx, "QueryJobList call batch_job_list.MultiGet", zap.Error(err))
+		logger.Error(ctx, "QueryJobList call batch_job_list.MultiGetJobId", zap.Error(err))
 		return nil, err
 	}
 
+	// 批量获取数据
+	lines, err := utils.GoQuery(ids, func(id uint) (*batch_job_list.Model, error) {
+		line, err := b.queryJobInfoByCache(ctx, int(id))
+		if err != nil {
+			logger.Error(ctx, "QueryJobList call queryJobInfoByCache fail.", zap.Uint("id", id), zap.Error(err))
+			return nil, err
+		}
+		return line, nil
+	}, true)
+	if err != nil {
+		logger.Error(ctx, "QueryJobList call query fail.", zap.Error(err))
+		return nil, err
+	}
+
+	// 数据转换
 	ret := make([]*pb.JobInfoByListA, 0, len(lines))
 	for _, line := range lines {
 		ret = append(ret, b.jobDbModel2ListPb(line))
@@ -258,8 +306,8 @@ func (b *BatchJob) QueryJobList(ctx context.Context, req *pb.QueryJobListReq) (*
 // 批量渲染运行中任务进度
 func (*BatchJob) batchRenderRunningJobProcess(ctx context.Context, ret []*pb.JobInfoByListA) error {
 	lines := make([]*pb.JobInfoByListA, 0, len(ret))
-	ps := make([]*redis.StringCmd, 0, len(ret))
-	es := make([]*redis.StringCmd, 0, len(ret))
+	ps := make([]*redis.StringCmd, 0, len(ret)) // 任务进度
+	es := make([]*redis.StringCmd, 0, len(ret)) // 错误数
 
 	pipe := db.GetRedis().Pipeline()
 	for _, l := range ret {
@@ -270,8 +318,8 @@ func (*BatchJob) batchRenderRunningJobProcess(ctx context.Context, ret []*pb.Job
 		}
 
 		lines = append(lines, l)
-		ps = append(ps, pipe.Get(ctx, module.Job.GenProgressCacheKey(int(l.JobId))))
-		es = append(es, pipe.Get(ctx, module.Job.GenErrCountCacheKey(int(l.JobId))))
+		ps = append(ps, pipe.Get(ctx, module.CacheKey.GetProcessedCount(int(l.JobId))))
+		es = append(es, pipe.Get(ctx, module.CacheKey.GetErrCount(int(l.JobId))))
 	}
 	_, err := pipe.Exec(ctx)
 	if err != nil && err != redis.Nil {
@@ -337,6 +385,47 @@ func (*BatchJob) jobDbModel2ListPb(line *batch_job_list.Model) *pb.JobInfoByList
 		StatusInfo: line.StatusInfo,
 	}
 	return ret
+}
+
+// 查询任务状态信息, 用于获取运行中的任务的变化数据
+func (b *BatchJob) QueryJobStateInfo(ctx context.Context, req *pb.QueryJobStateInfoReq) (*pb.QueryJobStateInfoRsp, error) {
+	// 批量获取数据
+	lines, err := utils.GoQuery(req.GetJobIds(), func(id int64) (*batch_job_list.Model, error) {
+		line, err := b.queryJobInfoByCache(ctx, int(id))
+		if err != nil {
+			logger.Error(ctx, "QueryJobStateInfo call queryJobInfoByCache fail.", zap.Int64("id", id), zap.Error(err))
+			return nil, err
+		}
+		return line, nil
+	}, true)
+	if err != nil {
+		logger.Error(ctx, "QueryJobStateInfo call query fail.", zap.Error(err))
+		return nil, err
+	}
+
+	// 数据转换
+	ret := make([]*pb.JobInfoByListA, 0, len(lines))
+	for _, line := range lines {
+		ret = append(ret, b.jobDbModel2ListPb(line))
+	}
+
+	// 对于运行中的任务, 对进度和错误数需要从redis获取
+	_ = b.batchRenderRunningJobProcess(ctx, ret)
+
+	// 输出转换
+	out := make([]*pb.JobStateInfo, 0, len(ret))
+	for _, r := range ret {
+		out = append(out, &pb.JobStateInfo{
+			JobId:            r.GetJobId(),
+			ProcessDataTotal: r.GetProcessDataTotal(),
+			ProcessedCount:   r.GetProcessedCount(),
+			ErrLogCount:      r.GetErrLogCount(),
+			Status:           r.GetStatus(),
+			Op:               r.GetOp(),
+			StatusInfo:       r.GetStatusInfo(),
+		})
+	}
+	return &pb.QueryJobStateInfoRsp{JobStateInfos: out}, nil
 }
 
 // 查询任务的数据日志

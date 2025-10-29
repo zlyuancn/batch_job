@@ -37,6 +37,7 @@ func CreateOneModel(ctx context.Context, v *Model) (int64, error) {
 
 	var data []map[string]any
 	data = append(data, map[string]any{
+		"biz_id":           v.BizId,
 		"biz_name":         v.BizName,
 		"exec_type":        v.ExecType,
 		"exec_extend_data": v.ExecExtendData,
