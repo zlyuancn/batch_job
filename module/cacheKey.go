@@ -30,7 +30,17 @@ func (*cacheKeyCli) GetErrCount(jobId int) string {
 	return conf.Conf.JobErrLogCountKeyPrefix + strconv.Itoa(jobId)
 }
 
-// 生成已完成数缓存key
+// 已完成数缓存key
 func (*cacheKeyCli) GetProcessedCount(jobId int) string {
 	return conf.Conf.JobProcessedCountKeyPrefix + strconv.Itoa(jobId)
+}
+
+// 停止标记key
+func (*cacheKeyCli) GetStopFlag(jobId int) string {
+	return conf.Conf.JobStopFlagPrefix + strconv.Itoa(jobId)
+}
+
+// 任务启动前回调锁key
+func (*cacheKeyCli) GetJobBeforeRunLock(jobId int) string {
+	return conf.Conf.JobBeforeRunLockKeyPrefix + strconv.Itoa(jobId)
 }

@@ -2,7 +2,6 @@ package module
 
 import (
 	"context"
-	"strconv"
 	"time"
 
 	"github.com/zly-app/component/redis"
@@ -19,9 +18,9 @@ var Job = &jobCli{}
 
 type jobCli struct{}
 
-// 写入停止标记
+// 写入或删除停止标记
 func (*jobCli) SetStopFlag(ctx context.Context, jobId int, flag bool) error {
-	key := conf.Conf.JobStopFlagPrefix + strconv.Itoa(jobId)
+	key := CacheKey.GetStopFlag(jobId)
 	var err error
 	if flag {
 		err = db.GetRedis().Set(ctx, key, "1", time.Duration(conf.Conf.JobStopFlagTtl)*time.Second).Err()
@@ -33,7 +32,7 @@ func (*jobCli) SetStopFlag(ctx context.Context, jobId int, flag bool) error {
 
 // 获取停止标记
 func (*jobCli) GetStopFlag(ctx context.Context, jobId int) (bool, error) {
-	key := conf.Conf.JobStopFlagPrefix + strconv.Itoa(jobId)
+	key := CacheKey.GetStopFlag(jobId)
 	v, err := db.GetRedis().Get(ctx, key).Result()
 	if err == redis.Nil {
 		return false, nil
@@ -60,7 +59,7 @@ func (j *jobCli) LoadCacheProgress(ctx context.Context, jobId int) (int64, bool,
 }
 
 // 从redis加载错误计数, 对于服务突然宕机, 进度是不会写入到db中, 而运行中的任务的实际进度都应该以redis为准
-func (j *jobCli) LoadCacheErrCount(ctx context.Context, jobId int) (int64, bool, error) {
+func (*jobCli) LoadCacheErrCount(ctx context.Context, jobId int) (int64, bool, error) {
 	key := CacheKey.GetErrCount(jobId)
 	p, err := db.GetRedis().Get(ctx, key).Int64()
 	if err == redis.Nil { // redis没有记录数据, 以db数据为准
@@ -71,6 +70,13 @@ func (j *jobCli) LoadCacheErrCount(ctx context.Context, jobId int) (int64, bool,
 	}
 
 	return p, true, nil
+}
+
+// 增加错误计数到redis中
+func (*jobCli) IncrCacheErrCount(ctx context.Context, jobId int, num int64) (int64, error) {
+	key := CacheKey.GetErrCount(jobId)
+	p, err := db.GetRedis().IncrBy(ctx, key, num).Result()
+	return p, err
 }
 
 // 获取错误数

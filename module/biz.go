@@ -27,7 +27,7 @@ type Business interface {
 	// 创建业务回调
 	BeforeCreateAndChange(ctx context.Context, args *pb.JobBeforeCreateAndChangeReq) error
 	// 业务启动前回调
-	BeforeRun(ctx context.Context, jobInfo *batch_job_list.Model)
+	BeforeRun(ctx context.Context, jobInfo *batch_job_list.Model, authCode string)
 	/*处理任务回调
 
 	jobInfo 任务信息

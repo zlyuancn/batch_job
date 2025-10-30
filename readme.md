@@ -90,7 +90,7 @@ participant e as redis
 opt 业务启动批量任务
 f ->> b: 业务启动批量任务
 b -->> d: 获取任务信息
-alt 对于非 等待业务主动启动
+alt 对于非 等待业务主动启动 状态的任务
   b ->> f: err
 end
 

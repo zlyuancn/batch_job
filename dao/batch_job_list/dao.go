@@ -202,12 +202,12 @@ func Count(ctx context.Context, where map[string]any) (int64, error) {
 	return ret, nil
 }
 
-func ChangeJob(ctx context.Context, v *Model, whereStatus byte) (int64, error) {
+func AdminUpdateJob(ctx context.Context, v *Model, whereStatus byte) (int64, error) {
 	if v == nil {
-		return 0, errors.New("UpdateOneModel v is empty")
+		return 0, errors.New("AdminUpdateJob v is empty")
 	}
-	if v.BizId == 0 {
-		return 0, errors.New("UpdateOneModel BizId is empty")
+	if v.JobID == 0 {
+		return 0, errors.New("AdminUpdateJob JobID is empty")
 	}
 	const cond = `
 update batch_job_list
@@ -244,14 +244,56 @@ limit 1;`
 	}
 	result, err := db.GetSqlx().Exec(ctx, cond, vals...)
 	if nil != err {
-		logger.Error(ctx, "UpdateOneModelWhereStatus fail.", zap.String("cond", cond), zap.Any("vals", vals), zap.Error(err))
+		logger.Error(ctx, "AdminUpdateJob call Exec fail.", zap.String("cond", cond), zap.Any("vals", vals), zap.Error(err))
+		return 0, err
+	}
+	return result.RowsAffected()
+}
+
+func BizUpdateJob(ctx context.Context, v *Model, whereStatus byte) (int64, error) {
+	if v == nil {
+		return 0, errors.New("BizUpdateJob v is empty")
+	}
+	if v.JobID == 0 {
+		return 0, errors.New("BizUpdateJob JobID is empty")
+	}
+	const cond = `
+update batch_job_list
+set 
+    job_data=?,
+    process_data_total=?,
+    processed_count=?,
+    update_time=now(),
+    op_source=?,
+    op_user_id=?,
+    op_user_name=?,
+    op_remark=?,
+    status_info=?
+where job_id = ?
+    and status = ?
+limit 1;`
+	vals := []interface{}{
+		v.JobData,
+		v.ProcessDataTotal,
+		v.ProcessedCount,
+		v.OpSource,
+		v.OpUserID,
+		v.OpUserName,
+		v.OpRemark,
+		v.StatusInfo,
+		v.JobID,
+		whereStatus,
+	}
+	result, err := db.GetSqlx().Exec(ctx, cond, vals...)
+	if nil != err {
+		logger.Error(ctx, "BizUpdateJob call Exec fail.", zap.String("cond", cond), zap.Any("vals", vals), zap.Error(err))
 		return 0, err
 	}
 	return result.RowsAffected()
 }
 
 // 仅更新状态和操作人相关信息
-func UpdateStatus(ctx context.Context, v *Model) (int64, error) {
+func UpdateStatus(ctx context.Context, v *Model, whereStatus byte) (int64, error) {
 	if v == nil {
 		return 0, errors.New("UpdateStatus v is empty")
 	}
@@ -269,6 +311,7 @@ set
     last_op_remark=?,
     status_info=?
 where job_id = ?
+    and status = ?
 limit 1;`
 	vals := []interface{}{
 		v.Status,
@@ -278,6 +321,7 @@ limit 1;`
 		v.OpRemark,
 		v.StatusInfo,
 		v.JobID,
+		whereStatus,
 	}
 	result, err := db.GetSqlx().Exec(ctx, cond, vals...)
 	if nil != err {

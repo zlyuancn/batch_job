@@ -43,7 +43,7 @@ func (h *httpCallbackBiz) BeforeCreateAndChange(ctx context.Context, args *pb.Jo
 	return nil
 }
 
-func (h *httpCallbackBiz) BeforeRun(ctx context.Context, jobInfo *batch_job_list.Model) {
+func (h *httpCallbackBiz) BeforeRun(ctx context.Context, jobInfo *batch_job_list.Model, authCode string) {
 	if h.ExecExtendData.GetHttpCallback().GetCbBeforeRun() == "" {
 		return
 	}
@@ -56,6 +56,7 @@ func (h *httpCallbackBiz) BeforeRun(ctx context.Context, jobInfo *batch_job_list
 		JobData:          jobInfo.JobData,
 		ProcessDataTotal: int64(jobInfo.ProcessDataTotal),
 		ProcessedCount:   int64(jobInfo.ProcessedCount),
+		AuthCode:         authCode,
 	}
 	_ = args
 

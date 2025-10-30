@@ -3,6 +3,7 @@ module github.com/zlyuancn/batch_job
 go 1.25.0
 
 require (
+	github.com/bytedance/gopkg v0.1.3
 	github.com/bytedance/sonic v1.14.1
 	github.com/didi/gendry v1.9.0
 	github.com/envoyproxy/protoc-gen-validate v1.2.1
@@ -33,7 +34,6 @@ require (
 	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/aymerick/raymond v2.0.3-0.20180322193309-b565731e1464+incompatible // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
-	github.com/bytedance/gopkg v0.1.3 // indirect
 	github.com/bytedance/sonic/loader v0.3.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/chris-ramon/douceur v0.2.0 // indirect
@@ -113,7 +113,7 @@ require (
 	github.com/yosssi/ace v0.0.5 // indirect
 	github.com/yusufpapurcu/wmi v1.2.3 // indirect
 	github.com/zly-app/component/http v0.0.0-20240730094824-85f48a26539c // indirect
-	github.com/zly-app/honey v0.2.10 // indirect
+	github.com/zly-app/honey v0.2.11 // indirect
 	github.com/zly-app/plugin/honey v0.2.7 // indirect
 	github.com/zly-app/plugin/pprof v0.0.0-20240404071939-b8be0d638d18 // indirect
 	github.com/zly-app/plugin/prometheus v0.0.0-20240724082005-93fa813d2442 // indirect

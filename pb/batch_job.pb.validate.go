@@ -936,22 +936,22 @@ var _ interface {
 	ErrorName() string
 } = AdminRegistryBizRspValidationError{}
 
-// Validate checks the field values on AdminChangeBizReq with the rules defined
+// Validate checks the field values on AdminUpdateBizReq with the rules defined
 // in the proto definition for this message. If any rules are violated, the
 // first error encountered is returned, or nil if there are no violations.
-func (m *AdminChangeBizReq) Validate() error {
+func (m *AdminUpdateBizReq) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on AdminChangeBizReq with the rules
+// ValidateAll checks the field values on AdminUpdateBizReq with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// AdminChangeBizReqMultiError, or nil if none found.
-func (m *AdminChangeBizReq) ValidateAll() error {
+// AdminUpdateBizReqMultiError, or nil if none found.
+func (m *AdminUpdateBizReq) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *AdminChangeBizReq) validate(all bool) error {
+func (m *AdminUpdateBizReq) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -959,7 +959,7 @@ func (m *AdminChangeBizReq) validate(all bool) error {
 	var errors []error
 
 	if m.GetBizId() <= 0 {
-		err := AdminChangeBizReqValidationError{
+		err := AdminUpdateBizReqValidationError{
 			field:  "BizId",
 			reason: "value must be greater than 0",
 		}
@@ -970,7 +970,7 @@ func (m *AdminChangeBizReq) validate(all bool) error {
 	}
 
 	if utf8.RuneCountInString(m.GetBizName()) < 1 {
-		err := AdminChangeBizReqValidationError{
+		err := AdminUpdateBizReqValidationError{
 			field:  "BizName",
 			reason: "value length must be at least 1 runes",
 		}
@@ -988,7 +988,7 @@ func (m *AdminChangeBizReq) validate(all bool) error {
 		switch v := interface{}(m.GetExecExtendData()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, AdminChangeBizReqValidationError{
+				errors = append(errors, AdminUpdateBizReqValidationError{
 					field:  "ExecExtendData",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -996,7 +996,7 @@ func (m *AdminChangeBizReq) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, AdminChangeBizReqValidationError{
+				errors = append(errors, AdminUpdateBizReqValidationError{
 					field:  "ExecExtendData",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -1005,7 +1005,7 @@ func (m *AdminChangeBizReq) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetExecExtendData()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return AdminChangeBizReqValidationError{
+			return AdminUpdateBizReqValidationError{
 				field:  "ExecExtendData",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -1017,7 +1017,7 @@ func (m *AdminChangeBizReq) validate(all bool) error {
 		switch v := interface{}(m.GetOp()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, AdminChangeBizReqValidationError{
+				errors = append(errors, AdminUpdateBizReqValidationError{
 					field:  "Op",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -1025,7 +1025,7 @@ func (m *AdminChangeBizReq) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, AdminChangeBizReqValidationError{
+				errors = append(errors, AdminUpdateBizReqValidationError{
 					field:  "Op",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -1034,7 +1034,7 @@ func (m *AdminChangeBizReq) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetOp()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return AdminChangeBizReqValidationError{
+			return AdminUpdateBizReqValidationError{
 				field:  "Op",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -1045,19 +1045,19 @@ func (m *AdminChangeBizReq) validate(all bool) error {
 	// no validation rules for Status
 
 	if len(errors) > 0 {
-		return AdminChangeBizReqMultiError(errors)
+		return AdminUpdateBizReqMultiError(errors)
 	}
 
 	return nil
 }
 
-// AdminChangeBizReqMultiError is an error wrapping multiple validation errors
-// returned by AdminChangeBizReq.ValidateAll() if the designated constraints
+// AdminUpdateBizReqMultiError is an error wrapping multiple validation errors
+// returned by AdminUpdateBizReq.ValidateAll() if the designated constraints
 // aren't met.
-type AdminChangeBizReqMultiError []error
+type AdminUpdateBizReqMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m AdminChangeBizReqMultiError) Error() string {
+func (m AdminUpdateBizReqMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -1066,11 +1066,11 @@ func (m AdminChangeBizReqMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m AdminChangeBizReqMultiError) AllErrors() []error { return m }
+func (m AdminUpdateBizReqMultiError) AllErrors() []error { return m }
 
-// AdminChangeBizReqValidationError is the validation error returned by
-// AdminChangeBizReq.Validate if the designated constraints aren't met.
-type AdminChangeBizReqValidationError struct {
+// AdminUpdateBizReqValidationError is the validation error returned by
+// AdminUpdateBizReq.Validate if the designated constraints aren't met.
+type AdminUpdateBizReqValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -1078,24 +1078,24 @@ type AdminChangeBizReqValidationError struct {
 }
 
 // Field function returns field value.
-func (e AdminChangeBizReqValidationError) Field() string { return e.field }
+func (e AdminUpdateBizReqValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e AdminChangeBizReqValidationError) Reason() string { return e.reason }
+func (e AdminUpdateBizReqValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e AdminChangeBizReqValidationError) Cause() error { return e.cause }
+func (e AdminUpdateBizReqValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e AdminChangeBizReqValidationError) Key() bool { return e.key }
+func (e AdminUpdateBizReqValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e AdminChangeBizReqValidationError) ErrorName() string {
-	return "AdminChangeBizReqValidationError"
+func (e AdminUpdateBizReqValidationError) ErrorName() string {
+	return "AdminUpdateBizReqValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e AdminChangeBizReqValidationError) Error() string {
+func (e AdminUpdateBizReqValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -1107,14 +1107,14 @@ func (e AdminChangeBizReqValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sAdminChangeBizReq.%s: %s%s",
+		"invalid %sAdminUpdateBizReq.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = AdminChangeBizReqValidationError{}
+var _ error = AdminUpdateBizReqValidationError{}
 
 var _ interface {
 	Field() string
@@ -1122,24 +1122,24 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = AdminChangeBizReqValidationError{}
+} = AdminUpdateBizReqValidationError{}
 
-// Validate checks the field values on AdminChangeBizRsp with the rules defined
+// Validate checks the field values on AdminUpdateBizRsp with the rules defined
 // in the proto definition for this message. If any rules are violated, the
 // first error encountered is returned, or nil if there are no violations.
-func (m *AdminChangeBizRsp) Validate() error {
+func (m *AdminUpdateBizRsp) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on AdminChangeBizRsp with the rules
+// ValidateAll checks the field values on AdminUpdateBizRsp with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// AdminChangeBizRspMultiError, or nil if none found.
-func (m *AdminChangeBizRsp) ValidateAll() error {
+// AdminUpdateBizRspMultiError, or nil if none found.
+func (m *AdminUpdateBizRsp) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *AdminChangeBizRsp) validate(all bool) error {
+func (m *AdminUpdateBizRsp) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -1147,19 +1147,19 @@ func (m *AdminChangeBizRsp) validate(all bool) error {
 	var errors []error
 
 	if len(errors) > 0 {
-		return AdminChangeBizRspMultiError(errors)
+		return AdminUpdateBizRspMultiError(errors)
 	}
 
 	return nil
 }
 
-// AdminChangeBizRspMultiError is an error wrapping multiple validation errors
-// returned by AdminChangeBizRsp.ValidateAll() if the designated constraints
+// AdminUpdateBizRspMultiError is an error wrapping multiple validation errors
+// returned by AdminUpdateBizRsp.ValidateAll() if the designated constraints
 // aren't met.
-type AdminChangeBizRspMultiError []error
+type AdminUpdateBizRspMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m AdminChangeBizRspMultiError) Error() string {
+func (m AdminUpdateBizRspMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -1168,11 +1168,11 @@ func (m AdminChangeBizRspMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m AdminChangeBizRspMultiError) AllErrors() []error { return m }
+func (m AdminUpdateBizRspMultiError) AllErrors() []error { return m }
 
-// AdminChangeBizRspValidationError is the validation error returned by
-// AdminChangeBizRsp.Validate if the designated constraints aren't met.
-type AdminChangeBizRspValidationError struct {
+// AdminUpdateBizRspValidationError is the validation error returned by
+// AdminUpdateBizRsp.Validate if the designated constraints aren't met.
+type AdminUpdateBizRspValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -1180,24 +1180,24 @@ type AdminChangeBizRspValidationError struct {
 }
 
 // Field function returns field value.
-func (e AdminChangeBizRspValidationError) Field() string { return e.field }
+func (e AdminUpdateBizRspValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e AdminChangeBizRspValidationError) Reason() string { return e.reason }
+func (e AdminUpdateBizRspValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e AdminChangeBizRspValidationError) Cause() error { return e.cause }
+func (e AdminUpdateBizRspValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e AdminChangeBizRspValidationError) Key() bool { return e.key }
+func (e AdminUpdateBizRspValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e AdminChangeBizRspValidationError) ErrorName() string {
-	return "AdminChangeBizRspValidationError"
+func (e AdminUpdateBizRspValidationError) ErrorName() string {
+	return "AdminUpdateBizRspValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e AdminChangeBizRspValidationError) Error() string {
+func (e AdminUpdateBizRspValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -1209,14 +1209,14 @@ func (e AdminChangeBizRspValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sAdminChangeBizRsp.%s: %s%s",
+		"invalid %sAdminUpdateBizRsp.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = AdminChangeBizRspValidationError{}
+var _ error = AdminUpdateBizRspValidationError{}
 
 var _ interface {
 	Field() string
@@ -1224,7 +1224,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = AdminChangeBizRspValidationError{}
+} = AdminUpdateBizRspValidationError{}
 
 // Validate checks the field values on OpInfoQ with the rules defined in the
 // proto definition for this message. If any rules are violated, the first
@@ -2686,22 +2686,22 @@ var _ interface {
 	ErrorName() string
 } = AdminCreateJobRspValidationError{}
 
-// Validate checks the field values on AdminChangeJobReq with the rules defined
+// Validate checks the field values on AdminUpdateJobReq with the rules defined
 // in the proto definition for this message. If any rules are violated, the
 // first error encountered is returned, or nil if there are no violations.
-func (m *AdminChangeJobReq) Validate() error {
+func (m *AdminUpdateJobReq) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on AdminChangeJobReq with the rules
+// ValidateAll checks the field values on AdminUpdateJobReq with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// AdminChangeJobReqMultiError, or nil if none found.
-func (m *AdminChangeJobReq) ValidateAll() error {
+// AdminUpdateJobReqMultiError, or nil if none found.
+func (m *AdminUpdateJobReq) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *AdminChangeJobReq) validate(all bool) error {
+func (m *AdminUpdateJobReq) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -2724,7 +2724,7 @@ func (m *AdminChangeJobReq) validate(all bool) error {
 		switch v := interface{}(m.GetOp()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, AdminChangeJobReqValidationError{
+				errors = append(errors, AdminUpdateJobReqValidationError{
 					field:  "Op",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -2732,7 +2732,7 @@ func (m *AdminChangeJobReq) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, AdminChangeJobReqValidationError{
+				errors = append(errors, AdminUpdateJobReqValidationError{
 					field:  "Op",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -2741,7 +2741,7 @@ func (m *AdminChangeJobReq) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetOp()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return AdminChangeJobReqValidationError{
+			return AdminUpdateJobReqValidationError{
 				field:  "Op",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -2752,19 +2752,19 @@ func (m *AdminChangeJobReq) validate(all bool) error {
 	// no validation rules for JobId
 
 	if len(errors) > 0 {
-		return AdminChangeJobReqMultiError(errors)
+		return AdminUpdateJobReqMultiError(errors)
 	}
 
 	return nil
 }
 
-// AdminChangeJobReqMultiError is an error wrapping multiple validation errors
-// returned by AdminChangeJobReq.ValidateAll() if the designated constraints
+// AdminUpdateJobReqMultiError is an error wrapping multiple validation errors
+// returned by AdminUpdateJobReq.ValidateAll() if the designated constraints
 // aren't met.
-type AdminChangeJobReqMultiError []error
+type AdminUpdateJobReqMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m AdminChangeJobReqMultiError) Error() string {
+func (m AdminUpdateJobReqMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -2773,11 +2773,11 @@ func (m AdminChangeJobReqMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m AdminChangeJobReqMultiError) AllErrors() []error { return m }
+func (m AdminUpdateJobReqMultiError) AllErrors() []error { return m }
 
-// AdminChangeJobReqValidationError is the validation error returned by
-// AdminChangeJobReq.Validate if the designated constraints aren't met.
-type AdminChangeJobReqValidationError struct {
+// AdminUpdateJobReqValidationError is the validation error returned by
+// AdminUpdateJobReq.Validate if the designated constraints aren't met.
+type AdminUpdateJobReqValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -2785,24 +2785,24 @@ type AdminChangeJobReqValidationError struct {
 }
 
 // Field function returns field value.
-func (e AdminChangeJobReqValidationError) Field() string { return e.field }
+func (e AdminUpdateJobReqValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e AdminChangeJobReqValidationError) Reason() string { return e.reason }
+func (e AdminUpdateJobReqValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e AdminChangeJobReqValidationError) Cause() error { return e.cause }
+func (e AdminUpdateJobReqValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e AdminChangeJobReqValidationError) Key() bool { return e.key }
+func (e AdminUpdateJobReqValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e AdminChangeJobReqValidationError) ErrorName() string {
-	return "AdminChangeJobReqValidationError"
+func (e AdminUpdateJobReqValidationError) ErrorName() string {
+	return "AdminUpdateJobReqValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e AdminChangeJobReqValidationError) Error() string {
+func (e AdminUpdateJobReqValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -2814,14 +2814,14 @@ func (e AdminChangeJobReqValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sAdminChangeJobReq.%s: %s%s",
+		"invalid %sAdminUpdateJobReq.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = AdminChangeJobReqValidationError{}
+var _ error = AdminUpdateJobReqValidationError{}
 
 var _ interface {
 	Field() string
@@ -2829,24 +2829,24 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = AdminChangeJobReqValidationError{}
+} = AdminUpdateJobReqValidationError{}
 
-// Validate checks the field values on AdminChangeJobRsp with the rules defined
+// Validate checks the field values on AdminUpdateJobRsp with the rules defined
 // in the proto definition for this message. If any rules are violated, the
 // first error encountered is returned, or nil if there are no violations.
-func (m *AdminChangeJobRsp) Validate() error {
+func (m *AdminUpdateJobRsp) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on AdminChangeJobRsp with the rules
+// ValidateAll checks the field values on AdminUpdateJobRsp with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// AdminChangeJobRspMultiError, or nil if none found.
-func (m *AdminChangeJobRsp) ValidateAll() error {
+// AdminUpdateJobRspMultiError, or nil if none found.
+func (m *AdminUpdateJobRsp) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *AdminChangeJobRsp) validate(all bool) error {
+func (m *AdminUpdateJobRsp) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -2854,19 +2854,19 @@ func (m *AdminChangeJobRsp) validate(all bool) error {
 	var errors []error
 
 	if len(errors) > 0 {
-		return AdminChangeJobRspMultiError(errors)
+		return AdminUpdateJobRspMultiError(errors)
 	}
 
 	return nil
 }
 
-// AdminChangeJobRspMultiError is an error wrapping multiple validation errors
-// returned by AdminChangeJobRsp.ValidateAll() if the designated constraints
+// AdminUpdateJobRspMultiError is an error wrapping multiple validation errors
+// returned by AdminUpdateJobRsp.ValidateAll() if the designated constraints
 // aren't met.
-type AdminChangeJobRspMultiError []error
+type AdminUpdateJobRspMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m AdminChangeJobRspMultiError) Error() string {
+func (m AdminUpdateJobRspMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -2875,11 +2875,11 @@ func (m AdminChangeJobRspMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m AdminChangeJobRspMultiError) AllErrors() []error { return m }
+func (m AdminUpdateJobRspMultiError) AllErrors() []error { return m }
 
-// AdminChangeJobRspValidationError is the validation error returned by
-// AdminChangeJobRsp.Validate if the designated constraints aren't met.
-type AdminChangeJobRspValidationError struct {
+// AdminUpdateJobRspValidationError is the validation error returned by
+// AdminUpdateJobRsp.Validate if the designated constraints aren't met.
+type AdminUpdateJobRspValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -2887,24 +2887,24 @@ type AdminChangeJobRspValidationError struct {
 }
 
 // Field function returns field value.
-func (e AdminChangeJobRspValidationError) Field() string { return e.field }
+func (e AdminUpdateJobRspValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e AdminChangeJobRspValidationError) Reason() string { return e.reason }
+func (e AdminUpdateJobRspValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e AdminChangeJobRspValidationError) Cause() error { return e.cause }
+func (e AdminUpdateJobRspValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e AdminChangeJobRspValidationError) Key() bool { return e.key }
+func (e AdminUpdateJobRspValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e AdminChangeJobRspValidationError) ErrorName() string {
-	return "AdminChangeJobRspValidationError"
+func (e AdminUpdateJobRspValidationError) ErrorName() string {
+	return "AdminUpdateJobRspValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e AdminChangeJobRspValidationError) Error() string {
+func (e AdminUpdateJobRspValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -2916,14 +2916,14 @@ func (e AdminChangeJobRspValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sAdminChangeJobRsp.%s: %s%s",
+		"invalid %sAdminUpdateJobRsp.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = AdminChangeJobRspValidationError{}
+var _ error = AdminUpdateJobRspValidationError{}
 
 var _ interface {
 	Field() string
@@ -2931,7 +2931,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = AdminChangeJobRspValidationError{}
+} = AdminUpdateJobRspValidationError{}
 
 // Validate checks the field values on AdminStartJobReq with the rules defined
 // in the proto definition for this message. If any rules are violated, the
@@ -5366,6 +5366,8 @@ func (m *BizStartJobReq) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
+	// no validation rules for Remark
+
 	if len(errors) > 0 {
 		return BizStartJobReqMultiError(errors)
 	}
@@ -5544,217 +5546,6 @@ var _ interface {
 	ErrorName() string
 } = BizStartJobRspValidationError{}
 
-// Validate checks the field values on BizStopJobReq with the rules defined in
-// the proto definition for this message. If any rules are violated, the first
-// error encountered is returned, or nil if there are no violations.
-func (m *BizStopJobReq) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on BizStopJobReq with the rules defined
-// in the proto definition for this message. If any rules are violated, the
-// result is a list of violation errors wrapped in BizStopJobReqMultiError, or
-// nil if none found.
-func (m *BizStopJobReq) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *BizStopJobReq) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	if m.GetJobId() <= 0 {
-		err := BizStopJobReqValidationError{
-			field:  "JobId",
-			reason: "value must be greater than 0",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
-
-	if len(errors) > 0 {
-		return BizStopJobReqMultiError(errors)
-	}
-
-	return nil
-}
-
-// BizStopJobReqMultiError is an error wrapping multiple validation errors
-// returned by BizStopJobReq.ValidateAll() if the designated constraints
-// aren't met.
-type BizStopJobReqMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m BizStopJobReqMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m BizStopJobReqMultiError) AllErrors() []error { return m }
-
-// BizStopJobReqValidationError is the validation error returned by
-// BizStopJobReq.Validate if the designated constraints aren't met.
-type BizStopJobReqValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e BizStopJobReqValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e BizStopJobReqValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e BizStopJobReqValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e BizStopJobReqValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e BizStopJobReqValidationError) ErrorName() string { return "BizStopJobReqValidationError" }
-
-// Error satisfies the builtin error interface
-func (e BizStopJobReqValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sBizStopJobReq.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = BizStopJobReqValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = BizStopJobReqValidationError{}
-
-// Validate checks the field values on BizStopJobRsp with the rules defined in
-// the proto definition for this message. If any rules are violated, the first
-// error encountered is returned, or nil if there are no violations.
-func (m *BizStopJobRsp) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on BizStopJobRsp with the rules defined
-// in the proto definition for this message. If any rules are violated, the
-// result is a list of violation errors wrapped in BizStopJobRspMultiError, or
-// nil if none found.
-func (m *BizStopJobRsp) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *BizStopJobRsp) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	if len(errors) > 0 {
-		return BizStopJobRspMultiError(errors)
-	}
-
-	return nil
-}
-
-// BizStopJobRspMultiError is an error wrapping multiple validation errors
-// returned by BizStopJobRsp.ValidateAll() if the designated constraints
-// aren't met.
-type BizStopJobRspMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m BizStopJobRspMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m BizStopJobRspMultiError) AllErrors() []error { return m }
-
-// BizStopJobRspValidationError is the validation error returned by
-// BizStopJobRsp.Validate if the designated constraints aren't met.
-type BizStopJobRspValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e BizStopJobRspValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e BizStopJobRspValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e BizStopJobRspValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e BizStopJobRspValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e BizStopJobRspValidationError) ErrorName() string { return "BizStopJobRspValidationError" }
-
-// Error satisfies the builtin error interface
-func (e BizStopJobRspValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sBizStopJobRsp.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = BizStopJobRspValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = BizStopJobRspValidationError{}
-
 // Validate checks the field values on BizUpdateJobDataReq with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -5790,11 +5581,11 @@ func (m *BizUpdateJobDataReq) validate(all bool) error {
 
 	// no validation rules for JobData
 
-	// no validation rules for BizCustomData
-
 	// no validation rules for ProcessDataTotal
 
 	// no validation rules for ProcessedCount
+
+	// no validation rules for Remark
 
 	if len(errors) > 0 {
 		return BizUpdateJobDataReqMultiError(errors)
@@ -5977,6 +5768,219 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = BizUpdateJobDataRspValidationError{}
+
+// Validate checks the field values on BizStopJobReq with the rules defined in
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *BizStopJobReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on BizStopJobReq with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in BizStopJobReqMultiError, or
+// nil if none found.
+func (m *BizStopJobReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *BizStopJobReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if m.GetJobId() <= 0 {
+		err := BizStopJobReqValidationError{
+			field:  "JobId",
+			reason: "value must be greater than 0",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	// no validation rules for Remark
+
+	if len(errors) > 0 {
+		return BizStopJobReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// BizStopJobReqMultiError is an error wrapping multiple validation errors
+// returned by BizStopJobReq.ValidateAll() if the designated constraints
+// aren't met.
+type BizStopJobReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m BizStopJobReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m BizStopJobReqMultiError) AllErrors() []error { return m }
+
+// BizStopJobReqValidationError is the validation error returned by
+// BizStopJobReq.Validate if the designated constraints aren't met.
+type BizStopJobReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e BizStopJobReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e BizStopJobReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e BizStopJobReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e BizStopJobReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e BizStopJobReqValidationError) ErrorName() string { return "BizStopJobReqValidationError" }
+
+// Error satisfies the builtin error interface
+func (e BizStopJobReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sBizStopJobReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = BizStopJobReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = BizStopJobReqValidationError{}
+
+// Validate checks the field values on BizStopJobRsp with the rules defined in
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *BizStopJobRsp) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on BizStopJobRsp with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in BizStopJobRspMultiError, or
+// nil if none found.
+func (m *BizStopJobRsp) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *BizStopJobRsp) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return BizStopJobRspMultiError(errors)
+	}
+
+	return nil
+}
+
+// BizStopJobRspMultiError is an error wrapping multiple validation errors
+// returned by BizStopJobRsp.ValidateAll() if the designated constraints
+// aren't met.
+type BizStopJobRspMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m BizStopJobRspMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m BizStopJobRspMultiError) AllErrors() []error { return m }
+
+// BizStopJobRspValidationError is the validation error returned by
+// BizStopJobRsp.Validate if the designated constraints aren't met.
+type BizStopJobRspValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e BizStopJobRspValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e BizStopJobRspValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e BizStopJobRspValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e BizStopJobRspValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e BizStopJobRspValidationError) ErrorName() string { return "BizStopJobRspValidationError" }
+
+// Error satisfies the builtin error interface
+func (e BizStopJobRspValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sBizStopJobRsp.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = BizStopJobRspValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = BizStopJobRspValidationError{}
 
 // Validate checks the field values on BizAddDataLogReq with the rules defined
 // in the proto definition for this message. If any rules are violated, the
@@ -6482,6 +6486,8 @@ func (m *JobBeforeRunReq) validate(all bool) error {
 	// no validation rules for ProcessDataTotal
 
 	// no validation rules for ProcessedCount
+
+	// no validation rules for AuthCode
 
 	if len(errors) > 0 {
 		return JobBeforeRunReqMultiError(errors)

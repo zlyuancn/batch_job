@@ -16,72 +16,6 @@
     "application/json"
   ],
   "paths": {
-    "/BatchJob/AdminChangeBiz": {
-      "post": {
-        "summary": "修改业务",
-        "operationId": "BatchJobService_AdminChangeBiz",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/batch_jobAdminChangeBizRsp"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/batch_jobAdminChangeBizReq"
-            }
-          }
-        ],
-        "tags": [
-          "BatchJobService"
-        ]
-      }
-    },
-    "/BatchJob/AdminChangeJob": {
-      "post": {
-        "summary": "修改任务",
-        "operationId": "BatchJobService_AdminChangeJob",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/batch_jobAdminChangeJobRsp"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/batch_jobAdminChangeJobReq"
-            }
-          }
-        ],
-        "tags": [
-          "BatchJobService"
-        ]
-      }
-    },
     "/BatchJob/AdminCreateJob": {
       "post": {
         "summary": "创建任务",
@@ -214,6 +148,72 @@
         ]
       }
     },
+    "/BatchJob/AdminUpdateBiz": {
+      "post": {
+        "summary": "修改业务",
+        "operationId": "BatchJobService_AdminUpdateBiz",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/batch_jobAdminUpdateBizRsp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/batch_jobAdminUpdateBizReq"
+            }
+          }
+        ],
+        "tags": [
+          "BatchJobService"
+        ]
+      }
+    },
+    "/BatchJob/AdminUpdateJob": {
+      "post": {
+        "summary": "修改任务",
+        "operationId": "BatchJobService_AdminUpdateJob",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/batch_jobAdminUpdateJobRsp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/batch_jobAdminUpdateJobReq"
+            }
+          }
+        ],
+        "tags": [
+          "BatchJobService"
+        ]
+      }
+    },
     "/BatchJob/BizAddDataLog": {
       "post": {
         "summary": "增加数据日志",
@@ -249,7 +249,7 @@
     },
     "/BatchJob/BizStartJob": {
       "post": {
-        "summary": "业务启动. 要求任务必须处于 JobStatus.WaitBizRun 状态",
+        "summary": "发送业务启动信号. 要求任务必须处于 JobStatus.WaitBizRun 状态",
         "operationId": "BatchJobService_BizStartJob",
         "responses": {
           "200": {
@@ -282,7 +282,7 @@
     },
     "/BatchJob/BizStopJob": {
       "post": {
-        "summary": "要求业务停止运行. 一般为业务判断任务无法继续的时候",
+        "summary": "发送停止任务信号. 一般为业务判断任务无法继续的时候",
         "operationId": "BatchJobService_BizStopJob",
         "responses": {
           "200": {
@@ -597,87 +597,6 @@
         }
       }
     },
-    "batch_jobAdminChangeBizReq": {
-      "type": "object",
-      "properties": {
-        "bizId": {
-          "type": "integer",
-          "format": "int32",
-          "title": "业务id. 必填"
-        },
-        "bizName": {
-          "type": "string",
-          "title": "业务名"
-        },
-        "remark": {
-          "type": "string",
-          "title": "备注"
-        },
-        "execType": {
-          "$ref": "#/definitions/batch_jobExecType",
-          "title": "执行类型"
-        },
-        "execExtendData": {
-          "$ref": "#/definitions/batch_jobExecExtendDataQ",
-          "title": "执行器扩展数据"
-        },
-        "op": {
-          "$ref": "#/definitions/batch_jobOpInfoQ",
-          "title": "操作信息"
-        },
-        "status": {
-          "$ref": "#/definitions/batch_jobBizStatus",
-          "title": "状态 0=正常 1=隐藏"
-        }
-      }
-    },
-    "batch_jobAdminChangeBizRsp": {
-      "type": "object"
-    },
-    "batch_jobAdminChangeJobReq": {
-      "type": "object",
-      "properties": {
-        "jobName": {
-          "type": "string",
-          "title": "任务名称"
-        },
-        "jobData": {
-          "type": "string",
-          "title": "任务数据, 让业务知道应该做什么"
-        },
-        "processDataTotal": {
-          "type": "string",
-          "format": "int64",
-          "title": "需要处理数据总数"
-        },
-        "processedCount": {
-          "type": "string",
-          "format": "int64",
-          "title": "已处理过的数据量, 无论成功还是失败"
-        },
-        "rateType": {
-          "$ref": "#/definitions/batch_jobRateType",
-          "title": "速率类型"
-        },
-        "rateSec": {
-          "type": "integer",
-          "format": "int32",
-          "title": "每秒处理速率. 0表示不限制"
-        },
-        "op": {
-          "$ref": "#/definitions/batch_jobOpInfoQ",
-          "title": "操作信息"
-        },
-        "jobId": {
-          "type": "string",
-          "format": "int64",
-          "title": "任务id"
-        }
-      }
-    },
-    "batch_jobAdminChangeJobRsp": {
-      "type": "object"
-    },
     "batch_jobAdminCreateJobReq": {
       "type": "object",
       "properties": {
@@ -806,6 +725,87 @@
     "batch_jobAdminStopJobRsp": {
       "type": "object"
     },
+    "batch_jobAdminUpdateBizReq": {
+      "type": "object",
+      "properties": {
+        "bizId": {
+          "type": "integer",
+          "format": "int32",
+          "title": "业务id. 必填"
+        },
+        "bizName": {
+          "type": "string",
+          "title": "业务名"
+        },
+        "remark": {
+          "type": "string",
+          "title": "备注"
+        },
+        "execType": {
+          "$ref": "#/definitions/batch_jobExecType",
+          "title": "执行类型"
+        },
+        "execExtendData": {
+          "$ref": "#/definitions/batch_jobExecExtendDataQ",
+          "title": "执行器扩展数据"
+        },
+        "op": {
+          "$ref": "#/definitions/batch_jobOpInfoQ",
+          "title": "操作信息"
+        },
+        "status": {
+          "$ref": "#/definitions/batch_jobBizStatus",
+          "title": "状态 0=正常 1=隐藏"
+        }
+      }
+    },
+    "batch_jobAdminUpdateBizRsp": {
+      "type": "object"
+    },
+    "batch_jobAdminUpdateJobReq": {
+      "type": "object",
+      "properties": {
+        "jobName": {
+          "type": "string",
+          "title": "任务名称"
+        },
+        "jobData": {
+          "type": "string",
+          "title": "任务数据, 让业务知道应该做什么"
+        },
+        "processDataTotal": {
+          "type": "string",
+          "format": "int64",
+          "title": "需要处理数据总数"
+        },
+        "processedCount": {
+          "type": "string",
+          "format": "int64",
+          "title": "已处理过的数据量, 无论成功还是失败"
+        },
+        "rateType": {
+          "$ref": "#/definitions/batch_jobRateType",
+          "title": "速率类型"
+        },
+        "rateSec": {
+          "type": "integer",
+          "format": "int32",
+          "title": "每秒处理速率. 0表示不限制"
+        },
+        "op": {
+          "$ref": "#/definitions/batch_jobOpInfoQ",
+          "title": "操作信息"
+        },
+        "jobId": {
+          "type": "string",
+          "format": "int64",
+          "title": "任务id"
+        }
+      }
+    },
+    "batch_jobAdminUpdateJobRsp": {
+      "type": "object"
+    },
     "batch_jobBizAddDataLogReq": {
       "type": "object",
       "properties": {
@@ -901,10 +901,18 @@
     "batch_jobBizStartJobReq": {
       "type": "object",
       "properties": {
+        "authCode": {
+          "type": "string",
+          "title": "授权码, 防止其它业务线程抢锁"
+        },
         "jobId": {
           "type": "string",
           "format": "int64",
           "title": "创建的任务id. 必填"
+        },
+        "remark": {
+          "type": "string",
+          "title": "备注"
         }
       }
     },
@@ -928,6 +936,10 @@
           "type": "string",
           "format": "int64",
           "title": "创建的任务id. 必填"
+        },
+        "remark": {
+          "type": "string",
+          "title": "备注"
         }
       }
     },
@@ -937,6 +949,10 @@
     "batch_jobBizUpdateJobDataReq": {
       "type": "object",
       "properties": {
+        "authCode": {
+          "type": "string",
+          "title": "授权码, 防止其它业务线程抢锁"
+        },
         "jobId": {
           "type": "string",
           "format": "int64",
@@ -945,10 +961,6 @@
         "jobData": {
           "type": "string",
           "title": "任务数据, 让业务知道应该做什么. 空值则不会更新这个数据"
-        },
-        "bizCustomData": {
-          "type": "string",
-          "title": "任务的自定义数据. 空值则不会更新这个数据"
         },
         "processDataTotal": {
           "type": "string",
@@ -959,6 +971,10 @@
           "type": "string",
           "format": "int64",
           "title": "已处理过的数据量, 无论成功还是失败. 空值则不会更新这个数据"
+        },
+        "remark": {
+          "type": "string",
+          "title": "备注"
         }
       }
     },

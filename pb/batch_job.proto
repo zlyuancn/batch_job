@@ -15,9 +15,9 @@ service BatchJobService{
     };
   }
   // 修改业务
-  rpc AdminChangeBiz(AdminChangeBizReq) returns (AdminChangeBizRsp){
+  rpc AdminUpdateBiz(AdminUpdateBizReq) returns (AdminUpdateBizRsp){
     option (google.api.http) = {
-      post: "/BatchJob/AdminChangeBiz",
+      post: "/BatchJob/AdminUpdateBiz",
       body: "*",
     };
   }
@@ -29,9 +29,9 @@ service BatchJobService{
     };
   }
   // 修改任务
-  rpc AdminChangeJob(AdminChangeJobReq) returns (AdminChangeJobRsp) {
+  rpc AdminUpdateJob(AdminUpdateJobReq) returns (AdminUpdateJobRsp) {
     option (google.api.http) = {
-      post: "/BatchJob/AdminChangeJob",
+      post: "/BatchJob/AdminUpdateJob",
       body: "*",
     };
   }
@@ -100,17 +100,10 @@ service BatchJobService{
     };
   }
 
-  // 业务启动. 要求任务必须处于 JobStatus.WaitBizRun 状态
+  // 发送业务启动信号. 要求任务必须处于 JobStatus.WaitBizRun 状态
   rpc BizStartJob(BizStartJobReq) returns (BizStartJobRsp) {
     option (google.api.http) = {
       post: "/BatchJob/BizStartJob",
-      body: "*",
-    };
-  }
-  // 要求业务停止运行. 一般为业务判断任务无法继续的时候
-  rpc BizStopJob(BizStopJobReq) returns (BizStopJobRsp) {
-    option (google.api.http) = {
-      post: "/BatchJob/BizStopJob",
       body: "*",
     };
   }
@@ -118,6 +111,13 @@ service BatchJobService{
   rpc BizUpdateJobData(BizUpdateJobDataReq) returns (BizUpdateJobDataRsp) {
     option (google.api.http) = {
       post: "/BatchJob/BizUpdateJobData",
+      body: "*",
+    };
+  }
+  // 发送停止任务信号. 一般为业务判断任务无法继续的时候
+  rpc BizStopJob(BizStopJobReq) returns (BizStopJobRsp) {
+    option (google.api.http) = {
+      post: "/BatchJob/BizStopJob",
       body: "*",
     };
   }
@@ -197,7 +197,7 @@ message AdminRegistryBizRsp {
   int32 bizId = 1; // 创建的业务id
 }
 
-message AdminChangeBizReq {
+message AdminUpdateBizReq {
   int32 bizId = 1 [(validate.rules).int32.gt = 0]; // 业务id. 必填
   string bizName = 2 [(validate.rules).string.min_len = 1]; // 业务名
   string remark = 3; // 备注
@@ -208,7 +208,7 @@ message AdminChangeBizReq {
   OpInfoQ op = 6; // 操作信息
   BizStatus status = 7; // 状态 0=正常 1=隐藏
 }
-message AdminChangeBizRsp {}
+message AdminUpdateBizRsp {}
 
 // 操作信息-请求
 message OpInfoQ {
@@ -348,7 +348,7 @@ message AdminCreateJobRsp {
   int64 jobId = 1; // 创建的任务id
 }
 
-message AdminChangeJobReq {
+message AdminUpdateJobReq {
   string jobName = 2; // 任务名称
   string jobData = 3; // 任务数据, 让业务知道应该做什么
   int64 processDataTotal = 4; // 需要处理数据总数
@@ -358,7 +358,7 @@ message AdminChangeJobReq {
   OpInfoQ op = 8; // 操作信息
   int64 jobId = 9; // 任务id
 }
-message AdminChangeJobRsp {
+message AdminUpdateJobRsp {
 }
 
 message AdminStartJobReq {
@@ -456,23 +456,27 @@ message QueryJobDataLogRsp {
 }
 
 message BizStartJobReq {
-  int64 jobId = 1 [(validate.rules).int64.gt = 0]; // 创建的任务id. 必填
+  string authCode = 1 [(validate.rules).string = {}]; // 授权码, 防止其它业务线程抢锁
+  int64 jobId = 2 [(validate.rules).int64.gt = 0]; // 创建的任务id. 必填
+  string remark = 3; // 备注
 }
 message BizStartJobRsp {}
 
-message BizStopJobReq {
-  int64 jobId = 1 [(validate.rules).int64.gt = 0]; // 创建的任务id. 必填
-}
-message BizStopJobRsp {}
-
 message BizUpdateJobDataReq {
-  int64 jobId = 1 [(validate.rules).int64.gt = 0]; // 创建的任务id. 必填
-  string jobData = 2; // 任务数据, 让业务知道应该做什么. 空值则不会更新这个数据
-  string bizCustomData = 3; // 任务的自定义数据. 空值则不会更新这个数据
+  string authCode = 1 [(validate.rules).string = {}]; // 授权码, 防止其它业务线程抢锁
+  int64 jobId = 2 [(validate.rules).int64.gt = 0]; // 创建的任务id. 必填
+  string jobData = 3; // 任务数据, 让业务知道应该做什么. 空值则不会更新这个数据
   int64 processDataTotal = 4; // 需要处理数据总数. 空值则不会更新这个数据
   int64 processedCount = 5; // 已处理过的数据量, 无论成功还是失败. 空值则不会更新这个数据
+  string remark = 6; // 备注
 }
 message BizUpdateJobDataRsp {}
+
+message BizStopJobReq {
+  int64 jobId = 1 [(validate.rules).int64.gt = 0]; // 创建的任务id. 必填
+  string remark = 2; // 备注
+}
+message BizStopJobRsp {}
 
 message BizAddDataLogReq {
   int64 jobId = 1 [(validate.rules).int64.gt = 0]; // 创建的任务id. 必填
@@ -505,6 +509,7 @@ message JobBeforeRunReq {
   string jobData = 5; // 任务数据, 让业务知道应该做什么
   int64 processDataTotal = 6; // 业务中需要处理数据总数
   int64 processedCount = 7; // 已处理过的数据量, 无论成功还是失败
+  string authCode = 8; // 授权码, 调用业务方法时传参, 用于防止业务多线程抢锁
 }
 message JobBeforeRunRsp {}
 

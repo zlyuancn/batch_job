@@ -20,9 +20,9 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	BatchJobService_AdminRegistryBiz_FullMethodName  = "/batch_job.BatchJobService/AdminRegistryBiz"
-	BatchJobService_AdminChangeBiz_FullMethodName    = "/batch_job.BatchJobService/AdminChangeBiz"
+	BatchJobService_AdminUpdateBiz_FullMethodName    = "/batch_job.BatchJobService/AdminUpdateBiz"
 	BatchJobService_AdminCreateJob_FullMethodName    = "/batch_job.BatchJobService/AdminCreateJob"
-	BatchJobService_AdminChangeJob_FullMethodName    = "/batch_job.BatchJobService/AdminChangeJob"
+	BatchJobService_AdminUpdateJob_FullMethodName    = "/batch_job.BatchJobService/AdminUpdateJob"
 	BatchJobService_AdminStartJob_FullMethodName     = "/batch_job.BatchJobService/AdminStartJob"
 	BatchJobService_AdminStopJob_FullMethodName      = "/batch_job.BatchJobService/AdminStopJob"
 	BatchJobService_QueryAllBizName_FullMethodName   = "/batch_job.BatchJobService/QueryAllBizName"
@@ -33,8 +33,8 @@ const (
 	BatchJobService_QueryJobStateInfo_FullMethodName = "/batch_job.BatchJobService/QueryJobStateInfo"
 	BatchJobService_QueryJobDataLog_FullMethodName   = "/batch_job.BatchJobService/QueryJobDataLog"
 	BatchJobService_BizStartJob_FullMethodName       = "/batch_job.BatchJobService/BizStartJob"
-	BatchJobService_BizStopJob_FullMethodName        = "/batch_job.BatchJobService/BizStopJob"
 	BatchJobService_BizUpdateJobData_FullMethodName  = "/batch_job.BatchJobService/BizUpdateJobData"
+	BatchJobService_BizStopJob_FullMethodName        = "/batch_job.BatchJobService/BizStopJob"
 	BatchJobService_BizAddDataLog_FullMethodName     = "/batch_job.BatchJobService/BizAddDataLog"
 )
 
@@ -47,11 +47,11 @@ type BatchJobServiceClient interface {
 	// 业务注册
 	AdminRegistryBiz(ctx context.Context, in *AdminRegistryBizReq, opts ...grpc.CallOption) (*AdminRegistryBizRsp, error)
 	// 修改业务
-	AdminChangeBiz(ctx context.Context, in *AdminChangeBizReq, opts ...grpc.CallOption) (*AdminChangeBizRsp, error)
+	AdminUpdateBiz(ctx context.Context, in *AdminUpdateBizReq, opts ...grpc.CallOption) (*AdminUpdateBizRsp, error)
 	// 创建任务
 	AdminCreateJob(ctx context.Context, in *AdminCreateJobReq, opts ...grpc.CallOption) (*AdminCreateJobRsp, error)
 	// 修改任务
-	AdminChangeJob(ctx context.Context, in *AdminChangeJobReq, opts ...grpc.CallOption) (*AdminChangeJobRsp, error)
+	AdminUpdateJob(ctx context.Context, in *AdminUpdateJobReq, opts ...grpc.CallOption) (*AdminUpdateJobRsp, error)
 	// 启动任务
 	AdminStartJob(ctx context.Context, in *AdminStartJobReq, opts ...grpc.CallOption) (*AdminStartJobRsp, error)
 	// 停止任务
@@ -70,12 +70,12 @@ type BatchJobServiceClient interface {
 	QueryJobStateInfo(ctx context.Context, in *QueryJobStateInfoReq, opts ...grpc.CallOption) (*QueryJobStateInfoRsp, error)
 	// 查询任务的数据日志
 	QueryJobDataLog(ctx context.Context, in *QueryJobDataLogReq, opts ...grpc.CallOption) (*QueryJobDataLogRsp, error)
-	// 业务启动. 要求任务必须处于 JobStatus.WaitBizRun 状态
+	// 发送业务启动信号. 要求任务必须处于 JobStatus.WaitBizRun 状态
 	BizStartJob(ctx context.Context, in *BizStartJobReq, opts ...grpc.CallOption) (*BizStartJobRsp, error)
-	// 要求业务停止运行. 一般为业务判断任务无法继续的时候
-	BizStopJob(ctx context.Context, in *BizStopJobReq, opts ...grpc.CallOption) (*BizStopJobRsp, error)
 	// 更新任务数据. 要求任务必须处于 JobStatus.WaitBizRun 状态可以使用
 	BizUpdateJobData(ctx context.Context, in *BizUpdateJobDataReq, opts ...grpc.CallOption) (*BizUpdateJobDataRsp, error)
+	// 发送停止任务信号. 一般为业务判断任务无法继续的时候
+	BizStopJob(ctx context.Context, in *BizStopJobReq, opts ...grpc.CallOption) (*BizStopJobRsp, error)
 	// 增加数据日志
 	BizAddDataLog(ctx context.Context, in *BizAddDataLogReq, opts ...grpc.CallOption) (*BizAddDataLogRsp, error)
 }
@@ -98,10 +98,10 @@ func (c *batchJobServiceClient) AdminRegistryBiz(ctx context.Context, in *AdminR
 	return out, nil
 }
 
-func (c *batchJobServiceClient) AdminChangeBiz(ctx context.Context, in *AdminChangeBizReq, opts ...grpc.CallOption) (*AdminChangeBizRsp, error) {
+func (c *batchJobServiceClient) AdminUpdateBiz(ctx context.Context, in *AdminUpdateBizReq, opts ...grpc.CallOption) (*AdminUpdateBizRsp, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(AdminChangeBizRsp)
-	err := c.cc.Invoke(ctx, BatchJobService_AdminChangeBiz_FullMethodName, in, out, cOpts...)
+	out := new(AdminUpdateBizRsp)
+	err := c.cc.Invoke(ctx, BatchJobService_AdminUpdateBiz_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -118,10 +118,10 @@ func (c *batchJobServiceClient) AdminCreateJob(ctx context.Context, in *AdminCre
 	return out, nil
 }
 
-func (c *batchJobServiceClient) AdminChangeJob(ctx context.Context, in *AdminChangeJobReq, opts ...grpc.CallOption) (*AdminChangeJobRsp, error) {
+func (c *batchJobServiceClient) AdminUpdateJob(ctx context.Context, in *AdminUpdateJobReq, opts ...grpc.CallOption) (*AdminUpdateJobRsp, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(AdminChangeJobRsp)
-	err := c.cc.Invoke(ctx, BatchJobService_AdminChangeJob_FullMethodName, in, out, cOpts...)
+	out := new(AdminUpdateJobRsp)
+	err := c.cc.Invoke(ctx, BatchJobService_AdminUpdateJob_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -228,20 +228,20 @@ func (c *batchJobServiceClient) BizStartJob(ctx context.Context, in *BizStartJob
 	return out, nil
 }
 
-func (c *batchJobServiceClient) BizStopJob(ctx context.Context, in *BizStopJobReq, opts ...grpc.CallOption) (*BizStopJobRsp, error) {
+func (c *batchJobServiceClient) BizUpdateJobData(ctx context.Context, in *BizUpdateJobDataReq, opts ...grpc.CallOption) (*BizUpdateJobDataRsp, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(BizStopJobRsp)
-	err := c.cc.Invoke(ctx, BatchJobService_BizStopJob_FullMethodName, in, out, cOpts...)
+	out := new(BizUpdateJobDataRsp)
+	err := c.cc.Invoke(ctx, BatchJobService_BizUpdateJobData_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *batchJobServiceClient) BizUpdateJobData(ctx context.Context, in *BizUpdateJobDataReq, opts ...grpc.CallOption) (*BizUpdateJobDataRsp, error) {
+func (c *batchJobServiceClient) BizStopJob(ctx context.Context, in *BizStopJobReq, opts ...grpc.CallOption) (*BizStopJobRsp, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(BizUpdateJobDataRsp)
-	err := c.cc.Invoke(ctx, BatchJobService_BizUpdateJobData_FullMethodName, in, out, cOpts...)
+	out := new(BizStopJobRsp)
+	err := c.cc.Invoke(ctx, BatchJobService_BizStopJob_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -267,11 +267,11 @@ type BatchJobServiceServer interface {
 	// 业务注册
 	AdminRegistryBiz(context.Context, *AdminRegistryBizReq) (*AdminRegistryBizRsp, error)
 	// 修改业务
-	AdminChangeBiz(context.Context, *AdminChangeBizReq) (*AdminChangeBizRsp, error)
+	AdminUpdateBiz(context.Context, *AdminUpdateBizReq) (*AdminUpdateBizRsp, error)
 	// 创建任务
 	AdminCreateJob(context.Context, *AdminCreateJobReq) (*AdminCreateJobRsp, error)
 	// 修改任务
-	AdminChangeJob(context.Context, *AdminChangeJobReq) (*AdminChangeJobRsp, error)
+	AdminUpdateJob(context.Context, *AdminUpdateJobReq) (*AdminUpdateJobRsp, error)
 	// 启动任务
 	AdminStartJob(context.Context, *AdminStartJobReq) (*AdminStartJobRsp, error)
 	// 停止任务
@@ -290,12 +290,12 @@ type BatchJobServiceServer interface {
 	QueryJobStateInfo(context.Context, *QueryJobStateInfoReq) (*QueryJobStateInfoRsp, error)
 	// 查询任务的数据日志
 	QueryJobDataLog(context.Context, *QueryJobDataLogReq) (*QueryJobDataLogRsp, error)
-	// 业务启动. 要求任务必须处于 JobStatus.WaitBizRun 状态
+	// 发送业务启动信号. 要求任务必须处于 JobStatus.WaitBizRun 状态
 	BizStartJob(context.Context, *BizStartJobReq) (*BizStartJobRsp, error)
-	// 要求业务停止运行. 一般为业务判断任务无法继续的时候
-	BizStopJob(context.Context, *BizStopJobReq) (*BizStopJobRsp, error)
 	// 更新任务数据. 要求任务必须处于 JobStatus.WaitBizRun 状态可以使用
 	BizUpdateJobData(context.Context, *BizUpdateJobDataReq) (*BizUpdateJobDataRsp, error)
+	// 发送停止任务信号. 一般为业务判断任务无法继续的时候
+	BizStopJob(context.Context, *BizStopJobReq) (*BizStopJobRsp, error)
 	// 增加数据日志
 	BizAddDataLog(context.Context, *BizAddDataLogReq) (*BizAddDataLogRsp, error)
 	mustEmbedUnimplementedBatchJobServiceServer()
@@ -311,14 +311,14 @@ type UnimplementedBatchJobServiceServer struct{}
 func (UnimplementedBatchJobServiceServer) AdminRegistryBiz(context.Context, *AdminRegistryBizReq) (*AdminRegistryBizRsp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AdminRegistryBiz not implemented")
 }
-func (UnimplementedBatchJobServiceServer) AdminChangeBiz(context.Context, *AdminChangeBizReq) (*AdminChangeBizRsp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AdminChangeBiz not implemented")
+func (UnimplementedBatchJobServiceServer) AdminUpdateBiz(context.Context, *AdminUpdateBizReq) (*AdminUpdateBizRsp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminUpdateBiz not implemented")
 }
 func (UnimplementedBatchJobServiceServer) AdminCreateJob(context.Context, *AdminCreateJobReq) (*AdminCreateJobRsp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AdminCreateJob not implemented")
 }
-func (UnimplementedBatchJobServiceServer) AdminChangeJob(context.Context, *AdminChangeJobReq) (*AdminChangeJobRsp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AdminChangeJob not implemented")
+func (UnimplementedBatchJobServiceServer) AdminUpdateJob(context.Context, *AdminUpdateJobReq) (*AdminUpdateJobRsp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminUpdateJob not implemented")
 }
 func (UnimplementedBatchJobServiceServer) AdminStartJob(context.Context, *AdminStartJobReq) (*AdminStartJobRsp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AdminStartJob not implemented")
@@ -350,11 +350,11 @@ func (UnimplementedBatchJobServiceServer) QueryJobDataLog(context.Context, *Quer
 func (UnimplementedBatchJobServiceServer) BizStartJob(context.Context, *BizStartJobReq) (*BizStartJobRsp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method BizStartJob not implemented")
 }
-func (UnimplementedBatchJobServiceServer) BizStopJob(context.Context, *BizStopJobReq) (*BizStopJobRsp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method BizStopJob not implemented")
-}
 func (UnimplementedBatchJobServiceServer) BizUpdateJobData(context.Context, *BizUpdateJobDataReq) (*BizUpdateJobDataRsp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method BizUpdateJobData not implemented")
+}
+func (UnimplementedBatchJobServiceServer) BizStopJob(context.Context, *BizStopJobReq) (*BizStopJobRsp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method BizStopJob not implemented")
 }
 func (UnimplementedBatchJobServiceServer) BizAddDataLog(context.Context, *BizAddDataLogReq) (*BizAddDataLogRsp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method BizAddDataLog not implemented")
@@ -398,20 +398,20 @@ func _BatchJobService_AdminRegistryBiz_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
-func _BatchJobService_AdminChangeBiz_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AdminChangeBizReq)
+func _BatchJobService_AdminUpdateBiz_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminUpdateBizReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BatchJobServiceServer).AdminChangeBiz(ctx, in)
+		return srv.(BatchJobServiceServer).AdminUpdateBiz(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: BatchJobService_AdminChangeBiz_FullMethodName,
+		FullMethod: BatchJobService_AdminUpdateBiz_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BatchJobServiceServer).AdminChangeBiz(ctx, req.(*AdminChangeBizReq))
+		return srv.(BatchJobServiceServer).AdminUpdateBiz(ctx, req.(*AdminUpdateBizReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -434,20 +434,20 @@ func _BatchJobService_AdminCreateJob_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
-func _BatchJobService_AdminChangeJob_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AdminChangeJobReq)
+func _BatchJobService_AdminUpdateJob_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminUpdateJobReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BatchJobServiceServer).AdminChangeJob(ctx, in)
+		return srv.(BatchJobServiceServer).AdminUpdateJob(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: BatchJobService_AdminChangeJob_FullMethodName,
+		FullMethod: BatchJobService_AdminUpdateJob_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BatchJobServiceServer).AdminChangeJob(ctx, req.(*AdminChangeJobReq))
+		return srv.(BatchJobServiceServer).AdminUpdateJob(ctx, req.(*AdminUpdateJobReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -632,24 +632,6 @@ func _BatchJobService_BizStartJob_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
-func _BatchJobService_BizStopJob_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(BizStopJobReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(BatchJobServiceServer).BizStopJob(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: BatchJobService_BizStopJob_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BatchJobServiceServer).BizStopJob(ctx, req.(*BizStopJobReq))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _BatchJobService_BizUpdateJobData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(BizUpdateJobDataReq)
 	if err := dec(in); err != nil {
@@ -664,6 +646,24 @@ func _BatchJobService_BizUpdateJobData_Handler(srv interface{}, ctx context.Cont
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(BatchJobServiceServer).BizUpdateJobData(ctx, req.(*BizUpdateJobDataReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BatchJobService_BizStopJob_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BizStopJobReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BatchJobServiceServer).BizStopJob(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BatchJobService_BizStopJob_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BatchJobServiceServer).BizStopJob(ctx, req.(*BizStopJobReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -698,16 +698,16 @@ var BatchJobService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _BatchJobService_AdminRegistryBiz_Handler,
 		},
 		{
-			MethodName: "AdminChangeBiz",
-			Handler:    _BatchJobService_AdminChangeBiz_Handler,
+			MethodName: "AdminUpdateBiz",
+			Handler:    _BatchJobService_AdminUpdateBiz_Handler,
 		},
 		{
 			MethodName: "AdminCreateJob",
 			Handler:    _BatchJobService_AdminCreateJob_Handler,
 		},
 		{
-			MethodName: "AdminChangeJob",
-			Handler:    _BatchJobService_AdminChangeJob_Handler,
+			MethodName: "AdminUpdateJob",
+			Handler:    _BatchJobService_AdminUpdateJob_Handler,
 		},
 		{
 			MethodName: "AdminStartJob",
@@ -750,12 +750,12 @@ var BatchJobService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _BatchJobService_BizStartJob_Handler,
 		},
 		{
-			MethodName: "BizStopJob",
-			Handler:    _BatchJobService_BizStopJob_Handler,
-		},
-		{
 			MethodName: "BizUpdateJobData",
 			Handler:    _BatchJobService_BizUpdateJobData_Handler,
+		},
+		{
+			MethodName: "BizStopJob",
+			Handler:    _BatchJobService_BizStopJob_Handler,
 		},
 		{
 			MethodName: "BizAddDataLog",

@@ -36,32 +36,32 @@ func (*jobCli) createLauncher(ctx context.Context, bizInfo *batch_job_biz.Model,
 	}
 
 	// 如果有启动前回调. 则交给业务处理
-	if b.HasBeforeRunCallback() && pb.JobStatus(bizInfo.Status) == pb.JobStatus_JobStatus_WaitBizRun {
+	if b.HasBeforeRunCallback() && pb.JobStatus(jobInfo.Status) == pb.JobStatus_JobStatus_WaitBizRun {
 		// 加等待业务主动启动锁, 这个时间比较长, 防止自动扫描运行中的任务时其它线程抢锁启动
 		ttl := time.Duration(conf.Conf.JobBeforeRunLockAppendTtl)*time.Second + b.GetCbBeforeRunTimeout()
-		lockKey := conf.Conf.JobBeforeRunLockKeyPrefix + strconv.Itoa(int(jobInfo.JobID))
-		_, _, err := redis.Lock(ctx, lockKey, ttl)
+		lockKey := CacheKey.GetJobBeforeRunLock(int(jobInfo.JobID))
+		authCode, err := redis.Lock(ctx, lockKey, ttl)
 		if err == redis.LockManyErr { // 加锁失败
 			return
 		}
 		if err != nil { // 加锁异常
-			logger.Error("createLauncher call Lock fail.", zap.Error(err))
+			logger.Error("createLauncher call AutoLock fail.", zap.Error(err))
 			return
 		}
 
-		b.BeforeRun(ctx, jobInfo)
+		b.BeforeRun(ctx, jobInfo, authCode)
 		return
 	}
 
 	// 由启动器启动任务
 	// 加任务运行锁, 防止自动扫描运行中的任务时其它线程抢锁启动, 下一步流程中会定时对锁续期
 	lockKey := conf.Conf.JobRunLockKeyPrefix + strconv.Itoa(int(jobInfo.JobID))
-	unlock, renew, err := redis.Lock(ctx, lockKey, time.Duration(conf.Conf.JobRunLockExtraTtl)*time.Second)
+	unlock, renew, err := redis.AutoLock(ctx, lockKey, time.Duration(conf.Conf.JobRunLockExtraTtl)*time.Second)
 	if err == redis.LockManyErr { // 加锁失败
 		return
 	}
 	if err != nil { // 加锁异常
-		logger.Error("createLauncher call Lock fail.", zap.Error(err))
+		logger.Error("createLauncher call AutoLock fail.", zap.Error(err))
 		return
 	}
 

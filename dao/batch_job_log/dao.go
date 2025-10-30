@@ -89,3 +89,31 @@ func Count(ctx context.Context, where map[string]any) (int64, error) {
 	}
 	return ret, nil
 }
+
+func MultiSave(ctx context.Context, list []*Model) (int64, error) {
+	if len(list) == 0 {
+		return 0, nil
+	}
+	var data []map[string]any
+	for _, v := range list {
+		data = append(data, map[string]any{
+			"job_id":   v.JobID,
+			"data_id":  v.DataID,
+			"remark":   v.Remark,
+			"extend":   v.Extend,
+			"log_type": v.LogType,
+		})
+	}
+	cond, vals, err := builder.BuildInsert(tableName, data)
+	if err != nil {
+		logger.Log.Error(ctx, "MultiSave call BuildInsert err", zap.Any("data", data), zap.Error(err))
+		return 0, err
+	}
+
+	result, err := db.GetSqlx().Exec(ctx, cond, vals...)
+	if err != nil {
+		logger.Error(ctx, "MultiSave call Exec fail.", zap.Error(err))
+		return 0, err
+	}
+	return result.LastInsertId()
+}
