@@ -93,10 +93,10 @@ func (b *BatchJob) QueryBizList(ctx context.Context, req *pb.QueryBizListReq) (*
 	if req.GetOpUser() != "" {
 		where["_or"] = []map[string]interface{}{
 			{
-				"last_op_user_id like": req.GetOpUser() + "%",
+				"op_user_id like": req.GetOpUser() + "%",
 			},
 			{
-				"last_op_user_name like": req.GetOpUser() + "%",
+				"op_user_name like": req.GetOpUser() + "%",
 			},
 		}
 	}
@@ -246,10 +246,10 @@ func (b *BatchJob) QueryJobList(ctx context.Context, req *pb.QueryJobListReq) (*
 	if req.GetOpUser() != "" {
 		where["_or_user"] = []map[string]interface{}{
 			{
-				"last_op_user_id like": req.GetOpUser() + "%",
+				"op_user_id like": req.GetOpUser() + "%",
 			},
 			{
-				"last_op_user_name like": req.GetOpUser() + "%",
+				"op_user_name like": req.GetOpUser() + "%",
 			},
 		}
 	}

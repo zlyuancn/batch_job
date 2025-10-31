@@ -62,7 +62,7 @@ CREATE TABLE `batch_job_list`
     PRIMARY KEY (`id`),
     UNIQUE KEY (`job_id`),
     KEY `batch_job_list_biz_id` (`biz_id`, `status`, `update_time` DESC),
-    KEY `batch_job_list_job_id_last_op_user_id_create_time_index` (`biz_id`, `op_user_id`, `status`, `create_time` DESC)
+    KEY `batch_job_list_job_id_op_user_id_create_time_index` (`biz_id`, `op_user_id`, `status`, `create_time` DESC)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT ='批量任务列表';

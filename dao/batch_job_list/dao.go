@@ -305,10 +305,10 @@ update batch_job_list
 set 
     status=?,
     update_time=now(),
-    last_op_source=?,
-    last_op_user_id=?,
-    last_op_user_name=?,
-    last_op_remark=?,
+    op_source=?,
+    op_user_id=?,
+    op_user_name=?,
+    op_remark=?,
     status_info=?
 where job_id = ?
     and status = ?
