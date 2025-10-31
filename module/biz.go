@@ -22,12 +22,12 @@ type Business interface {
 	// 是否存在启动前回调
 	HasBeforeRunCallback() bool
 	// 获取启动前回调超时时间
-	GetCbBeforeRunTimeout() time.Duration
+	GetBeforeRunTimeout() time.Duration
 
 	// 创建业务回调
 	BeforeCreateAndChange(ctx context.Context, args *pb.JobBeforeCreateAndChangeReq) error
 	// 业务启动前回调
-	BeforeRun(ctx context.Context, jobInfo *batch_job_list.Model, authCode string)
+	BeforeRun(ctx context.Context, args *pb.JobBeforeRunReq)
 	/*处理任务回调
 
 	jobInfo 任务信息
@@ -57,18 +57,18 @@ func (b *bizCli) GetBizByBizId(ctx context.Context, bizId int) (Business, error)
 }
 
 // 获取业务
-func (*bizCli) GetBizByDbModel(ctx context.Context, v *batch_job_biz.Model) (Business, error) {
+func (*bizCli) GetBizByDbModel(ctx context.Context, biz *batch_job_biz.Model) (Business, error) {
 	eed := &pb.ExecExtendDataA{}
-	err := sonic.UnmarshalString(v.ExecExtendData, eed)
+	err := sonic.UnmarshalString(biz.ExecExtendData, eed)
 	if err != nil {
 		err = fmt.Errorf("GetBizByDbModel call UnmarshalString ExecExtendData fail. err=%s", err)
 		return nil, err
 	}
 
-	switch v.ExecType {
+	switch biz.ExecType {
 	case byte(pb.ExecType_ExecType_HttpCallback): // http回调
-		return newHttpCallbackBiz(ctx, v, eed)
+		return newHttpCallbackBiz(ctx, biz, eed)
 	}
 
-	return nil, fmt.Errorf("biz type %d not support", v.ExecType)
+	return nil, fmt.Errorf("biz type %d not support", biz.ExecType)
 }

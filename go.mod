@@ -9,7 +9,8 @@ require (
 	github.com/envoyproxy/protoc-gen-validate v1.2.1
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.3
 	github.com/spf13/cast v1.3.1
-	github.com/zly-app/cache/v2 v2.0.9
+	github.com/zly-app/cache/v2 v2.0.10
+	github.com/zly-app/component/http v0.0.0-20240730094824-85f48a26539c
 	github.com/zly-app/component/redis v0.0.0-20251028120309-789178b6dfbd
 	github.com/zly-app/component/sqlx v0.0.0-20250113115202-54207e1efaeb
 	github.com/zly-app/grpc v0.5.2
@@ -112,7 +113,6 @@ require (
 	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
 	github.com/yosssi/ace v0.0.5 // indirect
 	github.com/yusufpapurcu/wmi v1.2.3 // indirect
-	github.com/zly-app/component/http v0.0.0-20240730094824-85f48a26539c // indirect
 	github.com/zly-app/honey v0.2.11 // indirect
 	github.com/zly-app/plugin/honey v0.2.7 // indirect
 	github.com/zly-app/plugin/pprof v0.0.0-20240404071939-b8be0d638d18 // indirect

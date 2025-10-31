@@ -148,16 +148,22 @@ message ExecExtendDataQ {
   ExecExtendDataHttpCallbackQ httpCallback = 1;
 }
 
+message KV{
+  string k = 1;
+  string v = 2;
+}
 // 执行器扩展数据-请求-HttpCallback
 message ExecExtendDataHttpCallbackQ {
-  string cbBeforeCreate = 1 [(validate.rules).string = {uri: true, ignore_empty: true}]; // 创建和修改任务回调url
-  string cbBeforeRun = 2 [(validate.rules).string = {uri: true, ignore_empty: true}]; // 启动前回调. 一旦配置, 则任务必须由业务主动调用 BizStartJob 执行任务. 否则任务将一直处于 JobStatus.WaitBizRun 状态
-  string cbProcess = 3 [(validate.rules).string = {uri: true}]; // 处理任务回调. 必填
-  string cbProcessStop = 4 [(validate.rules).string = {uri: true, ignore_empty: true}]; // 任务停止回调. 用于业务方做一些清理. 选填
-  int32 cbBeforeCreateTimeout = 5 [(validate.rules).int32.gte = 0]; // 启动前回调超时秒数
-  int32 cbBeforeRunTimeout = 6 [(validate.rules).int32.gte = 0]; // 启动前回调超时秒数
-  int32 cbProcessTimeout = 7 [(validate.rules).int32.gte = 0]; // 处理任务回调超时秒数
-  int32 cbProcessStopTimeout = 8 [(validate.rules).int32.gte = 0]; // 处理任务停止回调超时秒数
+  string beforeCreate = 1 [(validate.rules).string = {uri: true, ignore_empty: true}]; // 创建和修改任务回调url
+  string beforeRun = 2 [(validate.rules).string = {uri: true, ignore_empty: true}]; // 启动前回调. 一旦配置, 则任务必须由业务主动调用 BizStartJob 执行任务. 否则任务将一直处于 JobStatus.WaitBizRun 状态
+  string process = 3 [(validate.rules).string = {uri: true}]; // 处理任务回调. 必填
+  string processStop = 4 [(validate.rules).string = {uri: true, ignore_empty: true}]; // 任务停止回调. 用于业务方做一些清理. 选填
+  int32 beforeCreateTimeout = 5 [(validate.rules).int32.gte = 0]; // 创建和修改任务前回调超时秒数
+  int32 beforeRunTimeout = 6 [(validate.rules).int32.gte = 0]; // 启动前回调超时秒数
+  int32 processTimeout = 7 [(validate.rules).int32.gte = 0]; // 处理任务回调超时秒数
+  int32 processStopTimeout = 8 [(validate.rules).int32.gte = 0]; // 任务停止回调超时秒数
+  bool InsecureSkipVerify = 9; // 是否验证服务器的证书链和主机名
+  repeated KV headers = 10; // header
 }
 
 // 执行器扩展数据-响应
@@ -167,14 +173,16 @@ message ExecExtendDataA {
 
 // 执行器扩展数据-响应-HttpCallback
 message ExecExtendDataHttpCallbackA {
-  string cbBeforeCreate = 1; // 创建和修改任务回调url
-  string cbBeforeRun = 2; // 启动前回调. 一旦配置, 则任务必须由业务主动调用 BizStartJob 执行任务. 否则任务将一直处于 JobStatus.WaitBizRun 状态
-  string cbProcess = 3; // 处理任务回调. 必填
-  string cbProcessStop = 4; // 任务停止回调. 用于业务方做一些清理. 选填
-  int32 cbBeforeCreateTimeout = 5; // 启动前回调超时秒数
-  int32 cbBeforeRunTimeout = 6; // 启动前回调超时秒数
-  int32 cbProcessTimeout = 7; // 处理任务回调超时秒数
-  int32 cbProcessStopTimeout = 8; // 处理任务停止回调超时秒数
+  string beforeCreate = 1; // 创建和修改任务回调url
+  string beforeRun = 2; // 启动前回调. 一旦配置, 则任务必须由业务主动调用 BizStartJob 执行任务. 否则任务将一直处于 JobStatus.WaitBizRun 状态
+  string process = 3; // 处理任务回调. 必填
+  string processStop = 4; // 任务停止回调. 用于业务方做一些清理. 选填
+  int32 beforeCreateTimeout = 5; // 创建和修改任务前回调超时秒数
+  int32 beforeRunTimeout = 6; // 启动前回调超时秒数
+  int32 processTimeout = 7; // 处理任务回调超时秒数
+  int32 processStopTimeout = 8; // 任务停止回调超时秒数
+  bool InsecureSkipVerify = 9; // 是否验证服务器的证书链和主机名
+  repeated KV headers = 10; // header
 }
 
 // 业务状态
@@ -517,6 +525,7 @@ message JobBeforeRunRsp {}
 message JobProcessReq {
   int64 jobId = 1; // 创建的任务id. 必填
   int64 dataIndex = 2; // 要处理的数据索引, 从0开始
+  int32 attemptCount = 3; // 本次任务短时间内的尝试次数. 表示一个启动器执行过程中对任务的某个数据尝试处理了几次
 }
 message JobProcessRsp {}
 

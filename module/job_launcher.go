@@ -38,7 +38,7 @@ func (*jobCli) createLauncher(ctx context.Context, bizInfo *batch_job_biz.Model,
 	// 如果有启动前回调. 则交给业务处理
 	if b.HasBeforeRunCallback() && pb.JobStatus(jobInfo.Status) == pb.JobStatus_JobStatus_WaitBizRun {
 		// 加等待业务主动启动锁, 这个时间比较长, 防止自动扫描运行中的任务时其它线程抢锁启动
-		ttl := time.Duration(conf.Conf.JobBeforeRunLockAppendTtl)*time.Second + b.GetCbBeforeRunTimeout()
+		ttl := time.Duration(conf.Conf.JobBeforeRunLockAppendTtl)*time.Second + b.GetBeforeRunTimeout()
 		lockKey := CacheKey.GetJobBeforeRunLock(int(jobInfo.JobID))
 		authCode, err := redis.Lock(ctx, lockKey, ttl)
 		if err == redis.LockManyErr { // 加锁失败
@@ -49,7 +49,17 @@ func (*jobCli) createLauncher(ctx context.Context, bizInfo *batch_job_biz.Model,
 			return
 		}
 
-		b.BeforeRun(ctx, jobInfo, authCode)
+		args := &pb.JobBeforeRunReq{
+			JobId:            int64(jobInfo.JobID),
+			JobName:          jobInfo.JobName,
+			BizId:            int32(jobInfo.BizId),
+			BizName:          bizInfo.BizName,
+			JobData:          jobInfo.JobData,
+			ProcessDataTotal: int64(jobInfo.ProcessDataTotal),
+			ProcessedCount:   int64(jobInfo.ProcessedCount),
+			AuthCode:         authCode,
+		}
+		b.BeforeRun(ctx, args)
 		return
 	}
 
@@ -65,7 +75,7 @@ func (*jobCli) createLauncher(ctx context.Context, bizInfo *batch_job_biz.Model,
 		return
 	}
 
-	jl, err := newJobLauncher(ctx, b, bizInfo, jobInfo, unlock, renew)
+	jl, err := newJobLauncher(b, bizInfo, jobInfo, unlock, renew)
 	if err != nil {
 		logger.Error("createLauncher call newJobLauncher fail.", zap.Error(err))
 		return
@@ -96,7 +106,7 @@ type jobLauncher struct {
 	statusInfo    string // 停止时的状态信息传递
 }
 
-func newJobLauncher(ctx context.Context, b Business, bizInfo *batch_job_biz.Model, jobInfo *batch_job_list.Model,
+func newJobLauncher(b Business, bizInfo *batch_job_biz.Model, jobInfo *batch_job_list.Model,
 	unlock redis.KeyUnlock, renew redis.KeyTtlRenew) (*jobLauncher, error) {
 
 	j := &jobLauncher{
@@ -111,7 +121,7 @@ func newJobLauncher(ctx context.Context, b Business, bizInfo *batch_job_biz.Mode
 		stopChan:         make(chan struct{}),
 		renewKeyStopChan: make(chan struct{}),
 	}
-	j.ctx, j.cancel = context.WithCancel(ctx)
+	j.ctx, j.cancel = context.WithCancel(context.Background())
 
 	switch pb.RateType(jobInfo.RateType) {
 	case pb.RateType_RateType_RateSec: // 可以使用多个线程
@@ -129,14 +139,14 @@ func newJobLauncher(ctx context.Context, b Business, bizInfo *batch_job_biz.Mode
 	// 从cache加载进度
 	err := j.loadCacheProgress()
 	if err != nil {
-		logger.Error(ctx, "newJobLauncher call loadCacheProgress fail.", zap.Error(err))
+		logger.Error(j.ctx, "newJobLauncher call loadCacheProgress fail.", zap.Error(err))
 		return nil, err
 	}
 
 	// 从db读取错误数并写入到cache中, 这一步表示, 在运行过程中, 数据查询错误数去缓存获取, 此时业务新增的错误数也会记录到缓存中, 降低mysql负载
 	err = j.writeErrCount2Cache()
 	if err != nil {
-		logger.Error(ctx, "newJobLauncher call loadErrCount fail.", zap.Error(err))
+		logger.Error(j.ctx, "newJobLauncher call loadErrCount fail.", zap.Error(err))
 		return nil, err
 	}
 
@@ -333,16 +343,20 @@ func (j *jobLauncher) processData(sn int64) {
 		<-j.threadLock // 释放一个线程
 	}()
 
+	name := "job_process" + strconv.FormatInt(sn, 10)
+	ctx := utils.Otel.CtxStart(j.ctx, name)
+	defer utils.Otel.CtxEnd(ctx)
+
 	// 多次尝试处理任务
 	attemptCount := 0 // 已尝试次数
 	for {
 		attemptCount++
-		err := j.b.Process(j.ctx, j.jobInfo, sn, attemptCount)
+		err := j.b.Process(ctx, j.jobInfo, sn, attemptCount)
 		if err == nil {
 			break
 		}
 
-		logger.Error("job Run process fail.", zap.Error(err))
+		logger.Error(ctx, "job Run process fail.", zap.Error(err))
 
 		// 检查是否达到错误限速
 		if !j.errLimiter.Allow() { // 表示无法再添加错误了

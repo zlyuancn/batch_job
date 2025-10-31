@@ -30,7 +30,7 @@ import (
 func (*BatchJob) AdminRegistryBiz(ctx context.Context, req *pb.AdminRegistryBizReq) (*pb.AdminRegistryBizRsp, error) {
 	eed, err := sonic.MarshalString(req.GetExecExtendData())
 	if err != nil {
-		logger.Error(ctx, "AdminRegistryBiz call MarshalString ExecExtendData fail.", zap.Error(err))
+		logger.Error(ctx, "AdminRegistryBiz call MarshalString eed fail.", zap.Error(err))
 		return nil, err
 	}
 
@@ -92,7 +92,7 @@ func (*BatchJob) AdminRegistryBiz(ctx context.Context, req *pb.AdminRegistryBizR
 func (*BatchJob) AdminUpdateBiz(ctx context.Context, req *pb.AdminUpdateBizReq) (*pb.AdminUpdateBizRsp, error) {
 	eed, err := sonic.MarshalString(req.GetExecExtendData())
 	if err != nil {
-		logger.Error(ctx, "AdminRegistryBiz call MarshalString ExecExtendData fail.", zap.Error(err))
+		logger.Error(ctx, "AdminRegistryBiz call MarshalString eed fail.", zap.Error(err))
 		return nil, err
 	}
 

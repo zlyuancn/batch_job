@@ -1028,41 +1028,53 @@
     "batch_jobExecExtendDataHttpCallbackA": {
       "type": "object",
       "properties": {
-        "cbBeforeCreate": {
+        "beforeCreate": {
           "type": "string",
           "title": "创建和修改任务回调url"
         },
-        "cbBeforeRun": {
+        "beforeRun": {
           "type": "string",
           "title": "启动前回调. 一旦配置, 则任务必须由业务主动调用 BizStartJob 执行任务. 否则任务将一直处于 JobStatus.WaitBizRun 状态"
         },
-        "cbProcess": {
+        "process": {
           "type": "string",
           "title": "处理任务回调. 必填"
         },
-        "cbProcessStop": {
+        "processStop": {
           "type": "string",
           "title": "任务停止回调. 用于业务方做一些清理. 选填"
         },
-        "cbBeforeCreateTimeout": {
+        "beforeCreateTimeout": {
+          "type": "integer",
+          "format": "int32",
+          "title": "创建和修改任务前回调超时秒数"
+        },
+        "beforeRunTimeout": {
           "type": "integer",
           "format": "int32",
           "title": "启动前回调超时秒数"
         },
-        "cbBeforeRunTimeout": {
-          "type": "integer",
-          "format": "int32",
-          "title": "启动前回调超时秒数"
-        },
-        "cbProcessTimeout": {
+        "processTimeout": {
           "type": "integer",
           "format": "int32",
           "title": "处理任务回调超时秒数"
         },
-        "cbProcessStopTimeout": {
+        "processStopTimeout": {
           "type": "integer",
           "format": "int32",
-          "title": "处理任务停止回调超时秒数"
+          "title": "任务停止回调超时秒数"
+        },
+        "InsecureSkipVerify": {
+          "type": "boolean",
+          "title": "是否验证服务器的证书链和主机名"
+        },
+        "headers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/batch_jobKV"
+          },
+          "title": "header"
         }
       },
       "title": "执行器扩展数据-响应-HttpCallback"
@@ -1070,41 +1082,53 @@
     "batch_jobExecExtendDataHttpCallbackQ": {
       "type": "object",
       "properties": {
-        "cbBeforeCreate": {
+        "beforeCreate": {
           "type": "string",
           "title": "创建和修改任务回调url"
         },
-        "cbBeforeRun": {
+        "beforeRun": {
           "type": "string",
           "title": "启动前回调. 一旦配置, 则任务必须由业务主动调用 BizStartJob 执行任务. 否则任务将一直处于 JobStatus.WaitBizRun 状态"
         },
-        "cbProcess": {
+        "process": {
           "type": "string",
           "title": "处理任务回调. 必填"
         },
-        "cbProcessStop": {
+        "processStop": {
           "type": "string",
           "title": "任务停止回调. 用于业务方做一些清理. 选填"
         },
-        "cbBeforeCreateTimeout": {
+        "beforeCreateTimeout": {
+          "type": "integer",
+          "format": "int32",
+          "title": "创建和修改任务前回调超时秒数"
+        },
+        "beforeRunTimeout": {
           "type": "integer",
           "format": "int32",
           "title": "启动前回调超时秒数"
         },
-        "cbBeforeRunTimeout": {
-          "type": "integer",
-          "format": "int32",
-          "title": "启动前回调超时秒数"
-        },
-        "cbProcessTimeout": {
+        "processTimeout": {
           "type": "integer",
           "format": "int32",
           "title": "处理任务回调超时秒数"
         },
-        "cbProcessStopTimeout": {
+        "processStopTimeout": {
           "type": "integer",
           "format": "int32",
-          "title": "处理任务停止回调超时秒数"
+          "title": "任务停止回调超时秒数"
+        },
+        "InsecureSkipVerify": {
+          "type": "boolean",
+          "title": "是否验证服务器的证书链和主机名"
+        },
+        "headers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/batch_jobKV"
+          },
+          "title": "header"
         }
       },
       "title": "执行器扩展数据-请求-HttpCallback"
@@ -1316,6 +1340,17 @@
       "default": "JobStatusQ_All",
       "description": "- JobStatusQ_All: 所有状态\n - JobStatusQ_Created: 待启动: 已创建/已停止\n - JobStatusQ_Running: 运行中: 运行中/等待业务主动启动/正在停止\n - JobStatusQ_Finished: 已完成",
       "title": "任务状态"
+    },
+    "batch_jobKV": {
+      "type": "object",
+      "properties": {
+        "k": {
+          "type": "string"
+        },
+        "v": {
+          "type": "string"
+        }
+      }
     },
     "batch_jobLogInfoByListA": {
       "type": "object",

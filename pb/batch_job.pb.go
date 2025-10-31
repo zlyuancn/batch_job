@@ -377,24 +377,78 @@ func (x *ExecExtendDataQ) GetHttpCallback() *ExecExtendDataHttpCallbackQ {
 	return nil
 }
 
+type KV struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	K             string                 `protobuf:"bytes,1,opt,name=k,proto3" json:"k,omitempty"`
+	V             string                 `protobuf:"bytes,2,opt,name=v,proto3" json:"v,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *KV) Reset() {
+	*x = KV{}
+	mi := &file_batch_job_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *KV) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*KV) ProtoMessage() {}
+
+func (x *KV) ProtoReflect() protoreflect.Message {
+	mi := &file_batch_job_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use KV.ProtoReflect.Descriptor instead.
+func (*KV) Descriptor() ([]byte, []int) {
+	return file_batch_job_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *KV) GetK() string {
+	if x != nil {
+		return x.K
+	}
+	return ""
+}
+
+func (x *KV) GetV() string {
+	if x != nil {
+		return x.V
+	}
+	return ""
+}
+
 // 执行器扩展数据-请求-HttpCallback
 type ExecExtendDataHttpCallbackQ struct {
-	state                 protoimpl.MessageState `protogen:"open.v1"`
-	CbBeforeCreate        string                 `protobuf:"bytes,1,opt,name=cbBeforeCreate,proto3" json:"cbBeforeCreate,omitempty"`                // 创建和修改任务回调url
-	CbBeforeRun           string                 `protobuf:"bytes,2,opt,name=cbBeforeRun,proto3" json:"cbBeforeRun,omitempty"`                      // 启动前回调. 一旦配置, 则任务必须由业务主动调用 BizStartJob 执行任务. 否则任务将一直处于 JobStatus.WaitBizRun 状态
-	CbProcess             string                 `protobuf:"bytes,3,opt,name=cbProcess,proto3" json:"cbProcess,omitempty"`                          // 处理任务回调. 必填
-	CbProcessStop         string                 `protobuf:"bytes,4,opt,name=cbProcessStop,proto3" json:"cbProcessStop,omitempty"`                  // 任务停止回调. 用于业务方做一些清理. 选填
-	CbBeforeCreateTimeout int32                  `protobuf:"varint,5,opt,name=cbBeforeCreateTimeout,proto3" json:"cbBeforeCreateTimeout,omitempty"` // 启动前回调超时秒数
-	CbBeforeRunTimeout    int32                  `protobuf:"varint,6,opt,name=cbBeforeRunTimeout,proto3" json:"cbBeforeRunTimeout,omitempty"`       // 启动前回调超时秒数
-	CbProcessTimeout      int32                  `protobuf:"varint,7,opt,name=cbProcessTimeout,proto3" json:"cbProcessTimeout,omitempty"`           // 处理任务回调超时秒数
-	CbProcessStopTimeout  int32                  `protobuf:"varint,8,opt,name=cbProcessStopTimeout,proto3" json:"cbProcessStopTimeout,omitempty"`   // 处理任务停止回调超时秒数
-	unknownFields         protoimpl.UnknownFields
-	sizeCache             protoimpl.SizeCache
+	state               protoimpl.MessageState `protogen:"open.v1"`
+	BeforeCreate        string                 `protobuf:"bytes,1,opt,name=beforeCreate,proto3" json:"beforeCreate,omitempty"`                // 创建和修改任务回调url
+	BeforeRun           string                 `protobuf:"bytes,2,opt,name=beforeRun,proto3" json:"beforeRun,omitempty"`                      // 启动前回调. 一旦配置, 则任务必须由业务主动调用 BizStartJob 执行任务. 否则任务将一直处于 JobStatus.WaitBizRun 状态
+	Process             string                 `protobuf:"bytes,3,opt,name=process,proto3" json:"process,omitempty"`                          // 处理任务回调. 必填
+	ProcessStop         string                 `protobuf:"bytes,4,opt,name=processStop,proto3" json:"processStop,omitempty"`                  // 任务停止回调. 用于业务方做一些清理. 选填
+	BeforeCreateTimeout int32                  `protobuf:"varint,5,opt,name=beforeCreateTimeout,proto3" json:"beforeCreateTimeout,omitempty"` // 创建和修改任务前回调超时秒数
+	BeforeRunTimeout    int32                  `protobuf:"varint,6,opt,name=beforeRunTimeout,proto3" json:"beforeRunTimeout,omitempty"`       // 启动前回调超时秒数
+	ProcessTimeout      int32                  `protobuf:"varint,7,opt,name=processTimeout,proto3" json:"processTimeout,omitempty"`           // 处理任务回调超时秒数
+	ProcessStopTimeout  int32                  `protobuf:"varint,8,opt,name=processStopTimeout,proto3" json:"processStopTimeout,omitempty"`   // 任务停止回调超时秒数
+	InsecureSkipVerify  bool                   `protobuf:"varint,9,opt,name=InsecureSkipVerify,proto3" json:"InsecureSkipVerify,omitempty"`   // 是否验证服务器的证书链和主机名
+	Headers             []*KV                  `protobuf:"bytes,10,rep,name=headers,proto3" json:"headers,omitempty"`                         // header
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *ExecExtendDataHttpCallbackQ) Reset() {
 	*x = ExecExtendDataHttpCallbackQ{}
-	mi := &file_batch_job_proto_msgTypes[1]
+	mi := &file_batch_job_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -406,7 +460,7 @@ func (x *ExecExtendDataHttpCallbackQ) String() string {
 func (*ExecExtendDataHttpCallbackQ) ProtoMessage() {}
 
 func (x *ExecExtendDataHttpCallbackQ) ProtoReflect() protoreflect.Message {
-	mi := &file_batch_job_proto_msgTypes[1]
+	mi := &file_batch_job_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -419,63 +473,77 @@ func (x *ExecExtendDataHttpCallbackQ) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExecExtendDataHttpCallbackQ.ProtoReflect.Descriptor instead.
 func (*ExecExtendDataHttpCallbackQ) Descriptor() ([]byte, []int) {
-	return file_batch_job_proto_rawDescGZIP(), []int{1}
+	return file_batch_job_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *ExecExtendDataHttpCallbackQ) GetCbBeforeCreate() string {
+func (x *ExecExtendDataHttpCallbackQ) GetBeforeCreate() string {
 	if x != nil {
-		return x.CbBeforeCreate
+		return x.BeforeCreate
 	}
 	return ""
 }
 
-func (x *ExecExtendDataHttpCallbackQ) GetCbBeforeRun() string {
+func (x *ExecExtendDataHttpCallbackQ) GetBeforeRun() string {
 	if x != nil {
-		return x.CbBeforeRun
+		return x.BeforeRun
 	}
 	return ""
 }
 
-func (x *ExecExtendDataHttpCallbackQ) GetCbProcess() string {
+func (x *ExecExtendDataHttpCallbackQ) GetProcess() string {
 	if x != nil {
-		return x.CbProcess
+		return x.Process
 	}
 	return ""
 }
 
-func (x *ExecExtendDataHttpCallbackQ) GetCbProcessStop() string {
+func (x *ExecExtendDataHttpCallbackQ) GetProcessStop() string {
 	if x != nil {
-		return x.CbProcessStop
+		return x.ProcessStop
 	}
 	return ""
 }
 
-func (x *ExecExtendDataHttpCallbackQ) GetCbBeforeCreateTimeout() int32 {
+func (x *ExecExtendDataHttpCallbackQ) GetBeforeCreateTimeout() int32 {
 	if x != nil {
-		return x.CbBeforeCreateTimeout
+		return x.BeforeCreateTimeout
 	}
 	return 0
 }
 
-func (x *ExecExtendDataHttpCallbackQ) GetCbBeforeRunTimeout() int32 {
+func (x *ExecExtendDataHttpCallbackQ) GetBeforeRunTimeout() int32 {
 	if x != nil {
-		return x.CbBeforeRunTimeout
+		return x.BeforeRunTimeout
 	}
 	return 0
 }
 
-func (x *ExecExtendDataHttpCallbackQ) GetCbProcessTimeout() int32 {
+func (x *ExecExtendDataHttpCallbackQ) GetProcessTimeout() int32 {
 	if x != nil {
-		return x.CbProcessTimeout
+		return x.ProcessTimeout
 	}
 	return 0
 }
 
-func (x *ExecExtendDataHttpCallbackQ) GetCbProcessStopTimeout() int32 {
+func (x *ExecExtendDataHttpCallbackQ) GetProcessStopTimeout() int32 {
 	if x != nil {
-		return x.CbProcessStopTimeout
+		return x.ProcessStopTimeout
 	}
 	return 0
+}
+
+func (x *ExecExtendDataHttpCallbackQ) GetInsecureSkipVerify() bool {
+	if x != nil {
+		return x.InsecureSkipVerify
+	}
+	return false
+}
+
+func (x *ExecExtendDataHttpCallbackQ) GetHeaders() []*KV {
+	if x != nil {
+		return x.Headers
+	}
+	return nil
 }
 
 // 执行器扩展数据-响应
@@ -488,7 +556,7 @@ type ExecExtendDataA struct {
 
 func (x *ExecExtendDataA) Reset() {
 	*x = ExecExtendDataA{}
-	mi := &file_batch_job_proto_msgTypes[2]
+	mi := &file_batch_job_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -500,7 +568,7 @@ func (x *ExecExtendDataA) String() string {
 func (*ExecExtendDataA) ProtoMessage() {}
 
 func (x *ExecExtendDataA) ProtoReflect() protoreflect.Message {
-	mi := &file_batch_job_proto_msgTypes[2]
+	mi := &file_batch_job_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -513,7 +581,7 @@ func (x *ExecExtendDataA) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExecExtendDataA.ProtoReflect.Descriptor instead.
 func (*ExecExtendDataA) Descriptor() ([]byte, []int) {
-	return file_batch_job_proto_rawDescGZIP(), []int{2}
+	return file_batch_job_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *ExecExtendDataA) GetHttpCallback() *ExecExtendDataHttpCallbackA {
@@ -525,22 +593,24 @@ func (x *ExecExtendDataA) GetHttpCallback() *ExecExtendDataHttpCallbackA {
 
 // 执行器扩展数据-响应-HttpCallback
 type ExecExtendDataHttpCallbackA struct {
-	state                 protoimpl.MessageState `protogen:"open.v1"`
-	CbBeforeCreate        string                 `protobuf:"bytes,1,opt,name=cbBeforeCreate,proto3" json:"cbBeforeCreate,omitempty"`                // 创建和修改任务回调url
-	CbBeforeRun           string                 `protobuf:"bytes,2,opt,name=cbBeforeRun,proto3" json:"cbBeforeRun,omitempty"`                      // 启动前回调. 一旦配置, 则任务必须由业务主动调用 BizStartJob 执行任务. 否则任务将一直处于 JobStatus.WaitBizRun 状态
-	CbProcess             string                 `protobuf:"bytes,3,opt,name=cbProcess,proto3" json:"cbProcess,omitempty"`                          // 处理任务回调. 必填
-	CbProcessStop         string                 `protobuf:"bytes,4,opt,name=cbProcessStop,proto3" json:"cbProcessStop,omitempty"`                  // 任务停止回调. 用于业务方做一些清理. 选填
-	CbBeforeCreateTimeout int32                  `protobuf:"varint,5,opt,name=cbBeforeCreateTimeout,proto3" json:"cbBeforeCreateTimeout,omitempty"` // 启动前回调超时秒数
-	CbBeforeRunTimeout    int32                  `protobuf:"varint,6,opt,name=cbBeforeRunTimeout,proto3" json:"cbBeforeRunTimeout,omitempty"`       // 启动前回调超时秒数
-	CbProcessTimeout      int32                  `protobuf:"varint,7,opt,name=cbProcessTimeout,proto3" json:"cbProcessTimeout,omitempty"`           // 处理任务回调超时秒数
-	CbProcessStopTimeout  int32                  `protobuf:"varint,8,opt,name=cbProcessStopTimeout,proto3" json:"cbProcessStopTimeout,omitempty"`   // 处理任务停止回调超时秒数
-	unknownFields         protoimpl.UnknownFields
-	sizeCache             protoimpl.SizeCache
+	state               protoimpl.MessageState `protogen:"open.v1"`
+	BeforeCreate        string                 `protobuf:"bytes,1,opt,name=beforeCreate,proto3" json:"beforeCreate,omitempty"`                // 创建和修改任务回调url
+	BeforeRun           string                 `protobuf:"bytes,2,opt,name=beforeRun,proto3" json:"beforeRun,omitempty"`                      // 启动前回调. 一旦配置, 则任务必须由业务主动调用 BizStartJob 执行任务. 否则任务将一直处于 JobStatus.WaitBizRun 状态
+	Process             string                 `protobuf:"bytes,3,opt,name=process,proto3" json:"process,omitempty"`                          // 处理任务回调. 必填
+	ProcessStop         string                 `protobuf:"bytes,4,opt,name=processStop,proto3" json:"processStop,omitempty"`                  // 任务停止回调. 用于业务方做一些清理. 选填
+	BeforeCreateTimeout int32                  `protobuf:"varint,5,opt,name=beforeCreateTimeout,proto3" json:"beforeCreateTimeout,omitempty"` // 创建和修改任务前回调超时秒数
+	BeforeRunTimeout    int32                  `protobuf:"varint,6,opt,name=beforeRunTimeout,proto3" json:"beforeRunTimeout,omitempty"`       // 启动前回调超时秒数
+	ProcessTimeout      int32                  `protobuf:"varint,7,opt,name=processTimeout,proto3" json:"processTimeout,omitempty"`           // 处理任务回调超时秒数
+	ProcessStopTimeout  int32                  `protobuf:"varint,8,opt,name=processStopTimeout,proto3" json:"processStopTimeout,omitempty"`   // 任务停止回调超时秒数
+	InsecureSkipVerify  bool                   `protobuf:"varint,9,opt,name=InsecureSkipVerify,proto3" json:"InsecureSkipVerify,omitempty"`   // 是否验证服务器的证书链和主机名
+	Headers             []*KV                  `protobuf:"bytes,10,rep,name=headers,proto3" json:"headers,omitempty"`                         // header
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *ExecExtendDataHttpCallbackA) Reset() {
 	*x = ExecExtendDataHttpCallbackA{}
-	mi := &file_batch_job_proto_msgTypes[3]
+	mi := &file_batch_job_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -552,7 +622,7 @@ func (x *ExecExtendDataHttpCallbackA) String() string {
 func (*ExecExtendDataHttpCallbackA) ProtoMessage() {}
 
 func (x *ExecExtendDataHttpCallbackA) ProtoReflect() protoreflect.Message {
-	mi := &file_batch_job_proto_msgTypes[3]
+	mi := &file_batch_job_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -565,63 +635,77 @@ func (x *ExecExtendDataHttpCallbackA) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExecExtendDataHttpCallbackA.ProtoReflect.Descriptor instead.
 func (*ExecExtendDataHttpCallbackA) Descriptor() ([]byte, []int) {
-	return file_batch_job_proto_rawDescGZIP(), []int{3}
+	return file_batch_job_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *ExecExtendDataHttpCallbackA) GetCbBeforeCreate() string {
+func (x *ExecExtendDataHttpCallbackA) GetBeforeCreate() string {
 	if x != nil {
-		return x.CbBeforeCreate
+		return x.BeforeCreate
 	}
 	return ""
 }
 
-func (x *ExecExtendDataHttpCallbackA) GetCbBeforeRun() string {
+func (x *ExecExtendDataHttpCallbackA) GetBeforeRun() string {
 	if x != nil {
-		return x.CbBeforeRun
+		return x.BeforeRun
 	}
 	return ""
 }
 
-func (x *ExecExtendDataHttpCallbackA) GetCbProcess() string {
+func (x *ExecExtendDataHttpCallbackA) GetProcess() string {
 	if x != nil {
-		return x.CbProcess
+		return x.Process
 	}
 	return ""
 }
 
-func (x *ExecExtendDataHttpCallbackA) GetCbProcessStop() string {
+func (x *ExecExtendDataHttpCallbackA) GetProcessStop() string {
 	if x != nil {
-		return x.CbProcessStop
+		return x.ProcessStop
 	}
 	return ""
 }
 
-func (x *ExecExtendDataHttpCallbackA) GetCbBeforeCreateTimeout() int32 {
+func (x *ExecExtendDataHttpCallbackA) GetBeforeCreateTimeout() int32 {
 	if x != nil {
-		return x.CbBeforeCreateTimeout
+		return x.BeforeCreateTimeout
 	}
 	return 0
 }
 
-func (x *ExecExtendDataHttpCallbackA) GetCbBeforeRunTimeout() int32 {
+func (x *ExecExtendDataHttpCallbackA) GetBeforeRunTimeout() int32 {
 	if x != nil {
-		return x.CbBeforeRunTimeout
+		return x.BeforeRunTimeout
 	}
 	return 0
 }
 
-func (x *ExecExtendDataHttpCallbackA) GetCbProcessTimeout() int32 {
+func (x *ExecExtendDataHttpCallbackA) GetProcessTimeout() int32 {
 	if x != nil {
-		return x.CbProcessTimeout
+		return x.ProcessTimeout
 	}
 	return 0
 }
 
-func (x *ExecExtendDataHttpCallbackA) GetCbProcessStopTimeout() int32 {
+func (x *ExecExtendDataHttpCallbackA) GetProcessStopTimeout() int32 {
 	if x != nil {
-		return x.CbProcessStopTimeout
+		return x.ProcessStopTimeout
 	}
 	return 0
+}
+
+func (x *ExecExtendDataHttpCallbackA) GetInsecureSkipVerify() bool {
+	if x != nil {
+		return x.InsecureSkipVerify
+	}
+	return false
+}
+
+func (x *ExecExtendDataHttpCallbackA) GetHeaders() []*KV {
+	if x != nil {
+		return x.Headers
+	}
+	return nil
 }
 
 type AdminRegistryBizReq struct {
@@ -638,7 +722,7 @@ type AdminRegistryBizReq struct {
 
 func (x *AdminRegistryBizReq) Reset() {
 	*x = AdminRegistryBizReq{}
-	mi := &file_batch_job_proto_msgTypes[4]
+	mi := &file_batch_job_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -650,7 +734,7 @@ func (x *AdminRegistryBizReq) String() string {
 func (*AdminRegistryBizReq) ProtoMessage() {}
 
 func (x *AdminRegistryBizReq) ProtoReflect() protoreflect.Message {
-	mi := &file_batch_job_proto_msgTypes[4]
+	mi := &file_batch_job_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -663,7 +747,7 @@ func (x *AdminRegistryBizReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AdminRegistryBizReq.ProtoReflect.Descriptor instead.
 func (*AdminRegistryBizReq) Descriptor() ([]byte, []int) {
-	return file_batch_job_proto_rawDescGZIP(), []int{4}
+	return file_batch_job_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *AdminRegistryBizReq) GetBizName() string {
@@ -717,7 +801,7 @@ type AdminRegistryBizRsp struct {
 
 func (x *AdminRegistryBizRsp) Reset() {
 	*x = AdminRegistryBizRsp{}
-	mi := &file_batch_job_proto_msgTypes[5]
+	mi := &file_batch_job_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -729,7 +813,7 @@ func (x *AdminRegistryBizRsp) String() string {
 func (*AdminRegistryBizRsp) ProtoMessage() {}
 
 func (x *AdminRegistryBizRsp) ProtoReflect() protoreflect.Message {
-	mi := &file_batch_job_proto_msgTypes[5]
+	mi := &file_batch_job_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -742,7 +826,7 @@ func (x *AdminRegistryBizRsp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AdminRegistryBizRsp.ProtoReflect.Descriptor instead.
 func (*AdminRegistryBizRsp) Descriptor() ([]byte, []int) {
-	return file_batch_job_proto_rawDescGZIP(), []int{5}
+	return file_batch_job_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *AdminRegistryBizRsp) GetBizId() int32 {
@@ -767,7 +851,7 @@ type AdminUpdateBizReq struct {
 
 func (x *AdminUpdateBizReq) Reset() {
 	*x = AdminUpdateBizReq{}
-	mi := &file_batch_job_proto_msgTypes[6]
+	mi := &file_batch_job_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -779,7 +863,7 @@ func (x *AdminUpdateBizReq) String() string {
 func (*AdminUpdateBizReq) ProtoMessage() {}
 
 func (x *AdminUpdateBizReq) ProtoReflect() protoreflect.Message {
-	mi := &file_batch_job_proto_msgTypes[6]
+	mi := &file_batch_job_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -792,7 +876,7 @@ func (x *AdminUpdateBizReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AdminUpdateBizReq.ProtoReflect.Descriptor instead.
 func (*AdminUpdateBizReq) Descriptor() ([]byte, []int) {
-	return file_batch_job_proto_rawDescGZIP(), []int{6}
+	return file_batch_job_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *AdminUpdateBizReq) GetBizId() int32 {
@@ -852,7 +936,7 @@ type AdminUpdateBizRsp struct {
 
 func (x *AdminUpdateBizRsp) Reset() {
 	*x = AdminUpdateBizRsp{}
-	mi := &file_batch_job_proto_msgTypes[7]
+	mi := &file_batch_job_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -864,7 +948,7 @@ func (x *AdminUpdateBizRsp) String() string {
 func (*AdminUpdateBizRsp) ProtoMessage() {}
 
 func (x *AdminUpdateBizRsp) ProtoReflect() protoreflect.Message {
-	mi := &file_batch_job_proto_msgTypes[7]
+	mi := &file_batch_job_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -877,7 +961,7 @@ func (x *AdminUpdateBizRsp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AdminUpdateBizRsp.ProtoReflect.Descriptor instead.
 func (*AdminUpdateBizRsp) Descriptor() ([]byte, []int) {
-	return file_batch_job_proto_rawDescGZIP(), []int{7}
+	return file_batch_job_proto_rawDescGZIP(), []int{8}
 }
 
 // 操作信息-请求
@@ -893,7 +977,7 @@ type OpInfoQ struct {
 
 func (x *OpInfoQ) Reset() {
 	*x = OpInfoQ{}
-	mi := &file_batch_job_proto_msgTypes[8]
+	mi := &file_batch_job_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -905,7 +989,7 @@ func (x *OpInfoQ) String() string {
 func (*OpInfoQ) ProtoMessage() {}
 
 func (x *OpInfoQ) ProtoReflect() protoreflect.Message {
-	mi := &file_batch_job_proto_msgTypes[8]
+	mi := &file_batch_job_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -918,7 +1002,7 @@ func (x *OpInfoQ) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OpInfoQ.ProtoReflect.Descriptor instead.
 func (*OpInfoQ) Descriptor() ([]byte, []int) {
-	return file_batch_job_proto_rawDescGZIP(), []int{8}
+	return file_batch_job_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *OpInfoQ) GetOpSource() string {
@@ -963,7 +1047,7 @@ type OpInfoA struct {
 
 func (x *OpInfoA) Reset() {
 	*x = OpInfoA{}
-	mi := &file_batch_job_proto_msgTypes[9]
+	mi := &file_batch_job_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -975,7 +1059,7 @@ func (x *OpInfoA) String() string {
 func (*OpInfoA) ProtoMessage() {}
 
 func (x *OpInfoA) ProtoReflect() protoreflect.Message {
-	mi := &file_batch_job_proto_msgTypes[9]
+	mi := &file_batch_job_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -988,7 +1072,7 @@ func (x *OpInfoA) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OpInfoA.ProtoReflect.Descriptor instead.
 func (*OpInfoA) Descriptor() ([]byte, []int) {
-	return file_batch_job_proto_rawDescGZIP(), []int{9}
+	return file_batch_job_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *OpInfoA) GetOpSource() string {
@@ -1037,7 +1121,7 @@ type BizOpHistoryA struct {
 
 func (x *BizOpHistoryA) Reset() {
 	*x = BizOpHistoryA{}
-	mi := &file_batch_job_proto_msgTypes[10]
+	mi := &file_batch_job_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1049,7 +1133,7 @@ func (x *BizOpHistoryA) String() string {
 func (*BizOpHistoryA) ProtoMessage() {}
 
 func (x *BizOpHistoryA) ProtoReflect() protoreflect.Message {
-	mi := &file_batch_job_proto_msgTypes[10]
+	mi := &file_batch_job_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1062,7 +1146,7 @@ func (x *BizOpHistoryA) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BizOpHistoryA.ProtoReflect.Descriptor instead.
 func (*BizOpHistoryA) Descriptor() ([]byte, []int) {
-	return file_batch_job_proto_rawDescGZIP(), []int{10}
+	return file_batch_job_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *BizOpHistoryA) GetOp() *OpInfoA {
@@ -1096,7 +1180,7 @@ type BizInfoA struct {
 
 func (x *BizInfoA) Reset() {
 	*x = BizInfoA{}
-	mi := &file_batch_job_proto_msgTypes[11]
+	mi := &file_batch_job_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1108,7 +1192,7 @@ func (x *BizInfoA) String() string {
 func (*BizInfoA) ProtoMessage() {}
 
 func (x *BizInfoA) ProtoReflect() protoreflect.Message {
-	mi := &file_batch_job_proto_msgTypes[11]
+	mi := &file_batch_job_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1121,7 +1205,7 @@ func (x *BizInfoA) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BizInfoA.ProtoReflect.Descriptor instead.
 func (*BizInfoA) Descriptor() ([]byte, []int) {
-	return file_batch_job_proto_rawDescGZIP(), []int{11}
+	return file_batch_job_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *BizInfoA) GetBizId() int32 {
@@ -1195,7 +1279,7 @@ type BizInfoByListA struct {
 
 func (x *BizInfoByListA) Reset() {
 	*x = BizInfoByListA{}
-	mi := &file_batch_job_proto_msgTypes[12]
+	mi := &file_batch_job_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1207,7 +1291,7 @@ func (x *BizInfoByListA) String() string {
 func (*BizInfoByListA) ProtoMessage() {}
 
 func (x *BizInfoByListA) ProtoReflect() protoreflect.Message {
-	mi := &file_batch_job_proto_msgTypes[12]
+	mi := &file_batch_job_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1220,7 +1304,7 @@ func (x *BizInfoByListA) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BizInfoByListA.ProtoReflect.Descriptor instead.
 func (*BizInfoByListA) Descriptor() ([]byte, []int) {
-	return file_batch_job_proto_rawDescGZIP(), []int{12}
+	return file_batch_job_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *BizInfoByListA) GetBizId() int32 {
@@ -1287,7 +1371,7 @@ type JobInfoA struct {
 
 func (x *JobInfoA) Reset() {
 	*x = JobInfoA{}
-	mi := &file_batch_job_proto_msgTypes[13]
+	mi := &file_batch_job_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1299,7 +1383,7 @@ func (x *JobInfoA) String() string {
 func (*JobInfoA) ProtoMessage() {}
 
 func (x *JobInfoA) ProtoReflect() protoreflect.Message {
-	mi := &file_batch_job_proto_msgTypes[13]
+	mi := &file_batch_job_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1312,7 +1396,7 @@ func (x *JobInfoA) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use JobInfoA.ProtoReflect.Descriptor instead.
 func (*JobInfoA) Descriptor() ([]byte, []int) {
-	return file_batch_job_proto_rawDescGZIP(), []int{13}
+	return file_batch_job_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *JobInfoA) GetJobId() int64 {
@@ -1427,7 +1511,7 @@ type JobInfoByListA struct {
 
 func (x *JobInfoByListA) Reset() {
 	*x = JobInfoByListA{}
-	mi := &file_batch_job_proto_msgTypes[14]
+	mi := &file_batch_job_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1439,7 +1523,7 @@ func (x *JobInfoByListA) String() string {
 func (*JobInfoByListA) ProtoMessage() {}
 
 func (x *JobInfoByListA) ProtoReflect() protoreflect.Message {
-	mi := &file_batch_job_proto_msgTypes[14]
+	mi := &file_batch_job_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1452,7 +1536,7 @@ func (x *JobInfoByListA) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use JobInfoByListA.ProtoReflect.Descriptor instead.
 func (*JobInfoByListA) Descriptor() ([]byte, []int) {
-	return file_batch_job_proto_rawDescGZIP(), []int{14}
+	return file_batch_job_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *JobInfoByListA) GetJobId() int64 {
@@ -1552,7 +1636,7 @@ type DataLogQ struct {
 
 func (x *DataLogQ) Reset() {
 	*x = DataLogQ{}
-	mi := &file_batch_job_proto_msgTypes[15]
+	mi := &file_batch_job_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1564,7 +1648,7 @@ func (x *DataLogQ) String() string {
 func (*DataLogQ) ProtoMessage() {}
 
 func (x *DataLogQ) ProtoReflect() protoreflect.Message {
-	mi := &file_batch_job_proto_msgTypes[15]
+	mi := &file_batch_job_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1577,7 +1661,7 @@ func (x *DataLogQ) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DataLogQ.ProtoReflect.Descriptor instead.
 func (*DataLogQ) Descriptor() ([]byte, []int) {
-	return file_batch_job_proto_rawDescGZIP(), []int{15}
+	return file_batch_job_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *DataLogQ) GetDataId() string {
@@ -1622,7 +1706,7 @@ type LogInfoByListA struct {
 
 func (x *LogInfoByListA) Reset() {
 	*x = LogInfoByListA{}
-	mi := &file_batch_job_proto_msgTypes[16]
+	mi := &file_batch_job_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1634,7 +1718,7 @@ func (x *LogInfoByListA) String() string {
 func (*LogInfoByListA) ProtoMessage() {}
 
 func (x *LogInfoByListA) ProtoReflect() protoreflect.Message {
-	mi := &file_batch_job_proto_msgTypes[16]
+	mi := &file_batch_job_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1647,7 +1731,7 @@ func (x *LogInfoByListA) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LogInfoByListA.ProtoReflect.Descriptor instead.
 func (*LogInfoByListA) Descriptor() ([]byte, []int) {
-	return file_batch_job_proto_rawDescGZIP(), []int{16}
+	return file_batch_job_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *LogInfoByListA) GetDataId() string {
@@ -1702,7 +1786,7 @@ type AdminCreateJobReq struct {
 
 func (x *AdminCreateJobReq) Reset() {
 	*x = AdminCreateJobReq{}
-	mi := &file_batch_job_proto_msgTypes[17]
+	mi := &file_batch_job_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1714,7 +1798,7 @@ func (x *AdminCreateJobReq) String() string {
 func (*AdminCreateJobReq) ProtoMessage() {}
 
 func (x *AdminCreateJobReq) ProtoReflect() protoreflect.Message {
-	mi := &file_batch_job_proto_msgTypes[17]
+	mi := &file_batch_job_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1727,7 +1811,7 @@ func (x *AdminCreateJobReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AdminCreateJobReq.ProtoReflect.Descriptor instead.
 func (*AdminCreateJobReq) Descriptor() ([]byte, []int) {
-	return file_batch_job_proto_rawDescGZIP(), []int{17}
+	return file_batch_job_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *AdminCreateJobReq) GetBizId() int32 {
@@ -1802,7 +1886,7 @@ type AdminCreateJobRsp struct {
 
 func (x *AdminCreateJobRsp) Reset() {
 	*x = AdminCreateJobRsp{}
-	mi := &file_batch_job_proto_msgTypes[18]
+	mi := &file_batch_job_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1814,7 +1898,7 @@ func (x *AdminCreateJobRsp) String() string {
 func (*AdminCreateJobRsp) ProtoMessage() {}
 
 func (x *AdminCreateJobRsp) ProtoReflect() protoreflect.Message {
-	mi := &file_batch_job_proto_msgTypes[18]
+	mi := &file_batch_job_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1827,7 +1911,7 @@ func (x *AdminCreateJobRsp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AdminCreateJobRsp.ProtoReflect.Descriptor instead.
 func (*AdminCreateJobRsp) Descriptor() ([]byte, []int) {
-	return file_batch_job_proto_rawDescGZIP(), []int{18}
+	return file_batch_job_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *AdminCreateJobRsp) GetJobId() int64 {
@@ -1853,7 +1937,7 @@ type AdminUpdateJobReq struct {
 
 func (x *AdminUpdateJobReq) Reset() {
 	*x = AdminUpdateJobReq{}
-	mi := &file_batch_job_proto_msgTypes[19]
+	mi := &file_batch_job_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1865,7 +1949,7 @@ func (x *AdminUpdateJobReq) String() string {
 func (*AdminUpdateJobReq) ProtoMessage() {}
 
 func (x *AdminUpdateJobReq) ProtoReflect() protoreflect.Message {
-	mi := &file_batch_job_proto_msgTypes[19]
+	mi := &file_batch_job_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1878,7 +1962,7 @@ func (x *AdminUpdateJobReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AdminUpdateJobReq.ProtoReflect.Descriptor instead.
 func (*AdminUpdateJobReq) Descriptor() ([]byte, []int) {
-	return file_batch_job_proto_rawDescGZIP(), []int{19}
+	return file_batch_job_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *AdminUpdateJobReq) GetJobName() string {
@@ -1945,7 +2029,7 @@ type AdminUpdateJobRsp struct {
 
 func (x *AdminUpdateJobRsp) Reset() {
 	*x = AdminUpdateJobRsp{}
-	mi := &file_batch_job_proto_msgTypes[20]
+	mi := &file_batch_job_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1957,7 +2041,7 @@ func (x *AdminUpdateJobRsp) String() string {
 func (*AdminUpdateJobRsp) ProtoMessage() {}
 
 func (x *AdminUpdateJobRsp) ProtoReflect() protoreflect.Message {
-	mi := &file_batch_job_proto_msgTypes[20]
+	mi := &file_batch_job_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1970,7 +2054,7 @@ func (x *AdminUpdateJobRsp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AdminUpdateJobRsp.ProtoReflect.Descriptor instead.
 func (*AdminUpdateJobRsp) Descriptor() ([]byte, []int) {
-	return file_batch_job_proto_rawDescGZIP(), []int{20}
+	return file_batch_job_proto_rawDescGZIP(), []int{21}
 }
 
 type AdminStartJobReq struct {
@@ -1983,7 +2067,7 @@ type AdminStartJobReq struct {
 
 func (x *AdminStartJobReq) Reset() {
 	*x = AdminStartJobReq{}
-	mi := &file_batch_job_proto_msgTypes[21]
+	mi := &file_batch_job_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1995,7 +2079,7 @@ func (x *AdminStartJobReq) String() string {
 func (*AdminStartJobReq) ProtoMessage() {}
 
 func (x *AdminStartJobReq) ProtoReflect() protoreflect.Message {
-	mi := &file_batch_job_proto_msgTypes[21]
+	mi := &file_batch_job_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2008,7 +2092,7 @@ func (x *AdminStartJobReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AdminStartJobReq.ProtoReflect.Descriptor instead.
 func (*AdminStartJobReq) Descriptor() ([]byte, []int) {
-	return file_batch_job_proto_rawDescGZIP(), []int{21}
+	return file_batch_job_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *AdminStartJobReq) GetJobId() int64 {
@@ -2033,7 +2117,7 @@ type AdminStartJobRsp struct {
 
 func (x *AdminStartJobRsp) Reset() {
 	*x = AdminStartJobRsp{}
-	mi := &file_batch_job_proto_msgTypes[22]
+	mi := &file_batch_job_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2045,7 +2129,7 @@ func (x *AdminStartJobRsp) String() string {
 func (*AdminStartJobRsp) ProtoMessage() {}
 
 func (x *AdminStartJobRsp) ProtoReflect() protoreflect.Message {
-	mi := &file_batch_job_proto_msgTypes[22]
+	mi := &file_batch_job_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2058,7 +2142,7 @@ func (x *AdminStartJobRsp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AdminStartJobRsp.ProtoReflect.Descriptor instead.
 func (*AdminStartJobRsp) Descriptor() ([]byte, []int) {
-	return file_batch_job_proto_rawDescGZIP(), []int{22}
+	return file_batch_job_proto_rawDescGZIP(), []int{23}
 }
 
 type AdminStopJobReq struct {
@@ -2071,7 +2155,7 @@ type AdminStopJobReq struct {
 
 func (x *AdminStopJobReq) Reset() {
 	*x = AdminStopJobReq{}
-	mi := &file_batch_job_proto_msgTypes[23]
+	mi := &file_batch_job_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2083,7 +2167,7 @@ func (x *AdminStopJobReq) String() string {
 func (*AdminStopJobReq) ProtoMessage() {}
 
 func (x *AdminStopJobReq) ProtoReflect() protoreflect.Message {
-	mi := &file_batch_job_proto_msgTypes[23]
+	mi := &file_batch_job_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2096,7 +2180,7 @@ func (x *AdminStopJobReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AdminStopJobReq.ProtoReflect.Descriptor instead.
 func (*AdminStopJobReq) Descriptor() ([]byte, []int) {
-	return file_batch_job_proto_rawDescGZIP(), []int{23}
+	return file_batch_job_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *AdminStopJobReq) GetJobId() int64 {
@@ -2121,7 +2205,7 @@ type AdminStopJobRsp struct {
 
 func (x *AdminStopJobRsp) Reset() {
 	*x = AdminStopJobRsp{}
-	mi := &file_batch_job_proto_msgTypes[24]
+	mi := &file_batch_job_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2133,7 +2217,7 @@ func (x *AdminStopJobRsp) String() string {
 func (*AdminStopJobRsp) ProtoMessage() {}
 
 func (x *AdminStopJobRsp) ProtoReflect() protoreflect.Message {
-	mi := &file_batch_job_proto_msgTypes[24]
+	mi := &file_batch_job_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2146,7 +2230,7 @@ func (x *AdminStopJobRsp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AdminStopJobRsp.ProtoReflect.Descriptor instead.
 func (*AdminStopJobRsp) Descriptor() ([]byte, []int) {
-	return file_batch_job_proto_rawDescGZIP(), []int{24}
+	return file_batch_job_proto_rawDescGZIP(), []int{25}
 }
 
 type QueryAllBizNameReq struct {
@@ -2157,7 +2241,7 @@ type QueryAllBizNameReq struct {
 
 func (x *QueryAllBizNameReq) Reset() {
 	*x = QueryAllBizNameReq{}
-	mi := &file_batch_job_proto_msgTypes[25]
+	mi := &file_batch_job_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2169,7 +2253,7 @@ func (x *QueryAllBizNameReq) String() string {
 func (*QueryAllBizNameReq) ProtoMessage() {}
 
 func (x *QueryAllBizNameReq) ProtoReflect() protoreflect.Message {
-	mi := &file_batch_job_proto_msgTypes[25]
+	mi := &file_batch_job_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2182,7 +2266,7 @@ func (x *QueryAllBizNameReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use QueryAllBizNameReq.ProtoReflect.Descriptor instead.
 func (*QueryAllBizNameReq) Descriptor() ([]byte, []int) {
-	return file_batch_job_proto_rawDescGZIP(), []int{25}
+	return file_batch_job_proto_rawDescGZIP(), []int{26}
 }
 
 type QueryAllBizNameRsp struct {
@@ -2194,7 +2278,7 @@ type QueryAllBizNameRsp struct {
 
 func (x *QueryAllBizNameRsp) Reset() {
 	*x = QueryAllBizNameRsp{}
-	mi := &file_batch_job_proto_msgTypes[26]
+	mi := &file_batch_job_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2206,7 +2290,7 @@ func (x *QueryAllBizNameRsp) String() string {
 func (*QueryAllBizNameRsp) ProtoMessage() {}
 
 func (x *QueryAllBizNameRsp) ProtoReflect() protoreflect.Message {
-	mi := &file_batch_job_proto_msgTypes[26]
+	mi := &file_batch_job_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2219,7 +2303,7 @@ func (x *QueryAllBizNameRsp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use QueryAllBizNameRsp.ProtoReflect.Descriptor instead.
 func (*QueryAllBizNameRsp) Descriptor() ([]byte, []int) {
-	return file_batch_job_proto_rawDescGZIP(), []int{26}
+	return file_batch_job_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *QueryAllBizNameRsp) GetLine() []*QueryAllBizNameRsp_LineA {
@@ -2238,7 +2322,7 @@ type QueryBizInfoReq struct {
 
 func (x *QueryBizInfoReq) Reset() {
 	*x = QueryBizInfoReq{}
-	mi := &file_batch_job_proto_msgTypes[27]
+	mi := &file_batch_job_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2250,7 +2334,7 @@ func (x *QueryBizInfoReq) String() string {
 func (*QueryBizInfoReq) ProtoMessage() {}
 
 func (x *QueryBizInfoReq) ProtoReflect() protoreflect.Message {
-	mi := &file_batch_job_proto_msgTypes[27]
+	mi := &file_batch_job_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2263,7 +2347,7 @@ func (x *QueryBizInfoReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use QueryBizInfoReq.ProtoReflect.Descriptor instead.
 func (*QueryBizInfoReq) Descriptor() ([]byte, []int) {
-	return file_batch_job_proto_rawDescGZIP(), []int{27}
+	return file_batch_job_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *QueryBizInfoReq) GetBizId() int32 {
@@ -2282,7 +2366,7 @@ type QueryBizInfoRsp struct {
 
 func (x *QueryBizInfoRsp) Reset() {
 	*x = QueryBizInfoRsp{}
-	mi := &file_batch_job_proto_msgTypes[28]
+	mi := &file_batch_job_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2294,7 +2378,7 @@ func (x *QueryBizInfoRsp) String() string {
 func (*QueryBizInfoRsp) ProtoMessage() {}
 
 func (x *QueryBizInfoRsp) ProtoReflect() protoreflect.Message {
-	mi := &file_batch_job_proto_msgTypes[28]
+	mi := &file_batch_job_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2307,7 +2391,7 @@ func (x *QueryBizInfoRsp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use QueryBizInfoRsp.ProtoReflect.Descriptor instead.
 func (*QueryBizInfoRsp) Descriptor() ([]byte, []int) {
-	return file_batch_job_proto_rawDescGZIP(), []int{28}
+	return file_batch_job_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *QueryBizInfoRsp) GetLine() *BizInfoA {
@@ -2330,7 +2414,7 @@ type QueryBizListReq struct {
 
 func (x *QueryBizListReq) Reset() {
 	*x = QueryBizListReq{}
-	mi := &file_batch_job_proto_msgTypes[29]
+	mi := &file_batch_job_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2342,7 +2426,7 @@ func (x *QueryBizListReq) String() string {
 func (*QueryBizListReq) ProtoMessage() {}
 
 func (x *QueryBizListReq) ProtoReflect() protoreflect.Message {
-	mi := &file_batch_job_proto_msgTypes[29]
+	mi := &file_batch_job_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2355,7 +2439,7 @@ func (x *QueryBizListReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use QueryBizListReq.ProtoReflect.Descriptor instead.
 func (*QueryBizListReq) Descriptor() ([]byte, []int) {
-	return file_batch_job_proto_rawDescGZIP(), []int{29}
+	return file_batch_job_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *QueryBizListReq) GetPage() int32 {
@@ -2404,7 +2488,7 @@ type QueryBizListRsp struct {
 
 func (x *QueryBizListRsp) Reset() {
 	*x = QueryBizListRsp{}
-	mi := &file_batch_job_proto_msgTypes[30]
+	mi := &file_batch_job_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2416,7 +2500,7 @@ func (x *QueryBizListRsp) String() string {
 func (*QueryBizListRsp) ProtoMessage() {}
 
 func (x *QueryBizListRsp) ProtoReflect() protoreflect.Message {
-	mi := &file_batch_job_proto_msgTypes[30]
+	mi := &file_batch_job_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2429,7 +2513,7 @@ func (x *QueryBizListRsp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use QueryBizListRsp.ProtoReflect.Descriptor instead.
 func (*QueryBizListRsp) Descriptor() ([]byte, []int) {
-	return file_batch_job_proto_rawDescGZIP(), []int{30}
+	return file_batch_job_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *QueryBizListRsp) GetTotal() int32 {
@@ -2462,7 +2546,7 @@ type QueryJobInfoReq struct {
 
 func (x *QueryJobInfoReq) Reset() {
 	*x = QueryJobInfoReq{}
-	mi := &file_batch_job_proto_msgTypes[31]
+	mi := &file_batch_job_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2474,7 +2558,7 @@ func (x *QueryJobInfoReq) String() string {
 func (*QueryJobInfoReq) ProtoMessage() {}
 
 func (x *QueryJobInfoReq) ProtoReflect() protoreflect.Message {
-	mi := &file_batch_job_proto_msgTypes[31]
+	mi := &file_batch_job_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2487,7 +2571,7 @@ func (x *QueryJobInfoReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use QueryJobInfoReq.ProtoReflect.Descriptor instead.
 func (*QueryJobInfoReq) Descriptor() ([]byte, []int) {
-	return file_batch_job_proto_rawDescGZIP(), []int{31}
+	return file_batch_job_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *QueryJobInfoReq) GetJobId() int64 {
@@ -2506,7 +2590,7 @@ type QueryJobInfoRsp struct {
 
 func (x *QueryJobInfoRsp) Reset() {
 	*x = QueryJobInfoRsp{}
-	mi := &file_batch_job_proto_msgTypes[32]
+	mi := &file_batch_job_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2518,7 +2602,7 @@ func (x *QueryJobInfoRsp) String() string {
 func (*QueryJobInfoRsp) ProtoMessage() {}
 
 func (x *QueryJobInfoRsp) ProtoReflect() protoreflect.Message {
-	mi := &file_batch_job_proto_msgTypes[32]
+	mi := &file_batch_job_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2531,7 +2615,7 @@ func (x *QueryJobInfoRsp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use QueryJobInfoRsp.ProtoReflect.Descriptor instead.
 func (*QueryJobInfoRsp) Descriptor() ([]byte, []int) {
-	return file_batch_job_proto_rawDescGZIP(), []int{32}
+	return file_batch_job_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *QueryJobInfoRsp) GetLine() *JobInfoA {
@@ -2556,7 +2640,7 @@ type QueryJobListReq struct {
 
 func (x *QueryJobListReq) Reset() {
 	*x = QueryJobListReq{}
-	mi := &file_batch_job_proto_msgTypes[33]
+	mi := &file_batch_job_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2568,7 +2652,7 @@ func (x *QueryJobListReq) String() string {
 func (*QueryJobListReq) ProtoMessage() {}
 
 func (x *QueryJobListReq) ProtoReflect() protoreflect.Message {
-	mi := &file_batch_job_proto_msgTypes[33]
+	mi := &file_batch_job_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2581,7 +2665,7 @@ func (x *QueryJobListReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use QueryJobListReq.ProtoReflect.Descriptor instead.
 func (*QueryJobListReq) Descriptor() ([]byte, []int) {
-	return file_batch_job_proto_rawDescGZIP(), []int{33}
+	return file_batch_job_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *QueryJobListReq) GetPage() int32 {
@@ -2644,7 +2728,7 @@ type QueryJobListRsp struct {
 
 func (x *QueryJobListRsp) Reset() {
 	*x = QueryJobListRsp{}
-	mi := &file_batch_job_proto_msgTypes[34]
+	mi := &file_batch_job_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2656,7 +2740,7 @@ func (x *QueryJobListRsp) String() string {
 func (*QueryJobListRsp) ProtoMessage() {}
 
 func (x *QueryJobListRsp) ProtoReflect() protoreflect.Message {
-	mi := &file_batch_job_proto_msgTypes[34]
+	mi := &file_batch_job_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2669,7 +2753,7 @@ func (x *QueryJobListRsp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use QueryJobListRsp.ProtoReflect.Descriptor instead.
 func (*QueryJobListRsp) Descriptor() ([]byte, []int) {
-	return file_batch_job_proto_rawDescGZIP(), []int{34}
+	return file_batch_job_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *QueryJobListRsp) GetTotal() int32 {
@@ -2702,7 +2786,7 @@ type QueryJobStateInfoReq struct {
 
 func (x *QueryJobStateInfoReq) Reset() {
 	*x = QueryJobStateInfoReq{}
-	mi := &file_batch_job_proto_msgTypes[35]
+	mi := &file_batch_job_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2714,7 +2798,7 @@ func (x *QueryJobStateInfoReq) String() string {
 func (*QueryJobStateInfoReq) ProtoMessage() {}
 
 func (x *QueryJobStateInfoReq) ProtoReflect() protoreflect.Message {
-	mi := &file_batch_job_proto_msgTypes[35]
+	mi := &file_batch_job_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2727,7 +2811,7 @@ func (x *QueryJobStateInfoReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use QueryJobStateInfoReq.ProtoReflect.Descriptor instead.
 func (*QueryJobStateInfoReq) Descriptor() ([]byte, []int) {
-	return file_batch_job_proto_rawDescGZIP(), []int{35}
+	return file_batch_job_proto_rawDescGZIP(), []int{36}
 }
 
 func (x *QueryJobStateInfoReq) GetJobIds() []int64 {
@@ -2752,7 +2836,7 @@ type JobStateInfo struct {
 
 func (x *JobStateInfo) Reset() {
 	*x = JobStateInfo{}
-	mi := &file_batch_job_proto_msgTypes[36]
+	mi := &file_batch_job_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2764,7 +2848,7 @@ func (x *JobStateInfo) String() string {
 func (*JobStateInfo) ProtoMessage() {}
 
 func (x *JobStateInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_batch_job_proto_msgTypes[36]
+	mi := &file_batch_job_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2777,7 +2861,7 @@ func (x *JobStateInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use JobStateInfo.ProtoReflect.Descriptor instead.
 func (*JobStateInfo) Descriptor() ([]byte, []int) {
-	return file_batch_job_proto_rawDescGZIP(), []int{36}
+	return file_batch_job_proto_rawDescGZIP(), []int{37}
 }
 
 func (x *JobStateInfo) GetJobId() int64 {
@@ -2838,7 +2922,7 @@ type QueryJobStateInfoRsp struct {
 
 func (x *QueryJobStateInfoRsp) Reset() {
 	*x = QueryJobStateInfoRsp{}
-	mi := &file_batch_job_proto_msgTypes[37]
+	mi := &file_batch_job_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2850,7 +2934,7 @@ func (x *QueryJobStateInfoRsp) String() string {
 func (*QueryJobStateInfoRsp) ProtoMessage() {}
 
 func (x *QueryJobStateInfoRsp) ProtoReflect() protoreflect.Message {
-	mi := &file_batch_job_proto_msgTypes[37]
+	mi := &file_batch_job_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2863,7 +2947,7 @@ func (x *QueryJobStateInfoRsp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use QueryJobStateInfoRsp.ProtoReflect.Descriptor instead.
 func (*QueryJobStateInfoRsp) Descriptor() ([]byte, []int) {
-	return file_batch_job_proto_rawDescGZIP(), []int{37}
+	return file_batch_job_proto_rawDescGZIP(), []int{38}
 }
 
 func (x *QueryJobStateInfoRsp) GetJobStateInfos() []*JobStateInfo {
@@ -2887,7 +2971,7 @@ type QueryJobDataLogReq struct {
 
 func (x *QueryJobDataLogReq) Reset() {
 	*x = QueryJobDataLogReq{}
-	mi := &file_batch_job_proto_msgTypes[38]
+	mi := &file_batch_job_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2899,7 +2983,7 @@ func (x *QueryJobDataLogReq) String() string {
 func (*QueryJobDataLogReq) ProtoMessage() {}
 
 func (x *QueryJobDataLogReq) ProtoReflect() protoreflect.Message {
-	mi := &file_batch_job_proto_msgTypes[38]
+	mi := &file_batch_job_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2912,7 +2996,7 @@ func (x *QueryJobDataLogReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use QueryJobDataLogReq.ProtoReflect.Descriptor instead.
 func (*QueryJobDataLogReq) Descriptor() ([]byte, []int) {
-	return file_batch_job_proto_rawDescGZIP(), []int{38}
+	return file_batch_job_proto_rawDescGZIP(), []int{39}
 }
 
 func (x *QueryJobDataLogReq) GetJobId() int64 {
@@ -2968,7 +3052,7 @@ type QueryJobDataLogRsp struct {
 
 func (x *QueryJobDataLogRsp) Reset() {
 	*x = QueryJobDataLogRsp{}
-	mi := &file_batch_job_proto_msgTypes[39]
+	mi := &file_batch_job_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2980,7 +3064,7 @@ func (x *QueryJobDataLogRsp) String() string {
 func (*QueryJobDataLogRsp) ProtoMessage() {}
 
 func (x *QueryJobDataLogRsp) ProtoReflect() protoreflect.Message {
-	mi := &file_batch_job_proto_msgTypes[39]
+	mi := &file_batch_job_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2993,7 +3077,7 @@ func (x *QueryJobDataLogRsp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use QueryJobDataLogRsp.ProtoReflect.Descriptor instead.
 func (*QueryJobDataLogRsp) Descriptor() ([]byte, []int) {
-	return file_batch_job_proto_rawDescGZIP(), []int{39}
+	return file_batch_job_proto_rawDescGZIP(), []int{40}
 }
 
 func (x *QueryJobDataLogRsp) GetNextCursor() int64 {
@@ -3028,7 +3112,7 @@ type BizStartJobReq struct {
 
 func (x *BizStartJobReq) Reset() {
 	*x = BizStartJobReq{}
-	mi := &file_batch_job_proto_msgTypes[40]
+	mi := &file_batch_job_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3040,7 +3124,7 @@ func (x *BizStartJobReq) String() string {
 func (*BizStartJobReq) ProtoMessage() {}
 
 func (x *BizStartJobReq) ProtoReflect() protoreflect.Message {
-	mi := &file_batch_job_proto_msgTypes[40]
+	mi := &file_batch_job_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3053,7 +3137,7 @@ func (x *BizStartJobReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BizStartJobReq.ProtoReflect.Descriptor instead.
 func (*BizStartJobReq) Descriptor() ([]byte, []int) {
-	return file_batch_job_proto_rawDescGZIP(), []int{40}
+	return file_batch_job_proto_rawDescGZIP(), []int{41}
 }
 
 func (x *BizStartJobReq) GetAuthCode() string {
@@ -3085,7 +3169,7 @@ type BizStartJobRsp struct {
 
 func (x *BizStartJobRsp) Reset() {
 	*x = BizStartJobRsp{}
-	mi := &file_batch_job_proto_msgTypes[41]
+	mi := &file_batch_job_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3097,7 +3181,7 @@ func (x *BizStartJobRsp) String() string {
 func (*BizStartJobRsp) ProtoMessage() {}
 
 func (x *BizStartJobRsp) ProtoReflect() protoreflect.Message {
-	mi := &file_batch_job_proto_msgTypes[41]
+	mi := &file_batch_job_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3110,7 +3194,7 @@ func (x *BizStartJobRsp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BizStartJobRsp.ProtoReflect.Descriptor instead.
 func (*BizStartJobRsp) Descriptor() ([]byte, []int) {
-	return file_batch_job_proto_rawDescGZIP(), []int{41}
+	return file_batch_job_proto_rawDescGZIP(), []int{42}
 }
 
 type BizUpdateJobDataReq struct {
@@ -3127,7 +3211,7 @@ type BizUpdateJobDataReq struct {
 
 func (x *BizUpdateJobDataReq) Reset() {
 	*x = BizUpdateJobDataReq{}
-	mi := &file_batch_job_proto_msgTypes[42]
+	mi := &file_batch_job_proto_msgTypes[43]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3139,7 +3223,7 @@ func (x *BizUpdateJobDataReq) String() string {
 func (*BizUpdateJobDataReq) ProtoMessage() {}
 
 func (x *BizUpdateJobDataReq) ProtoReflect() protoreflect.Message {
-	mi := &file_batch_job_proto_msgTypes[42]
+	mi := &file_batch_job_proto_msgTypes[43]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3152,7 +3236,7 @@ func (x *BizUpdateJobDataReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BizUpdateJobDataReq.ProtoReflect.Descriptor instead.
 func (*BizUpdateJobDataReq) Descriptor() ([]byte, []int) {
-	return file_batch_job_proto_rawDescGZIP(), []int{42}
+	return file_batch_job_proto_rawDescGZIP(), []int{43}
 }
 
 func (x *BizUpdateJobDataReq) GetAuthCode() string {
@@ -3205,7 +3289,7 @@ type BizUpdateJobDataRsp struct {
 
 func (x *BizUpdateJobDataRsp) Reset() {
 	*x = BizUpdateJobDataRsp{}
-	mi := &file_batch_job_proto_msgTypes[43]
+	mi := &file_batch_job_proto_msgTypes[44]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3217,7 +3301,7 @@ func (x *BizUpdateJobDataRsp) String() string {
 func (*BizUpdateJobDataRsp) ProtoMessage() {}
 
 func (x *BizUpdateJobDataRsp) ProtoReflect() protoreflect.Message {
-	mi := &file_batch_job_proto_msgTypes[43]
+	mi := &file_batch_job_proto_msgTypes[44]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3230,7 +3314,7 @@ func (x *BizUpdateJobDataRsp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BizUpdateJobDataRsp.ProtoReflect.Descriptor instead.
 func (*BizUpdateJobDataRsp) Descriptor() ([]byte, []int) {
-	return file_batch_job_proto_rawDescGZIP(), []int{43}
+	return file_batch_job_proto_rawDescGZIP(), []int{44}
 }
 
 type BizStopJobReq struct {
@@ -3243,7 +3327,7 @@ type BizStopJobReq struct {
 
 func (x *BizStopJobReq) Reset() {
 	*x = BizStopJobReq{}
-	mi := &file_batch_job_proto_msgTypes[44]
+	mi := &file_batch_job_proto_msgTypes[45]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3255,7 +3339,7 @@ func (x *BizStopJobReq) String() string {
 func (*BizStopJobReq) ProtoMessage() {}
 
 func (x *BizStopJobReq) ProtoReflect() protoreflect.Message {
-	mi := &file_batch_job_proto_msgTypes[44]
+	mi := &file_batch_job_proto_msgTypes[45]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3268,7 +3352,7 @@ func (x *BizStopJobReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BizStopJobReq.ProtoReflect.Descriptor instead.
 func (*BizStopJobReq) Descriptor() ([]byte, []int) {
-	return file_batch_job_proto_rawDescGZIP(), []int{44}
+	return file_batch_job_proto_rawDescGZIP(), []int{45}
 }
 
 func (x *BizStopJobReq) GetJobId() int64 {
@@ -3293,7 +3377,7 @@ type BizStopJobRsp struct {
 
 func (x *BizStopJobRsp) Reset() {
 	*x = BizStopJobRsp{}
-	mi := &file_batch_job_proto_msgTypes[45]
+	mi := &file_batch_job_proto_msgTypes[46]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3305,7 +3389,7 @@ func (x *BizStopJobRsp) String() string {
 func (*BizStopJobRsp) ProtoMessage() {}
 
 func (x *BizStopJobRsp) ProtoReflect() protoreflect.Message {
-	mi := &file_batch_job_proto_msgTypes[45]
+	mi := &file_batch_job_proto_msgTypes[46]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3318,7 +3402,7 @@ func (x *BizStopJobRsp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BizStopJobRsp.ProtoReflect.Descriptor instead.
 func (*BizStopJobRsp) Descriptor() ([]byte, []int) {
-	return file_batch_job_proto_rawDescGZIP(), []int{45}
+	return file_batch_job_proto_rawDescGZIP(), []int{46}
 }
 
 type BizAddDataLogReq struct {
@@ -3331,7 +3415,7 @@ type BizAddDataLogReq struct {
 
 func (x *BizAddDataLogReq) Reset() {
 	*x = BizAddDataLogReq{}
-	mi := &file_batch_job_proto_msgTypes[46]
+	mi := &file_batch_job_proto_msgTypes[47]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3343,7 +3427,7 @@ func (x *BizAddDataLogReq) String() string {
 func (*BizAddDataLogReq) ProtoMessage() {}
 
 func (x *BizAddDataLogReq) ProtoReflect() protoreflect.Message {
-	mi := &file_batch_job_proto_msgTypes[46]
+	mi := &file_batch_job_proto_msgTypes[47]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3356,7 +3440,7 @@ func (x *BizAddDataLogReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BizAddDataLogReq.ProtoReflect.Descriptor instead.
 func (*BizAddDataLogReq) Descriptor() ([]byte, []int) {
-	return file_batch_job_proto_rawDescGZIP(), []int{46}
+	return file_batch_job_proto_rawDescGZIP(), []int{47}
 }
 
 func (x *BizAddDataLogReq) GetJobId() int64 {
@@ -3381,7 +3465,7 @@ type BizAddDataLogRsp struct {
 
 func (x *BizAddDataLogRsp) Reset() {
 	*x = BizAddDataLogRsp{}
-	mi := &file_batch_job_proto_msgTypes[47]
+	mi := &file_batch_job_proto_msgTypes[48]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3393,7 +3477,7 @@ func (x *BizAddDataLogRsp) String() string {
 func (*BizAddDataLogRsp) ProtoMessage() {}
 
 func (x *BizAddDataLogRsp) ProtoReflect() protoreflect.Message {
-	mi := &file_batch_job_proto_msgTypes[47]
+	mi := &file_batch_job_proto_msgTypes[48]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3406,7 +3490,7 @@ func (x *BizAddDataLogRsp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BizAddDataLogRsp.ProtoReflect.Descriptor instead.
 func (*BizAddDataLogRsp) Descriptor() ([]byte, []int) {
-	return file_batch_job_proto_rawDescGZIP(), []int{47}
+	return file_batch_job_proto_rawDescGZIP(), []int{48}
 }
 
 // 创建和修改任务前回调参数
@@ -3427,7 +3511,7 @@ type JobBeforeCreateAndChangeReq struct {
 
 func (x *JobBeforeCreateAndChangeReq) Reset() {
 	*x = JobBeforeCreateAndChangeReq{}
-	mi := &file_batch_job_proto_msgTypes[48]
+	mi := &file_batch_job_proto_msgTypes[49]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3439,7 +3523,7 @@ func (x *JobBeforeCreateAndChangeReq) String() string {
 func (*JobBeforeCreateAndChangeReq) ProtoMessage() {}
 
 func (x *JobBeforeCreateAndChangeReq) ProtoReflect() protoreflect.Message {
-	mi := &file_batch_job_proto_msgTypes[48]
+	mi := &file_batch_job_proto_msgTypes[49]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3452,7 +3536,7 @@ func (x *JobBeforeCreateAndChangeReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use JobBeforeCreateAndChangeReq.ProtoReflect.Descriptor instead.
 func (*JobBeforeCreateAndChangeReq) Descriptor() ([]byte, []int) {
-	return file_batch_job_proto_rawDescGZIP(), []int{48}
+	return file_batch_job_proto_rawDescGZIP(), []int{49}
 }
 
 func (x *JobBeforeCreateAndChangeReq) GetJobName() string {
@@ -3526,7 +3610,7 @@ type JobBeforeCreateAndChangeRsp struct {
 
 func (x *JobBeforeCreateAndChangeRsp) Reset() {
 	*x = JobBeforeCreateAndChangeRsp{}
-	mi := &file_batch_job_proto_msgTypes[49]
+	mi := &file_batch_job_proto_msgTypes[50]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3538,7 +3622,7 @@ func (x *JobBeforeCreateAndChangeRsp) String() string {
 func (*JobBeforeCreateAndChangeRsp) ProtoMessage() {}
 
 func (x *JobBeforeCreateAndChangeRsp) ProtoReflect() protoreflect.Message {
-	mi := &file_batch_job_proto_msgTypes[49]
+	mi := &file_batch_job_proto_msgTypes[50]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3551,7 +3635,7 @@ func (x *JobBeforeCreateAndChangeRsp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use JobBeforeCreateAndChangeRsp.ProtoReflect.Descriptor instead.
 func (*JobBeforeCreateAndChangeRsp) Descriptor() ([]byte, []int) {
-	return file_batch_job_proto_rawDescGZIP(), []int{49}
+	return file_batch_job_proto_rawDescGZIP(), []int{50}
 }
 
 // 任务启动前回调参数
@@ -3571,7 +3655,7 @@ type JobBeforeRunReq struct {
 
 func (x *JobBeforeRunReq) Reset() {
 	*x = JobBeforeRunReq{}
-	mi := &file_batch_job_proto_msgTypes[50]
+	mi := &file_batch_job_proto_msgTypes[51]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3583,7 +3667,7 @@ func (x *JobBeforeRunReq) String() string {
 func (*JobBeforeRunReq) ProtoMessage() {}
 
 func (x *JobBeforeRunReq) ProtoReflect() protoreflect.Message {
-	mi := &file_batch_job_proto_msgTypes[50]
+	mi := &file_batch_job_proto_msgTypes[51]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3596,7 +3680,7 @@ func (x *JobBeforeRunReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use JobBeforeRunReq.ProtoReflect.Descriptor instead.
 func (*JobBeforeRunReq) Descriptor() ([]byte, []int) {
-	return file_batch_job_proto_rawDescGZIP(), []int{50}
+	return file_batch_job_proto_rawDescGZIP(), []int{51}
 }
 
 func (x *JobBeforeRunReq) GetJobId() int64 {
@@ -3663,7 +3747,7 @@ type JobBeforeRunRsp struct {
 
 func (x *JobBeforeRunRsp) Reset() {
 	*x = JobBeforeRunRsp{}
-	mi := &file_batch_job_proto_msgTypes[51]
+	mi := &file_batch_job_proto_msgTypes[52]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3675,7 +3759,7 @@ func (x *JobBeforeRunRsp) String() string {
 func (*JobBeforeRunRsp) ProtoMessage() {}
 
 func (x *JobBeforeRunRsp) ProtoReflect() protoreflect.Message {
-	mi := &file_batch_job_proto_msgTypes[51]
+	mi := &file_batch_job_proto_msgTypes[52]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3688,21 +3772,22 @@ func (x *JobBeforeRunRsp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use JobBeforeRunRsp.ProtoReflect.Descriptor instead.
 func (*JobBeforeRunRsp) Descriptor() ([]byte, []int) {
-	return file_batch_job_proto_rawDescGZIP(), []int{51}
+	return file_batch_job_proto_rawDescGZIP(), []int{52}
 }
 
 // 任务处理回调参数
 type JobProcessReq struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	JobId         int64                  `protobuf:"varint,1,opt,name=jobId,proto3" json:"jobId,omitempty"`         // 创建的任务id. 必填
-	DataIndex     int64                  `protobuf:"varint,2,opt,name=dataIndex,proto3" json:"dataIndex,omitempty"` // 要处理的数据索引, 从0开始
+	JobId         int64                  `protobuf:"varint,1,opt,name=jobId,proto3" json:"jobId,omitempty"`               // 创建的任务id. 必填
+	DataIndex     int64                  `protobuf:"varint,2,opt,name=dataIndex,proto3" json:"dataIndex,omitempty"`       // 要处理的数据索引, 从0开始
+	AttemptCount  int32                  `protobuf:"varint,3,opt,name=attemptCount,proto3" json:"attemptCount,omitempty"` // 本次任务短时间内的尝试次数. 表示一个启动器执行过程中对任务的某个数据尝试处理了几次
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *JobProcessReq) Reset() {
 	*x = JobProcessReq{}
-	mi := &file_batch_job_proto_msgTypes[52]
+	mi := &file_batch_job_proto_msgTypes[53]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3714,7 +3799,7 @@ func (x *JobProcessReq) String() string {
 func (*JobProcessReq) ProtoMessage() {}
 
 func (x *JobProcessReq) ProtoReflect() protoreflect.Message {
-	mi := &file_batch_job_proto_msgTypes[52]
+	mi := &file_batch_job_proto_msgTypes[53]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3727,7 +3812,7 @@ func (x *JobProcessReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use JobProcessReq.ProtoReflect.Descriptor instead.
 func (*JobProcessReq) Descriptor() ([]byte, []int) {
-	return file_batch_job_proto_rawDescGZIP(), []int{52}
+	return file_batch_job_proto_rawDescGZIP(), []int{53}
 }
 
 func (x *JobProcessReq) GetJobId() int64 {
@@ -3744,6 +3829,13 @@ func (x *JobProcessReq) GetDataIndex() int64 {
 	return 0
 }
 
+func (x *JobProcessReq) GetAttemptCount() int32 {
+	if x != nil {
+		return x.AttemptCount
+	}
+	return 0
+}
+
 type JobProcessRsp struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -3752,7 +3844,7 @@ type JobProcessRsp struct {
 
 func (x *JobProcessRsp) Reset() {
 	*x = JobProcessRsp{}
-	mi := &file_batch_job_proto_msgTypes[53]
+	mi := &file_batch_job_proto_msgTypes[54]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3764,7 +3856,7 @@ func (x *JobProcessRsp) String() string {
 func (*JobProcessRsp) ProtoMessage() {}
 
 func (x *JobProcessRsp) ProtoReflect() protoreflect.Message {
-	mi := &file_batch_job_proto_msgTypes[53]
+	mi := &file_batch_job_proto_msgTypes[54]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3777,7 +3869,7 @@ func (x *JobProcessRsp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use JobProcessRsp.ProtoReflect.Descriptor instead.
 func (*JobProcessRsp) Descriptor() ([]byte, []int) {
-	return file_batch_job_proto_rawDescGZIP(), []int{53}
+	return file_batch_job_proto_rawDescGZIP(), []int{54}
 }
 
 // 任务停止回调参数
@@ -3797,7 +3889,7 @@ type JobProcessStopReq struct {
 
 func (x *JobProcessStopReq) Reset() {
 	*x = JobProcessStopReq{}
-	mi := &file_batch_job_proto_msgTypes[54]
+	mi := &file_batch_job_proto_msgTypes[55]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3809,7 +3901,7 @@ func (x *JobProcessStopReq) String() string {
 func (*JobProcessStopReq) ProtoMessage() {}
 
 func (x *JobProcessStopReq) ProtoReflect() protoreflect.Message {
-	mi := &file_batch_job_proto_msgTypes[54]
+	mi := &file_batch_job_proto_msgTypes[55]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3822,7 +3914,7 @@ func (x *JobProcessStopReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use JobProcessStopReq.ProtoReflect.Descriptor instead.
 func (*JobProcessStopReq) Descriptor() ([]byte, []int) {
-	return file_batch_job_proto_rawDescGZIP(), []int{54}
+	return file_batch_job_proto_rawDescGZIP(), []int{55}
 }
 
 func (x *JobProcessStopReq) GetJobId() int64 {
@@ -3889,7 +3981,7 @@ type JobProcessStopRsp struct {
 
 func (x *JobProcessStopRsp) Reset() {
 	*x = JobProcessStopRsp{}
-	mi := &file_batch_job_proto_msgTypes[55]
+	mi := &file_batch_job_proto_msgTypes[56]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3901,7 +3993,7 @@ func (x *JobProcessStopRsp) String() string {
 func (*JobProcessStopRsp) ProtoMessage() {}
 
 func (x *JobProcessStopRsp) ProtoReflect() protoreflect.Message {
-	mi := &file_batch_job_proto_msgTypes[55]
+	mi := &file_batch_job_proto_msgTypes[56]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3914,7 +4006,7 @@ func (x *JobProcessStopRsp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use JobProcessStopRsp.ProtoReflect.Descriptor instead.
 func (*JobProcessStopRsp) Descriptor() ([]byte, []int) {
-	return file_batch_job_proto_rawDescGZIP(), []int{55}
+	return file_batch_job_proto_rawDescGZIP(), []int{56}
 }
 
 type QueryAllBizNameRsp_LineA struct {
@@ -3928,7 +4020,7 @@ type QueryAllBizNameRsp_LineA struct {
 
 func (x *QueryAllBizNameRsp_LineA) Reset() {
 	*x = QueryAllBizNameRsp_LineA{}
-	mi := &file_batch_job_proto_msgTypes[56]
+	mi := &file_batch_job_proto_msgTypes[57]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3940,7 +4032,7 @@ func (x *QueryAllBizNameRsp_LineA) String() string {
 func (*QueryAllBizNameRsp_LineA) ProtoMessage() {}
 
 func (x *QueryAllBizNameRsp_LineA) ProtoReflect() protoreflect.Message {
-	mi := &file_batch_job_proto_msgTypes[56]
+	mi := &file_batch_job_proto_msgTypes[57]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3953,7 +4045,7 @@ func (x *QueryAllBizNameRsp_LineA) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use QueryAllBizNameRsp_LineA.ProtoReflect.Descriptor instead.
 func (*QueryAllBizNameRsp_LineA) Descriptor() ([]byte, []int) {
-	return file_batch_job_proto_rawDescGZIP(), []int{26, 0}
+	return file_batch_job_proto_rawDescGZIP(), []int{27, 0}
 }
 
 func (x *QueryAllBizNameRsp_LineA) GetBizId() int32 {
@@ -3983,27 +4075,36 @@ const file_batch_job_proto_rawDesc = "" +
 	"\n" +
 	"\x0fbatch_job.proto\x12\tbatch_job\x1a\x1cgoogle/api/annotations.proto\x1a\x17validate/validate.proto\"]\n" +
 	"\x0fExecExtendDataQ\x12J\n" +
-	"\fhttpCallback\x18\x01 \x01(\v2&.batch_job.ExecExtendDataHttpCallbackQR\fhttpCallback\"\xc6\x03\n" +
-	"\x1bExecExtendDataHttpCallbackQ\x123\n" +
-	"\x0ecbBeforeCreate\x18\x01 \x01(\tB\v\xfaB\br\x06\xd0\x01\x01\x88\x01\x01R\x0ecbBeforeCreate\x12-\n" +
-	"\vcbBeforeRun\x18\x02 \x01(\tB\v\xfaB\br\x06\xd0\x01\x01\x88\x01\x01R\vcbBeforeRun\x12&\n" +
-	"\tcbProcess\x18\x03 \x01(\tB\b\xfaB\x05r\x03\x88\x01\x01R\tcbProcess\x121\n" +
-	"\rcbProcessStop\x18\x04 \x01(\tB\v\xfaB\br\x06\xd0\x01\x01\x88\x01\x01R\rcbProcessStop\x12=\n" +
-	"\x15cbBeforeCreateTimeout\x18\x05 \x01(\x05B\a\xfaB\x04\x1a\x02(\x00R\x15cbBeforeCreateTimeout\x127\n" +
-	"\x12cbBeforeRunTimeout\x18\x06 \x01(\x05B\a\xfaB\x04\x1a\x02(\x00R\x12cbBeforeRunTimeout\x123\n" +
-	"\x10cbProcessTimeout\x18\a \x01(\x05B\a\xfaB\x04\x1a\x02(\x00R\x10cbProcessTimeout\x12;\n" +
-	"\x14cbProcessStopTimeout\x18\b \x01(\x05B\a\xfaB\x04\x1a\x02(\x00R\x14cbProcessStopTimeout\"]\n" +
+	"\fhttpCallback\x18\x01 \x01(\v2&.batch_job.ExecExtendDataHttpCallbackQR\fhttpCallback\" \n" +
+	"\x02KV\x12\f\n" +
+	"\x01k\x18\x01 \x01(\tR\x01k\x12\f\n" +
+	"\x01v\x18\x02 \x01(\tR\x01v\"\xff\x03\n" +
+	"\x1bExecExtendDataHttpCallbackQ\x12/\n" +
+	"\fbeforeCreate\x18\x01 \x01(\tB\v\xfaB\br\x06\xd0\x01\x01\x88\x01\x01R\fbeforeCreate\x12)\n" +
+	"\tbeforeRun\x18\x02 \x01(\tB\v\xfaB\br\x06\xd0\x01\x01\x88\x01\x01R\tbeforeRun\x12\"\n" +
+	"\aprocess\x18\x03 \x01(\tB\b\xfaB\x05r\x03\x88\x01\x01R\aprocess\x12-\n" +
+	"\vprocessStop\x18\x04 \x01(\tB\v\xfaB\br\x06\xd0\x01\x01\x88\x01\x01R\vprocessStop\x129\n" +
+	"\x13beforeCreateTimeout\x18\x05 \x01(\x05B\a\xfaB\x04\x1a\x02(\x00R\x13beforeCreateTimeout\x123\n" +
+	"\x10beforeRunTimeout\x18\x06 \x01(\x05B\a\xfaB\x04\x1a\x02(\x00R\x10beforeRunTimeout\x12/\n" +
+	"\x0eprocessTimeout\x18\a \x01(\x05B\a\xfaB\x04\x1a\x02(\x00R\x0eprocessTimeout\x127\n" +
+	"\x12processStopTimeout\x18\b \x01(\x05B\a\xfaB\x04\x1a\x02(\x00R\x12processStopTimeout\x12.\n" +
+	"\x12InsecureSkipVerify\x18\t \x01(\bR\x12InsecureSkipVerify\x12'\n" +
+	"\aheaders\x18\n" +
+	" \x03(\v2\r.batch_job.KVR\aheaders\"]\n" +
 	"\x0fExecExtendDataA\x12J\n" +
-	"\fhttpCallback\x18\x01 \x01(\v2&.batch_job.ExecExtendDataHttpCallbackAR\fhttpCallback\"\xf1\x02\n" +
-	"\x1bExecExtendDataHttpCallbackA\x12&\n" +
-	"\x0ecbBeforeCreate\x18\x01 \x01(\tR\x0ecbBeforeCreate\x12 \n" +
-	"\vcbBeforeRun\x18\x02 \x01(\tR\vcbBeforeRun\x12\x1c\n" +
-	"\tcbProcess\x18\x03 \x01(\tR\tcbProcess\x12$\n" +
-	"\rcbProcessStop\x18\x04 \x01(\tR\rcbProcessStop\x124\n" +
-	"\x15cbBeforeCreateTimeout\x18\x05 \x01(\x05R\x15cbBeforeCreateTimeout\x12.\n" +
-	"\x12cbBeforeRunTimeout\x18\x06 \x01(\x05R\x12cbBeforeRunTimeout\x12*\n" +
-	"\x10cbProcessTimeout\x18\a \x01(\x05R\x10cbProcessTimeout\x122\n" +
-	"\x14cbProcessStopTimeout\x18\b \x01(\x05R\x14cbProcessStopTimeout\"\x97\x02\n" +
+	"\fhttpCallback\x18\x01 \x01(\v2&.batch_job.ExecExtendDataHttpCallbackAR\fhttpCallback\"\xaa\x03\n" +
+	"\x1bExecExtendDataHttpCallbackA\x12\"\n" +
+	"\fbeforeCreate\x18\x01 \x01(\tR\fbeforeCreate\x12\x1c\n" +
+	"\tbeforeRun\x18\x02 \x01(\tR\tbeforeRun\x12\x18\n" +
+	"\aprocess\x18\x03 \x01(\tR\aprocess\x12 \n" +
+	"\vprocessStop\x18\x04 \x01(\tR\vprocessStop\x120\n" +
+	"\x13beforeCreateTimeout\x18\x05 \x01(\x05R\x13beforeCreateTimeout\x12*\n" +
+	"\x10beforeRunTimeout\x18\x06 \x01(\x05R\x10beforeRunTimeout\x12&\n" +
+	"\x0eprocessTimeout\x18\a \x01(\x05R\x0eprocessTimeout\x12.\n" +
+	"\x12processStopTimeout\x18\b \x01(\x05R\x12processStopTimeout\x12.\n" +
+	"\x12InsecureSkipVerify\x18\t \x01(\bR\x12InsecureSkipVerify\x12'\n" +
+	"\aheaders\x18\n" +
+	" \x03(\v2\r.batch_job.KVR\aheaders\"\x97\x02\n" +
 	"\x13AdminRegistryBizReq\x12!\n" +
 	"\abizName\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\abizName\x12\x16\n" +
 	"\x06remark\x18\x03 \x01(\tR\x06remark\x12/\n" +
@@ -4245,10 +4346,11 @@ const file_batch_job_proto_rawDesc = "" +
 	"\x10processDataTotal\x18\x06 \x01(\x03R\x10processDataTotal\x12&\n" +
 	"\x0eprocessedCount\x18\a \x01(\x03R\x0eprocessedCount\x12\x1a\n" +
 	"\bauthCode\x18\b \x01(\tR\bauthCode\"\x11\n" +
-	"\x0fJobBeforeRunRsp\"C\n" +
+	"\x0fJobBeforeRunRsp\"g\n" +
 	"\rJobProcessReq\x12\x14\n" +
 	"\x05jobId\x18\x01 \x01(\x03R\x05jobId\x12\x1c\n" +
-	"\tdataIndex\x18\x02 \x01(\x03R\tdataIndex\"\x0f\n" +
+	"\tdataIndex\x18\x02 \x01(\x03R\tdataIndex\x12\"\n" +
+	"\fattemptCount\x18\x03 \x01(\x05R\fattemptCount\"\x0f\n" +
 	"\rJobProcessRsp\"\x81\x02\n" +
 	"\x11JobProcessStopReq\x12\x14\n" +
 	"\x05jobId\x18\x01 \x01(\x03R\x05jobId\x12\x18\n" +
@@ -4323,7 +4425,7 @@ func file_batch_job_proto_rawDescGZIP() []byte {
 }
 
 var file_batch_job_proto_enumTypes = make([]protoimpl.EnumInfo, 6)
-var file_batch_job_proto_msgTypes = make([]protoimpl.MessageInfo, 57)
+var file_batch_job_proto_msgTypes = make([]protoimpl.MessageInfo, 58)
 var file_batch_job_proto_goTypes = []any{
 	(RateType)(0),                       // 0: batch_job.RateType
 	(ExecType)(0),                       // 1: batch_job.ExecType
@@ -4332,151 +4434,154 @@ var file_batch_job_proto_goTypes = []any{
 	(JobStatusQ)(0),                     // 4: batch_job.JobStatusQ
 	(DataLogType)(0),                    // 5: batch_job.DataLogType
 	(*ExecExtendDataQ)(nil),             // 6: batch_job.ExecExtendDataQ
-	(*ExecExtendDataHttpCallbackQ)(nil), // 7: batch_job.ExecExtendDataHttpCallbackQ
-	(*ExecExtendDataA)(nil),             // 8: batch_job.ExecExtendDataA
-	(*ExecExtendDataHttpCallbackA)(nil), // 9: batch_job.ExecExtendDataHttpCallbackA
-	(*AdminRegistryBizReq)(nil),         // 10: batch_job.AdminRegistryBizReq
-	(*AdminRegistryBizRsp)(nil),         // 11: batch_job.AdminRegistryBizRsp
-	(*AdminUpdateBizReq)(nil),           // 12: batch_job.AdminUpdateBizReq
-	(*AdminUpdateBizRsp)(nil),           // 13: batch_job.AdminUpdateBizRsp
-	(*OpInfoQ)(nil),                     // 14: batch_job.OpInfoQ
-	(*OpInfoA)(nil),                     // 15: batch_job.OpInfoA
-	(*BizOpHistoryA)(nil),               // 16: batch_job.BizOpHistoryA
-	(*BizInfoA)(nil),                    // 17: batch_job.BizInfoA
-	(*BizInfoByListA)(nil),              // 18: batch_job.BizInfoByListA
-	(*JobInfoA)(nil),                    // 19: batch_job.JobInfoA
-	(*JobInfoByListA)(nil),              // 20: batch_job.JobInfoByListA
-	(*DataLogQ)(nil),                    // 21: batch_job.DataLogQ
-	(*LogInfoByListA)(nil),              // 22: batch_job.LogInfoByListA
-	(*AdminCreateJobReq)(nil),           // 23: batch_job.AdminCreateJobReq
-	(*AdminCreateJobRsp)(nil),           // 24: batch_job.AdminCreateJobRsp
-	(*AdminUpdateJobReq)(nil),           // 25: batch_job.AdminUpdateJobReq
-	(*AdminUpdateJobRsp)(nil),           // 26: batch_job.AdminUpdateJobRsp
-	(*AdminStartJobReq)(nil),            // 27: batch_job.AdminStartJobReq
-	(*AdminStartJobRsp)(nil),            // 28: batch_job.AdminStartJobRsp
-	(*AdminStopJobReq)(nil),             // 29: batch_job.AdminStopJobReq
-	(*AdminStopJobRsp)(nil),             // 30: batch_job.AdminStopJobRsp
-	(*QueryAllBizNameReq)(nil),          // 31: batch_job.QueryAllBizNameReq
-	(*QueryAllBizNameRsp)(nil),          // 32: batch_job.QueryAllBizNameRsp
-	(*QueryBizInfoReq)(nil),             // 33: batch_job.QueryBizInfoReq
-	(*QueryBizInfoRsp)(nil),             // 34: batch_job.QueryBizInfoRsp
-	(*QueryBizListReq)(nil),             // 35: batch_job.QueryBizListReq
-	(*QueryBizListRsp)(nil),             // 36: batch_job.QueryBizListRsp
-	(*QueryJobInfoReq)(nil),             // 37: batch_job.QueryJobInfoReq
-	(*QueryJobInfoRsp)(nil),             // 38: batch_job.QueryJobInfoRsp
-	(*QueryJobListReq)(nil),             // 39: batch_job.QueryJobListReq
-	(*QueryJobListRsp)(nil),             // 40: batch_job.QueryJobListRsp
-	(*QueryJobStateInfoReq)(nil),        // 41: batch_job.QueryJobStateInfoReq
-	(*JobStateInfo)(nil),                // 42: batch_job.JobStateInfo
-	(*QueryJobStateInfoRsp)(nil),        // 43: batch_job.QueryJobStateInfoRsp
-	(*QueryJobDataLogReq)(nil),          // 44: batch_job.QueryJobDataLogReq
-	(*QueryJobDataLogRsp)(nil),          // 45: batch_job.QueryJobDataLogRsp
-	(*BizStartJobReq)(nil),              // 46: batch_job.BizStartJobReq
-	(*BizStartJobRsp)(nil),              // 47: batch_job.BizStartJobRsp
-	(*BizUpdateJobDataReq)(nil),         // 48: batch_job.BizUpdateJobDataReq
-	(*BizUpdateJobDataRsp)(nil),         // 49: batch_job.BizUpdateJobDataRsp
-	(*BizStopJobReq)(nil),               // 50: batch_job.BizStopJobReq
-	(*BizStopJobRsp)(nil),               // 51: batch_job.BizStopJobRsp
-	(*BizAddDataLogReq)(nil),            // 52: batch_job.BizAddDataLogReq
-	(*BizAddDataLogRsp)(nil),            // 53: batch_job.BizAddDataLogRsp
-	(*JobBeforeCreateAndChangeReq)(nil), // 54: batch_job.JobBeforeCreateAndChangeReq
-	(*JobBeforeCreateAndChangeRsp)(nil), // 55: batch_job.JobBeforeCreateAndChangeRsp
-	(*JobBeforeRunReq)(nil),             // 56: batch_job.JobBeforeRunReq
-	(*JobBeforeRunRsp)(nil),             // 57: batch_job.JobBeforeRunRsp
-	(*JobProcessReq)(nil),               // 58: batch_job.JobProcessReq
-	(*JobProcessRsp)(nil),               // 59: batch_job.JobProcessRsp
-	(*JobProcessStopReq)(nil),           // 60: batch_job.JobProcessStopReq
-	(*JobProcessStopRsp)(nil),           // 61: batch_job.JobProcessStopRsp
-	(*QueryAllBizNameRsp_LineA)(nil),    // 62: batch_job.QueryAllBizNameRsp.LineA
+	(*KV)(nil),                          // 7: batch_job.KV
+	(*ExecExtendDataHttpCallbackQ)(nil), // 8: batch_job.ExecExtendDataHttpCallbackQ
+	(*ExecExtendDataA)(nil),             // 9: batch_job.ExecExtendDataA
+	(*ExecExtendDataHttpCallbackA)(nil), // 10: batch_job.ExecExtendDataHttpCallbackA
+	(*AdminRegistryBizReq)(nil),         // 11: batch_job.AdminRegistryBizReq
+	(*AdminRegistryBizRsp)(nil),         // 12: batch_job.AdminRegistryBizRsp
+	(*AdminUpdateBizReq)(nil),           // 13: batch_job.AdminUpdateBizReq
+	(*AdminUpdateBizRsp)(nil),           // 14: batch_job.AdminUpdateBizRsp
+	(*OpInfoQ)(nil),                     // 15: batch_job.OpInfoQ
+	(*OpInfoA)(nil),                     // 16: batch_job.OpInfoA
+	(*BizOpHistoryA)(nil),               // 17: batch_job.BizOpHistoryA
+	(*BizInfoA)(nil),                    // 18: batch_job.BizInfoA
+	(*BizInfoByListA)(nil),              // 19: batch_job.BizInfoByListA
+	(*JobInfoA)(nil),                    // 20: batch_job.JobInfoA
+	(*JobInfoByListA)(nil),              // 21: batch_job.JobInfoByListA
+	(*DataLogQ)(nil),                    // 22: batch_job.DataLogQ
+	(*LogInfoByListA)(nil),              // 23: batch_job.LogInfoByListA
+	(*AdminCreateJobReq)(nil),           // 24: batch_job.AdminCreateJobReq
+	(*AdminCreateJobRsp)(nil),           // 25: batch_job.AdminCreateJobRsp
+	(*AdminUpdateJobReq)(nil),           // 26: batch_job.AdminUpdateJobReq
+	(*AdminUpdateJobRsp)(nil),           // 27: batch_job.AdminUpdateJobRsp
+	(*AdminStartJobReq)(nil),            // 28: batch_job.AdminStartJobReq
+	(*AdminStartJobRsp)(nil),            // 29: batch_job.AdminStartJobRsp
+	(*AdminStopJobReq)(nil),             // 30: batch_job.AdminStopJobReq
+	(*AdminStopJobRsp)(nil),             // 31: batch_job.AdminStopJobRsp
+	(*QueryAllBizNameReq)(nil),          // 32: batch_job.QueryAllBizNameReq
+	(*QueryAllBizNameRsp)(nil),          // 33: batch_job.QueryAllBizNameRsp
+	(*QueryBizInfoReq)(nil),             // 34: batch_job.QueryBizInfoReq
+	(*QueryBizInfoRsp)(nil),             // 35: batch_job.QueryBizInfoRsp
+	(*QueryBizListReq)(nil),             // 36: batch_job.QueryBizListReq
+	(*QueryBizListRsp)(nil),             // 37: batch_job.QueryBizListRsp
+	(*QueryJobInfoReq)(nil),             // 38: batch_job.QueryJobInfoReq
+	(*QueryJobInfoRsp)(nil),             // 39: batch_job.QueryJobInfoRsp
+	(*QueryJobListReq)(nil),             // 40: batch_job.QueryJobListReq
+	(*QueryJobListRsp)(nil),             // 41: batch_job.QueryJobListRsp
+	(*QueryJobStateInfoReq)(nil),        // 42: batch_job.QueryJobStateInfoReq
+	(*JobStateInfo)(nil),                // 43: batch_job.JobStateInfo
+	(*QueryJobStateInfoRsp)(nil),        // 44: batch_job.QueryJobStateInfoRsp
+	(*QueryJobDataLogReq)(nil),          // 45: batch_job.QueryJobDataLogReq
+	(*QueryJobDataLogRsp)(nil),          // 46: batch_job.QueryJobDataLogRsp
+	(*BizStartJobReq)(nil),              // 47: batch_job.BizStartJobReq
+	(*BizStartJobRsp)(nil),              // 48: batch_job.BizStartJobRsp
+	(*BizUpdateJobDataReq)(nil),         // 49: batch_job.BizUpdateJobDataReq
+	(*BizUpdateJobDataRsp)(nil),         // 50: batch_job.BizUpdateJobDataRsp
+	(*BizStopJobReq)(nil),               // 51: batch_job.BizStopJobReq
+	(*BizStopJobRsp)(nil),               // 52: batch_job.BizStopJobRsp
+	(*BizAddDataLogReq)(nil),            // 53: batch_job.BizAddDataLogReq
+	(*BizAddDataLogRsp)(nil),            // 54: batch_job.BizAddDataLogRsp
+	(*JobBeforeCreateAndChangeReq)(nil), // 55: batch_job.JobBeforeCreateAndChangeReq
+	(*JobBeforeCreateAndChangeRsp)(nil), // 56: batch_job.JobBeforeCreateAndChangeRsp
+	(*JobBeforeRunReq)(nil),             // 57: batch_job.JobBeforeRunReq
+	(*JobBeforeRunRsp)(nil),             // 58: batch_job.JobBeforeRunRsp
+	(*JobProcessReq)(nil),               // 59: batch_job.JobProcessReq
+	(*JobProcessRsp)(nil),               // 60: batch_job.JobProcessRsp
+	(*JobProcessStopReq)(nil),           // 61: batch_job.JobProcessStopReq
+	(*JobProcessStopRsp)(nil),           // 62: batch_job.JobProcessStopRsp
+	(*QueryAllBizNameRsp_LineA)(nil),    // 63: batch_job.QueryAllBizNameRsp.LineA
 }
 var file_batch_job_proto_depIdxs = []int32{
-	7,  // 0: batch_job.ExecExtendDataQ.httpCallback:type_name -> batch_job.ExecExtendDataHttpCallbackQ
-	9,  // 1: batch_job.ExecExtendDataA.httpCallback:type_name -> batch_job.ExecExtendDataHttpCallbackA
-	1,  // 2: batch_job.AdminRegistryBizReq.execType:type_name -> batch_job.ExecType
-	6,  // 3: batch_job.AdminRegistryBizReq.execExtendData:type_name -> batch_job.ExecExtendDataQ
-	14, // 4: batch_job.AdminRegistryBizReq.op:type_name -> batch_job.OpInfoQ
-	2,  // 5: batch_job.AdminRegistryBizReq.status:type_name -> batch_job.BizStatus
-	1,  // 6: batch_job.AdminUpdateBizReq.execType:type_name -> batch_job.ExecType
-	6,  // 7: batch_job.AdminUpdateBizReq.execExtendData:type_name -> batch_job.ExecExtendDataQ
-	14, // 8: batch_job.AdminUpdateBizReq.op:type_name -> batch_job.OpInfoQ
-	2,  // 9: batch_job.AdminUpdateBizReq.status:type_name -> batch_job.BizStatus
-	15, // 10: batch_job.BizOpHistoryA.op:type_name -> batch_job.OpInfoA
-	17, // 11: batch_job.BizOpHistoryA.info:type_name -> batch_job.BizInfoA
-	1,  // 12: batch_job.BizInfoA.execType:type_name -> batch_job.ExecType
-	8,  // 13: batch_job.BizInfoA.execExtendData:type_name -> batch_job.ExecExtendDataA
-	15, // 14: batch_job.BizInfoA.op:type_name -> batch_job.OpInfoA
-	2,  // 15: batch_job.BizInfoA.status:type_name -> batch_job.BizStatus
-	1,  // 16: batch_job.BizInfoByListA.execType:type_name -> batch_job.ExecType
-	15, // 17: batch_job.BizInfoByListA.op:type_name -> batch_job.OpInfoA
-	2,  // 18: batch_job.BizInfoByListA.status:type_name -> batch_job.BizStatus
-	3,  // 19: batch_job.JobInfoA.status:type_name -> batch_job.JobStatus
-	0,  // 20: batch_job.JobInfoA.rateType:type_name -> batch_job.RateType
-	15, // 21: batch_job.JobInfoA.op:type_name -> batch_job.OpInfoA
-	3,  // 22: batch_job.JobInfoByListA.status:type_name -> batch_job.JobStatus
-	0,  // 23: batch_job.JobInfoByListA.rateType:type_name -> batch_job.RateType
-	15, // 24: batch_job.JobInfoByListA.op:type_name -> batch_job.OpInfoA
-	5,  // 25: batch_job.DataLogQ.logType:type_name -> batch_job.DataLogType
-	5,  // 26: batch_job.LogInfoByListA.logType:type_name -> batch_job.DataLogType
-	0,  // 27: batch_job.AdminCreateJobReq.rateType:type_name -> batch_job.RateType
-	14, // 28: batch_job.AdminCreateJobReq.op:type_name -> batch_job.OpInfoQ
-	0,  // 29: batch_job.AdminUpdateJobReq.rateType:type_name -> batch_job.RateType
-	14, // 30: batch_job.AdminUpdateJobReq.op:type_name -> batch_job.OpInfoQ
-	14, // 31: batch_job.AdminStartJobReq.op:type_name -> batch_job.OpInfoQ
-	14, // 32: batch_job.AdminStopJobReq.op:type_name -> batch_job.OpInfoQ
-	62, // 33: batch_job.QueryAllBizNameRsp.line:type_name -> batch_job.QueryAllBizNameRsp.LineA
-	17, // 34: batch_job.QueryBizInfoRsp.line:type_name -> batch_job.BizInfoA
-	2,  // 35: batch_job.QueryBizListReq.status:type_name -> batch_job.BizStatus
-	18, // 36: batch_job.QueryBizListRsp.line:type_name -> batch_job.BizInfoByListA
-	19, // 37: batch_job.QueryJobInfoRsp.line:type_name -> batch_job.JobInfoA
-	4,  // 38: batch_job.QueryJobListReq.status:type_name -> batch_job.JobStatusQ
-	20, // 39: batch_job.QueryJobListRsp.line:type_name -> batch_job.JobInfoByListA
-	3,  // 40: batch_job.JobStateInfo.status:type_name -> batch_job.JobStatus
-	15, // 41: batch_job.JobStateInfo.op:type_name -> batch_job.OpInfoA
-	42, // 42: batch_job.QueryJobStateInfoRsp.jobStateInfos:type_name -> batch_job.JobStateInfo
-	5,  // 43: batch_job.QueryJobDataLogReq.logType:type_name -> batch_job.DataLogType
-	22, // 44: batch_job.QueryJobDataLogRsp.line:type_name -> batch_job.LogInfoByListA
-	21, // 45: batch_job.BizAddDataLogReq.log:type_name -> batch_job.DataLogQ
-	0,  // 46: batch_job.JobBeforeCreateAndChangeReq.rateType:type_name -> batch_job.RateType
-	2,  // 47: batch_job.QueryAllBizNameRsp.LineA.status:type_name -> batch_job.BizStatus
-	10, // 48: batch_job.BatchJobService.AdminRegistryBiz:input_type -> batch_job.AdminRegistryBizReq
-	12, // 49: batch_job.BatchJobService.AdminUpdateBiz:input_type -> batch_job.AdminUpdateBizReq
-	23, // 50: batch_job.BatchJobService.AdminCreateJob:input_type -> batch_job.AdminCreateJobReq
-	25, // 51: batch_job.BatchJobService.AdminUpdateJob:input_type -> batch_job.AdminUpdateJobReq
-	27, // 52: batch_job.BatchJobService.AdminStartJob:input_type -> batch_job.AdminStartJobReq
-	29, // 53: batch_job.BatchJobService.AdminStopJob:input_type -> batch_job.AdminStopJobReq
-	31, // 54: batch_job.BatchJobService.QueryAllBizName:input_type -> batch_job.QueryAllBizNameReq
-	33, // 55: batch_job.BatchJobService.QueryBizInfo:input_type -> batch_job.QueryBizInfoReq
-	35, // 56: batch_job.BatchJobService.QueryBizList:input_type -> batch_job.QueryBizListReq
-	37, // 57: batch_job.BatchJobService.QueryJobInfo:input_type -> batch_job.QueryJobInfoReq
-	39, // 58: batch_job.BatchJobService.QueryJobList:input_type -> batch_job.QueryJobListReq
-	41, // 59: batch_job.BatchJobService.QueryJobStateInfo:input_type -> batch_job.QueryJobStateInfoReq
-	44, // 60: batch_job.BatchJobService.QueryJobDataLog:input_type -> batch_job.QueryJobDataLogReq
-	46, // 61: batch_job.BatchJobService.BizStartJob:input_type -> batch_job.BizStartJobReq
-	48, // 62: batch_job.BatchJobService.BizUpdateJobData:input_type -> batch_job.BizUpdateJobDataReq
-	50, // 63: batch_job.BatchJobService.BizStopJob:input_type -> batch_job.BizStopJobReq
-	52, // 64: batch_job.BatchJobService.BizAddDataLog:input_type -> batch_job.BizAddDataLogReq
-	11, // 65: batch_job.BatchJobService.AdminRegistryBiz:output_type -> batch_job.AdminRegistryBizRsp
-	13, // 66: batch_job.BatchJobService.AdminUpdateBiz:output_type -> batch_job.AdminUpdateBizRsp
-	24, // 67: batch_job.BatchJobService.AdminCreateJob:output_type -> batch_job.AdminCreateJobRsp
-	26, // 68: batch_job.BatchJobService.AdminUpdateJob:output_type -> batch_job.AdminUpdateJobRsp
-	28, // 69: batch_job.BatchJobService.AdminStartJob:output_type -> batch_job.AdminStartJobRsp
-	30, // 70: batch_job.BatchJobService.AdminStopJob:output_type -> batch_job.AdminStopJobRsp
-	32, // 71: batch_job.BatchJobService.QueryAllBizName:output_type -> batch_job.QueryAllBizNameRsp
-	34, // 72: batch_job.BatchJobService.QueryBizInfo:output_type -> batch_job.QueryBizInfoRsp
-	36, // 73: batch_job.BatchJobService.QueryBizList:output_type -> batch_job.QueryBizListRsp
-	38, // 74: batch_job.BatchJobService.QueryJobInfo:output_type -> batch_job.QueryJobInfoRsp
-	40, // 75: batch_job.BatchJobService.QueryJobList:output_type -> batch_job.QueryJobListRsp
-	43, // 76: batch_job.BatchJobService.QueryJobStateInfo:output_type -> batch_job.QueryJobStateInfoRsp
-	45, // 77: batch_job.BatchJobService.QueryJobDataLog:output_type -> batch_job.QueryJobDataLogRsp
-	47, // 78: batch_job.BatchJobService.BizStartJob:output_type -> batch_job.BizStartJobRsp
-	49, // 79: batch_job.BatchJobService.BizUpdateJobData:output_type -> batch_job.BizUpdateJobDataRsp
-	51, // 80: batch_job.BatchJobService.BizStopJob:output_type -> batch_job.BizStopJobRsp
-	53, // 81: batch_job.BatchJobService.BizAddDataLog:output_type -> batch_job.BizAddDataLogRsp
-	65, // [65:82] is the sub-list for method output_type
-	48, // [48:65] is the sub-list for method input_type
-	48, // [48:48] is the sub-list for extension type_name
-	48, // [48:48] is the sub-list for extension extendee
-	0,  // [0:48] is the sub-list for field type_name
+	8,  // 0: batch_job.ExecExtendDataQ.httpCallback:type_name -> batch_job.ExecExtendDataHttpCallbackQ
+	7,  // 1: batch_job.ExecExtendDataHttpCallbackQ.headers:type_name -> batch_job.KV
+	10, // 2: batch_job.ExecExtendDataA.httpCallback:type_name -> batch_job.ExecExtendDataHttpCallbackA
+	7,  // 3: batch_job.ExecExtendDataHttpCallbackA.headers:type_name -> batch_job.KV
+	1,  // 4: batch_job.AdminRegistryBizReq.execType:type_name -> batch_job.ExecType
+	6,  // 5: batch_job.AdminRegistryBizReq.execExtendData:type_name -> batch_job.ExecExtendDataQ
+	15, // 6: batch_job.AdminRegistryBizReq.op:type_name -> batch_job.OpInfoQ
+	2,  // 7: batch_job.AdminRegistryBizReq.status:type_name -> batch_job.BizStatus
+	1,  // 8: batch_job.AdminUpdateBizReq.execType:type_name -> batch_job.ExecType
+	6,  // 9: batch_job.AdminUpdateBizReq.execExtendData:type_name -> batch_job.ExecExtendDataQ
+	15, // 10: batch_job.AdminUpdateBizReq.op:type_name -> batch_job.OpInfoQ
+	2,  // 11: batch_job.AdminUpdateBizReq.status:type_name -> batch_job.BizStatus
+	16, // 12: batch_job.BizOpHistoryA.op:type_name -> batch_job.OpInfoA
+	18, // 13: batch_job.BizOpHistoryA.info:type_name -> batch_job.BizInfoA
+	1,  // 14: batch_job.BizInfoA.execType:type_name -> batch_job.ExecType
+	9,  // 15: batch_job.BizInfoA.execExtendData:type_name -> batch_job.ExecExtendDataA
+	16, // 16: batch_job.BizInfoA.op:type_name -> batch_job.OpInfoA
+	2,  // 17: batch_job.BizInfoA.status:type_name -> batch_job.BizStatus
+	1,  // 18: batch_job.BizInfoByListA.execType:type_name -> batch_job.ExecType
+	16, // 19: batch_job.BizInfoByListA.op:type_name -> batch_job.OpInfoA
+	2,  // 20: batch_job.BizInfoByListA.status:type_name -> batch_job.BizStatus
+	3,  // 21: batch_job.JobInfoA.status:type_name -> batch_job.JobStatus
+	0,  // 22: batch_job.JobInfoA.rateType:type_name -> batch_job.RateType
+	16, // 23: batch_job.JobInfoA.op:type_name -> batch_job.OpInfoA
+	3,  // 24: batch_job.JobInfoByListA.status:type_name -> batch_job.JobStatus
+	0,  // 25: batch_job.JobInfoByListA.rateType:type_name -> batch_job.RateType
+	16, // 26: batch_job.JobInfoByListA.op:type_name -> batch_job.OpInfoA
+	5,  // 27: batch_job.DataLogQ.logType:type_name -> batch_job.DataLogType
+	5,  // 28: batch_job.LogInfoByListA.logType:type_name -> batch_job.DataLogType
+	0,  // 29: batch_job.AdminCreateJobReq.rateType:type_name -> batch_job.RateType
+	15, // 30: batch_job.AdminCreateJobReq.op:type_name -> batch_job.OpInfoQ
+	0,  // 31: batch_job.AdminUpdateJobReq.rateType:type_name -> batch_job.RateType
+	15, // 32: batch_job.AdminUpdateJobReq.op:type_name -> batch_job.OpInfoQ
+	15, // 33: batch_job.AdminStartJobReq.op:type_name -> batch_job.OpInfoQ
+	15, // 34: batch_job.AdminStopJobReq.op:type_name -> batch_job.OpInfoQ
+	63, // 35: batch_job.QueryAllBizNameRsp.line:type_name -> batch_job.QueryAllBizNameRsp.LineA
+	18, // 36: batch_job.QueryBizInfoRsp.line:type_name -> batch_job.BizInfoA
+	2,  // 37: batch_job.QueryBizListReq.status:type_name -> batch_job.BizStatus
+	19, // 38: batch_job.QueryBizListRsp.line:type_name -> batch_job.BizInfoByListA
+	20, // 39: batch_job.QueryJobInfoRsp.line:type_name -> batch_job.JobInfoA
+	4,  // 40: batch_job.QueryJobListReq.status:type_name -> batch_job.JobStatusQ
+	21, // 41: batch_job.QueryJobListRsp.line:type_name -> batch_job.JobInfoByListA
+	3,  // 42: batch_job.JobStateInfo.status:type_name -> batch_job.JobStatus
+	16, // 43: batch_job.JobStateInfo.op:type_name -> batch_job.OpInfoA
+	43, // 44: batch_job.QueryJobStateInfoRsp.jobStateInfos:type_name -> batch_job.JobStateInfo
+	5,  // 45: batch_job.QueryJobDataLogReq.logType:type_name -> batch_job.DataLogType
+	23, // 46: batch_job.QueryJobDataLogRsp.line:type_name -> batch_job.LogInfoByListA
+	22, // 47: batch_job.BizAddDataLogReq.log:type_name -> batch_job.DataLogQ
+	0,  // 48: batch_job.JobBeforeCreateAndChangeReq.rateType:type_name -> batch_job.RateType
+	2,  // 49: batch_job.QueryAllBizNameRsp.LineA.status:type_name -> batch_job.BizStatus
+	11, // 50: batch_job.BatchJobService.AdminRegistryBiz:input_type -> batch_job.AdminRegistryBizReq
+	13, // 51: batch_job.BatchJobService.AdminUpdateBiz:input_type -> batch_job.AdminUpdateBizReq
+	24, // 52: batch_job.BatchJobService.AdminCreateJob:input_type -> batch_job.AdminCreateJobReq
+	26, // 53: batch_job.BatchJobService.AdminUpdateJob:input_type -> batch_job.AdminUpdateJobReq
+	28, // 54: batch_job.BatchJobService.AdminStartJob:input_type -> batch_job.AdminStartJobReq
+	30, // 55: batch_job.BatchJobService.AdminStopJob:input_type -> batch_job.AdminStopJobReq
+	32, // 56: batch_job.BatchJobService.QueryAllBizName:input_type -> batch_job.QueryAllBizNameReq
+	34, // 57: batch_job.BatchJobService.QueryBizInfo:input_type -> batch_job.QueryBizInfoReq
+	36, // 58: batch_job.BatchJobService.QueryBizList:input_type -> batch_job.QueryBizListReq
+	38, // 59: batch_job.BatchJobService.QueryJobInfo:input_type -> batch_job.QueryJobInfoReq
+	40, // 60: batch_job.BatchJobService.QueryJobList:input_type -> batch_job.QueryJobListReq
+	42, // 61: batch_job.BatchJobService.QueryJobStateInfo:input_type -> batch_job.QueryJobStateInfoReq
+	45, // 62: batch_job.BatchJobService.QueryJobDataLog:input_type -> batch_job.QueryJobDataLogReq
+	47, // 63: batch_job.BatchJobService.BizStartJob:input_type -> batch_job.BizStartJobReq
+	49, // 64: batch_job.BatchJobService.BizUpdateJobData:input_type -> batch_job.BizUpdateJobDataReq
+	51, // 65: batch_job.BatchJobService.BizStopJob:input_type -> batch_job.BizStopJobReq
+	53, // 66: batch_job.BatchJobService.BizAddDataLog:input_type -> batch_job.BizAddDataLogReq
+	12, // 67: batch_job.BatchJobService.AdminRegistryBiz:output_type -> batch_job.AdminRegistryBizRsp
+	14, // 68: batch_job.BatchJobService.AdminUpdateBiz:output_type -> batch_job.AdminUpdateBizRsp
+	25, // 69: batch_job.BatchJobService.AdminCreateJob:output_type -> batch_job.AdminCreateJobRsp
+	27, // 70: batch_job.BatchJobService.AdminUpdateJob:output_type -> batch_job.AdminUpdateJobRsp
+	29, // 71: batch_job.BatchJobService.AdminStartJob:output_type -> batch_job.AdminStartJobRsp
+	31, // 72: batch_job.BatchJobService.AdminStopJob:output_type -> batch_job.AdminStopJobRsp
+	33, // 73: batch_job.BatchJobService.QueryAllBizName:output_type -> batch_job.QueryAllBizNameRsp
+	35, // 74: batch_job.BatchJobService.QueryBizInfo:output_type -> batch_job.QueryBizInfoRsp
+	37, // 75: batch_job.BatchJobService.QueryBizList:output_type -> batch_job.QueryBizListRsp
+	39, // 76: batch_job.BatchJobService.QueryJobInfo:output_type -> batch_job.QueryJobInfoRsp
+	41, // 77: batch_job.BatchJobService.QueryJobList:output_type -> batch_job.QueryJobListRsp
+	44, // 78: batch_job.BatchJobService.QueryJobStateInfo:output_type -> batch_job.QueryJobStateInfoRsp
+	46, // 79: batch_job.BatchJobService.QueryJobDataLog:output_type -> batch_job.QueryJobDataLogRsp
+	48, // 80: batch_job.BatchJobService.BizStartJob:output_type -> batch_job.BizStartJobRsp
+	50, // 81: batch_job.BatchJobService.BizUpdateJobData:output_type -> batch_job.BizUpdateJobDataRsp
+	52, // 82: batch_job.BatchJobService.BizStopJob:output_type -> batch_job.BizStopJobRsp
+	54, // 83: batch_job.BatchJobService.BizAddDataLog:output_type -> batch_job.BizAddDataLogRsp
+	67, // [67:84] is the sub-list for method output_type
+	50, // [50:67] is the sub-list for method input_type
+	50, // [50:50] is the sub-list for extension type_name
+	50, // [50:50] is the sub-list for extension extendee
+	0,  // [0:50] is the sub-list for field type_name
 }
 
 func init() { file_batch_job_proto_init() }
@@ -4490,7 +4595,7 @@ func file_batch_job_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_batch_job_proto_rawDesc), len(file_batch_job_proto_rawDesc)),
 			NumEnums:      6,
-			NumMessages:   57,
+			NumMessages:   58,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

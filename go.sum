@@ -619,8 +619,8 @@ github.com/yuin/goldmark v1.3.5/go.mod h1:mwnBkeHKe2W/ZEtQ+71ViKU8L12m81fl3OWwC1
 github.com/yuin/goldmark v1.4.13/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5taEt/CY=
 github.com/yusufpapurcu/wmi v1.2.3 h1:E1ctvB7uKFMOJw3fdOW32DwGE9I7t++CRUEMKvFoFiw=
 github.com/yusufpapurcu/wmi v1.2.3/go.mod h1:SBZ9tNy3G9/m5Oi98Zks0QjeHVDvuK0qfxQmPyzfmi0=
-github.com/zly-app/cache/v2 v2.0.9 h1:0HwotLmJUPvXPygsY37m+YWstoiqpTU3Btqrm85tqEU=
-github.com/zly-app/cache/v2 v2.0.9/go.mod h1:WP8ouGVrUJCW6rUCG6EnOFf9Ac9NppjFuctkEXyPp2g=
+github.com/zly-app/cache/v2 v2.0.10 h1:RWeYs4gw+hGCN4/meShssijeO8NdK/LweN83saTAFnw=
+github.com/zly-app/cache/v2 v2.0.10/go.mod h1:WP8ouGVrUJCW6rUCG6EnOFf9Ac9NppjFuctkEXyPp2g=
 github.com/zly-app/component/http v0.0.0-20240730094824-85f48a26539c h1:qEpmEfYrb528xaM/jq5t2BGGucvVo3E4vCZ6XNhOiwQ=
 github.com/zly-app/component/http v0.0.0-20240730094824-85f48a26539c/go.mod h1:rIEFYyTTl7aATBbpFQDFcUEfzqpI1pO58GE/z0gxFpc=
 github.com/zly-app/component/redis v0.0.0-20251028120309-789178b6dfbd h1:k1uQ6MnxxtvFpyyJZ6lqu+6CC1bfifHkQOLV5nDQpaI=
