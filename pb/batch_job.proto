@@ -162,7 +162,7 @@ message ExecExtendDataHttpCallbackQ {
   int32 beforeRunTimeout = 6 [(validate.rules).int32.gte = 0]; // 启动前回调超时秒数
   int32 processTimeout = 7 [(validate.rules).int32.gte = 0]; // 处理任务回调超时秒数
   int32 processStopTimeout = 8 [(validate.rules).int32.gte = 0]; // 任务停止回调超时秒数
-  bool InsecureSkipVerify = 9; // 是否验证服务器的证书链和主机名
+  bool insecureSkipVerify = 9; // 是否验证服务器的证书链和主机名
   repeated KV headers = 10; // header
 }
 
@@ -181,7 +181,7 @@ message ExecExtendDataHttpCallbackA {
   int32 beforeRunTimeout = 6; // 启动前回调超时秒数
   int32 processTimeout = 7; // 处理任务回调超时秒数
   int32 processStopTimeout = 8; // 任务停止回调超时秒数
-  bool InsecureSkipVerify = 9; // 是否验证服务器的证书链和主机名
+  bool insecureSkipVerify = 9; // 是否验证服务器的证书链和主机名
   repeated KV headers = 10; // header
 }
 

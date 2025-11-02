@@ -1064,7 +1064,7 @@
           "format": "int32",
           "title": "任务停止回调超时秒数"
         },
-        "InsecureSkipVerify": {
+        "insecureSkipVerify": {
           "type": "boolean",
           "title": "是否验证服务器的证书链和主机名"
         },
@@ -1118,7 +1118,7 @@
           "format": "int32",
           "title": "任务停止回调超时秒数"
         },
-        "InsecureSkipVerify": {
+        "insecureSkipVerify": {
           "type": "boolean",
           "title": "是否验证服务器的证书链和主机名"
         },

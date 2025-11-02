@@ -29,7 +29,7 @@ const (
 	defJobFlushProcessedCountInterval   = 1
 	defJobFlushCheckStopFlagInterval    = 1
 	defJobProcessCumulativeErrorRate    = 10
-	defJobProcessOneDataMaxAttemptCount = 10
+	defJobProcessOneDataMaxAttemptCount = 5
 )
 
 var Conf = Config{
