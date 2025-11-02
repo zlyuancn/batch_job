@@ -1075,6 +1075,10 @@
             "$ref": "#/definitions/batch_jobKV"
           },
           "title": "header"
+        },
+        "proxy": {
+          "type": "string",
+          "title": "代理"
         }
       },
       "title": "执行器扩展数据-响应-HttpCallback"
@@ -1129,6 +1133,10 @@
             "$ref": "#/definitions/batch_jobKV"
           },
           "title": "header"
+        },
+        "proxy": {
+          "type": "string",
+          "title": "代理"
         }
       },
       "title": "执行器扩展数据-请求-HttpCallback"

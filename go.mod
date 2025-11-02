@@ -10,12 +10,12 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.3
 	github.com/spf13/cast v1.3.1
 	github.com/zly-app/cache/v2 v2.0.10
-	github.com/zly-app/component/http v0.0.0-20240730094824-85f48a26539c
+	github.com/zly-app/component/http v0.0.0-20251102101007-578e03c0d5e1
 	github.com/zly-app/component/redis v0.0.0-20251028120309-789178b6dfbd
 	github.com/zly-app/component/sqlx v0.0.0-20250113115202-54207e1efaeb
 	github.com/zly-app/grpc v0.5.2
 	github.com/zly-app/uapp v0.0.0-20250721063824-0fef763876af
-	github.com/zly-app/zapp v1.3.21
+	github.com/zly-app/zapp v1.3.23
 	github.com/zlyuancn/sliding_window v0.0.0-20250930091512-134c4ffd3184
 	go.uber.org/zap v1.27.0
 	golang.org/x/time v0.12.0

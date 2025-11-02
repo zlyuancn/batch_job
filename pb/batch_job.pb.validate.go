@@ -464,6 +464,8 @@ func (m *ExecExtendDataHttpCallbackQ) validate(all bool) error {
 
 	}
 
+	// no validation rules for Proxy
+
 	if len(errors) > 0 {
 		return ExecExtendDataHttpCallbackQMultiError(errors)
 	}
@@ -747,6 +749,8 @@ func (m *ExecExtendDataHttpCallbackA) validate(all bool) error {
 		}
 
 	}
+
+	// no validation rules for Proxy
 
 	if len(errors) > 0 {
 		return ExecExtendDataHttpCallbackAMultiError(errors)

@@ -164,6 +164,7 @@ message ExecExtendDataHttpCallbackQ {
   int32 processStopTimeout = 8 [(validate.rules).int32.gte = 0]; // 任务停止回调超时秒数
   bool insecureSkipVerify = 9; // 是否验证服务器的证书链和主机名
   repeated KV headers = 10; // header
+  string proxy = 11; // 代理
 }
 
 // 执行器扩展数据-响应
@@ -183,6 +184,7 @@ message ExecExtendDataHttpCallbackA {
   int32 processStopTimeout = 8; // 任务停止回调超时秒数
   bool insecureSkipVerify = 9; // 是否验证服务器的证书链和主机名
   repeated KV headers = 10; // header
+  string proxy = 11; // 代理
 }
 
 // 业务状态

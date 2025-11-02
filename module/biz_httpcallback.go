@@ -22,6 +22,20 @@ type httpCallbackBiz struct {
 	headers http.Header
 }
 
+func (h *httpCallbackBiz) genHttpOpts(timeout time.Duration, req, rsp interface{}) []http.Option {
+	opts := []http.Option{http.WithInJson(req), http.WithOutJson(rsp), http.WithTimeout(timeout)}
+	if h.eed.GetHttpCallback().InsecureSkipVerify {
+		opts = append(opts, http.WithInsecureSkipVerify())
+	}
+	if len(h.headers) > 0 {
+		opts = append(opts, http.WithInHeader(h.headers))
+	}
+	if h.eed.GetHttpCallback().GetProxy() != "" {
+		opts = append(opts, http.WithProxy(h.eed.GetHttpCallback().GetProxy()))
+	}
+	return opts
+}
+
 func (h *httpCallbackBiz) GetBizInfo() *batch_job_biz.Model {
 	return h.biz
 }
@@ -46,13 +60,7 @@ func (h *httpCallbackBiz) BeforeCreateAndChange(ctx context.Context, args *pb.Jo
 	rsp := &pb.JobBeforeCreateAndChangeRsp{}
 
 	timeout := time.Duration(h.eed.GetHttpCallback().GetBeforeCreateTimeout()) * time.Second
-	opts := []http.Option{http.WithInJson(args), http.WithOutJson(rsp), http.WithTimeout(timeout)}
-	if h.eed.GetHttpCallback().InsecureSkipVerify {
-		opts = append(opts, http.WithInsecureSkipVerify())
-	}
-	if len(h.headers) > 0 {
-		opts = append(opts, http.WithInHeader(h.headers))
-	}
+	opts := h.genHttpOpts(timeout, args, rsp)
 
 	// 创建/修改前回调
 	c := http.NewClient("job" + strconv.Itoa(int(args.JobId)))
@@ -79,13 +87,7 @@ func (h *httpCallbackBiz) BeforeRun(ctx context.Context, args *pb.JobBeforeRunRe
 	rsp := &pb.JobBeforeRunRsp{}
 
 	timeout := time.Duration(h.eed.GetHttpCallback().GetBeforeRunTimeout()) * time.Second
-	opts := []http.Option{http.WithInJson(args), http.WithOutJson(rsp), http.WithTimeout(timeout)}
-	if h.eed.GetHttpCallback().InsecureSkipVerify {
-		opts = append(opts, http.WithInsecureSkipVerify())
-	}
-	if len(h.headers) > 0 {
-		opts = append(opts, http.WithInHeader(h.headers))
-	}
+	opts := h.genHttpOpts(timeout, args, rsp)
 
 	// 运行前回调
 	c := http.NewClient("job" + strconv.Itoa(int(args.JobId)))
@@ -113,13 +115,7 @@ func (h *httpCallbackBiz) Process(ctx context.Context, jobInfo *batch_job_list.M
 	rsp := &pb.JobProcessRsp{}
 
 	timeout := time.Duration(h.eed.GetHttpCallback().GetProcessTimeout()) * time.Second
-	opts := []http.Option{http.WithInJson(args), http.WithOutJson(rsp), http.WithTimeout(timeout)}
-	if h.eed.GetHttpCallback().InsecureSkipVerify {
-		opts = append(opts, http.WithInsecureSkipVerify())
-	}
-	if len(h.headers) > 0 {
-		opts = append(opts, http.WithInHeader(h.headers))
-	}
+	opts := h.genHttpOpts(timeout, args, rsp)
 
 	// 处理数据
 	c := http.NewClient("job" + strconv.Itoa(int(jobInfo.JobID)))
@@ -156,13 +152,7 @@ func (h *httpCallbackBiz) ProcessStop(ctx context.Context, jobInfo *batch_job_li
 	rsp := &pb.JobProcessStopRsp{}
 
 	timeout := time.Duration(h.eed.GetHttpCallback().GetProcessStopTimeout()) * time.Second
-	opts := []http.Option{http.WithInJson(args), http.WithOutJson(rsp), http.WithTimeout(timeout)}
-	if h.eed.GetHttpCallback().InsecureSkipVerify {
-		opts = append(opts, http.WithInsecureSkipVerify())
-	}
-	if len(h.headers) > 0 {
-		opts = append(opts, http.WithInHeader(h.headers))
-	}
+	opts := h.genHttpOpts(timeout, args, rsp)
 
 	// 停止时回调
 	c := http.NewClient("job" + strconv.Itoa(int(args.JobId)))
@@ -191,7 +181,7 @@ func newHttpCallbackBiz(ctx context.Context, biz *batch_job_biz.Model, eed *pb.E
 	if len(eed.GetHttpCallback().GetHeaders()) > 0 {
 		h.headers = make(http.Header, len(eed.GetHttpCallback().GetHeaders()))
 		for _, kv := range eed.GetHttpCallback().GetHeaders() {
-			h.headers.Add(kv.GetV(), kv.GetV())
+			h.headers.Add(kv.GetK(), kv.GetV())
 		}
 	}
 	return h, nil

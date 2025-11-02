@@ -621,8 +621,8 @@ github.com/yusufpapurcu/wmi v1.2.3 h1:E1ctvB7uKFMOJw3fdOW32DwGE9I7t++CRUEMKvFoFi
 github.com/yusufpapurcu/wmi v1.2.3/go.mod h1:SBZ9tNy3G9/m5Oi98Zks0QjeHVDvuK0qfxQmPyzfmi0=
 github.com/zly-app/cache/v2 v2.0.10 h1:RWeYs4gw+hGCN4/meShssijeO8NdK/LweN83saTAFnw=
 github.com/zly-app/cache/v2 v2.0.10/go.mod h1:WP8ouGVrUJCW6rUCG6EnOFf9Ac9NppjFuctkEXyPp2g=
-github.com/zly-app/component/http v0.0.0-20240730094824-85f48a26539c h1:qEpmEfYrb528xaM/jq5t2BGGucvVo3E4vCZ6XNhOiwQ=
-github.com/zly-app/component/http v0.0.0-20240730094824-85f48a26539c/go.mod h1:rIEFYyTTl7aATBbpFQDFcUEfzqpI1pO58GE/z0gxFpc=
+github.com/zly-app/component/http v0.0.0-20251102101007-578e03c0d5e1 h1:QhmaeLvSfwVr1ACKCtaZ+UDD32l2zMrqRX/gLdtYvSU=
+github.com/zly-app/component/http v0.0.0-20251102101007-578e03c0d5e1/go.mod h1:yvqMz3RH8PBAYKC4lgZ8Lh9JUVnhVRSXhYbDkoQfAEk=
 github.com/zly-app/component/redis v0.0.0-20251028120309-789178b6dfbd h1:k1uQ6MnxxtvFpyyJZ6lqu+6CC1bfifHkQOLV5nDQpaI=
 github.com/zly-app/component/redis v0.0.0-20251028120309-789178b6dfbd/go.mod h1:UoqsaVAM3T60eZjsLuR+KnggcEC7mq8SBbcmljxB02A=
 github.com/zly-app/component/sqlx v0.0.0-20250113115202-54207e1efaeb h1:5T7e/3tNGNStk1OLzHGAIS6TLsBvy9L7o+LwSjDYKuk=
@@ -647,8 +647,8 @@ github.com/zly-app/uapp v0.0.0-20250721063824-0fef763876af/go.mod h1:crbNQYQIyqa
 github.com/zly-app/zapp v1.1.9/go.mod h1:MszpwW6QqAhZZRAKo9UtzT4eaYXkyCMpGuRKBsHFYbw=
 github.com/zly-app/zapp v1.1.11/go.mod h1:itTp7wuwF18fUw0/WvLO13Gid/NpiZmnkUBxtHegW5Q=
 github.com/zly-app/zapp v1.3.17/go.mod h1:1w5AkqKazGiTSb6mWZN4UWph+2jwCbTghALVV7s8mH8=
-github.com/zly-app/zapp v1.3.21 h1:esMDqMxU4Xuofh7I6c+kGzh1z9+FZi/Exopbjp1b2V8=
-github.com/zly-app/zapp v1.3.21/go.mod h1:ARKIUXe2HKDeGvs8KxgR3KGEOpmmDsXrPh6LMg8QQjU=
+github.com/zly-app/zapp v1.3.23 h1:JWNcK0EFo1MQ1Yxj7BIHH0LtpO5FsAc2V8F3zEqmPn0=
+github.com/zly-app/zapp v1.3.23/go.mod h1:XrmFCgaBQHYdxTzr35s/wymDJO/DwWoYd/0ZRfZDceQ=
 github.com/zlyuancn/connpool v0.0.0-20240529080113-fdbaa79cba97 h1:IxkdvMgQgvkWj3kFY9CR9W4XwtFkj0fOaWJvYuwn3yw=
 github.com/zlyuancn/connpool v0.0.0-20240529080113-fdbaa79cba97/go.mod h1:8LD1Yt5uc6SNBYANF0IpVEx7NM+/d/9+ku5WZ9x/4W8=
 github.com/zlyuancn/sliding_window v0.0.0-20250930091512-134c4ffd3184 h1:IKUQ1zQCiXYFtKqWnm7WKCj9NdQ5KDV3LmbsY3eMwyA=
