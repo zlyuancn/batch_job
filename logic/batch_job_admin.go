@@ -523,7 +523,7 @@ func (*BatchJob) AdminStartJob(ctx context.Context, req *pb.AdminStartJobReq) (*
 }
 
 // 停止任务
-func (*BatchJob) AdminStopJob(ctx context.Context, req *pb.AdminStopJobReq) (*pb.AdminStopJobRsp, error) {
+func (b *BatchJob) AdminStopJob(ctx context.Context, req *pb.AdminStopJobReq) (*pb.AdminStopJobRsp, error) {
 	// 加锁
 	lockKey := conf.Conf.JobOpLockKeyPrefix + strconv.Itoa(int(req.GetJobId()))
 	unlock, _, err := redis.AutoLock(ctx, lockKey, time.Second*10)
@@ -565,6 +565,17 @@ func (*BatchJob) AdminStopJob(ctx context.Context, req *pb.AdminStopJobReq) (*pb
 		OpRemark:   req.GetOp().GetOpRemark(),
 		StatusInfo: model.StatusInfo_UserChangeStatus,
 	}
+	// 尝试获取运行锁
+	runLockKey := module.CacheKey.GetRunLockKey(int(jobInfo.JobID))
+	runLockAuthCode, err := redis.Lock(ctx, runLockKey, time.Duration(conf.Conf.JobRunLockExtraTtl)*time.Second)
+	if err == nil { // 加锁成功
+		v.Status = byte(pb.JobStatus_JobStatus_Stopped)
+		defer b.adminStopJobCB(ctx, jobInfo, runLockKey, runLockAuthCode)
+	} else if err != redis.LockManyErr { // 加锁异常
+		logger.Error(ctx, "AdminStopJob call set run lock fail.", zap.Error(err))
+		return nil, err
+	}
+
 	count, err := batch_job_list.UpdateStatus(ctx, v, jobInfo.Status)
 	if err != nil {
 		logger.Error(ctx, "AdminStopJob call UpdateStatus fail.", zap.Error(err))
@@ -608,4 +619,32 @@ func (*BatchJob) AdminStopJob(ctx context.Context, req *pb.AdminStopJobReq) (*pb
 	}, nil)
 
 	return &pb.AdminStopJobRsp{}, nil
+}
+
+func (*BatchJob) adminStopJobCB(ctx context.Context, jobInfo *batch_job_list.Model, lockKey, authCode string) {
+	cloneCtx := utils.Ctx.CloneContext(ctx)
+	// 对于加锁成功, 主动停止时注意业务回调
+	gpool.GetDefGPool().Go(func() error {
+		_ = redis.UnLock(cloneCtx, lockKey, authCode)
+		// 获取业务信息
+		bizInfo, err := batch_job_biz.GetOneByBizId(cloneCtx, int(jobInfo.BizId))
+		if err != nil {
+			logger.Error(cloneCtx, "AdminStopJob call batch_job_biz.GetOneByBizId fail.", zap.Error(err))
+			return err
+		}
+
+		// 获取业务
+		b, err := module.Biz.GetBiz(cloneCtx, bizInfo)
+		if err != nil {
+			logger.Error(cloneCtx, "AdminStopJob call biz.GetBiz fail.", zap.Error(err))
+			return err
+		}
+		// 回调
+		err = b.ProcessStop(cloneCtx, jobInfo, false)
+		if err != nil {
+			logger.Error(cloneCtx, "AdminStopJob call ProcessStop fail.", zap.Error(err))
+			return err
+		}
+		return nil
+	}, nil)
 }
