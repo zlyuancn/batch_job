@@ -496,8 +496,7 @@ message BizAddDataLogRsp {}
 
 // ---------- 业务回调参数 ----------
 
-// 创建和修改任务前回调参数
-message JobBeforeCreateAndChangeReq {
+message JobCBInfo {
   int64 jobId = 1; // 任务id
   string jobName = 2; // 任务名称
   int32 bizId = 3; // 业务id. 必填
@@ -505,24 +504,22 @@ message JobBeforeCreateAndChangeReq {
   string jobData = 5; // 任务数据, 让业务知道应该做什么
   int64 processDataTotal = 6; // 需要处理数据总数
   int64 processedCount = 7; // 已处理过的数据量, 无论成功还是失败
-  RateType rateType = 8; // 速率类型
-  int32 rateSec = 9; // 每秒处理速率. 0表示不限制
-  bool isCreate = 10; // 是否为创建
+  int64 errLogCount = 8; // 错误日志数
+  RateType rateType = 9; // 速率类型
+  int32 rateSec = 10; // 每秒处理速率. 0表示不限制
+}
+
+// 创建和修改任务前回调参数
+message JobBeforeCreateAndChangeReq {
+  JobCBInfo jobInfo = 1; // 任务信息
+  bool isCreate = 2; // 是否为创建
 }
 message JobBeforeCreateAndChangeRsp {}
 
 // 任务启动前回调参数
 message JobBeforeRunReq {
-  int64 jobId = 1; // 任务id
-  string jobName = 2; // 任务名称
-  int32 bizId = 3; // 业务id
-  string bizName = 4; // 业务名
-  string jobData = 5; // 任务数据, 让业务知道应该做什么
-  int64 processDataTotal = 6; // 业务中需要处理数据总数
-  int64 processedCount = 7; // 已处理过的数据量, 无论成功还是失败
-  RateType rateType = 8; // 速率类型
-  int32 rateSec = 9; // 每秒处理速率. 0表示不限制
-  string authCode = 10; // 授权码, 调用业务方法时传参, 用于防止业务多线程抢锁
+  JobCBInfo jobInfo = 1; // 任务信息
+  string authCode = 2; // 授权码, 调用业务方法时传参, 用于防止业务多线程抢锁
 }
 message JobBeforeRunRsp {}
 
@@ -536,15 +533,7 @@ message JobProcessRsp {}
 
 // 任务停止回调参数
 message JobProcessStopReq {
-  int64 jobId = 1; // 任务id
-  string jobName = 2; // 任务名称
-  int32 bizId = 3; // 业务id
-  string bizName = 4; // 业务名
-  string jobData = 5; // 任务数据, 让业务知道应该做什么
-  int64 processDataTotal = 6; // 业务中需要处理数据总数
-  int64 processedCount = 7; // 已处理过的数据量, 无论成功还是失败
-  RateType rateType = 8; // 速率类型
-  int32 rateSec = 9; // 每秒处理速率. 0表示不限制
-  bool isFinished = 10; // 任务是否已完成
+  JobCBInfo jobInfo = 1; // 任务信息
+  bool isFinished = 2; // 任务是否已完成
 }
 message JobProcessStopRsp {}

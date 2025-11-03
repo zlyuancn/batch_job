@@ -47,16 +47,19 @@ func (j *jobCli) CreateLauncherByData(ctx context.Context, bizInfo *batch_job_bi
 		}
 
 		args := &pb.JobBeforeRunReq{
-			JobId:            int64(jobInfo.JobID),
-			JobName:          jobInfo.JobName,
-			BizId:            int32(jobInfo.BizId),
-			BizName:          bizInfo.BizName,
-			JobData:          jobInfo.JobData,
-			ProcessDataTotal: int64(jobInfo.ProcessDataTotal),
-			ProcessedCount:   int64(jobInfo.ProcessedCount),
-			RateType:         pb.RateType(jobInfo.RateType),
-			RateSec:          int32(jobInfo.RateSec),
-			AuthCode:         authCode,
+			JobInfo: &pb.JobCBInfo{
+				JobId:            int64(jobInfo.JobID),
+				JobName:          jobInfo.JobName,
+				BizId:            int32(jobInfo.BizId),
+				BizName:          bizInfo.BizName,
+				JobData:          jobInfo.JobData,
+				ProcessDataTotal: int64(jobInfo.ProcessDataTotal),
+				ProcessedCount:   int64(jobInfo.ProcessedCount),
+				ErrLogCount:      int64(jobInfo.ErrLogCount),
+				RateType:         pb.RateType(jobInfo.RateType),
+				RateSec:          int32(jobInfo.RateSec),
+			},
+			AuthCode: authCode,
 		}
 		b.BeforeRun(ctx, args)
 		return
@@ -376,7 +379,7 @@ func (j *jobLauncher) processData(sn int64) {
 		<-j.threadLock // 释放一个线程
 	}()
 
-	name := "job_process" + strconv.FormatInt(sn, 10)
+	name := "job_process_" + strconv.FormatInt(sn, 10)
 	ctx := utils.Otel.CtxStart(j.ctx, name)
 	defer utils.Otel.CtxEnd(ctx)
 
@@ -439,6 +442,7 @@ func (j *jobLauncher) stopSideEffect() {
 
 	// 立即写入当前进度日志计数到db, 对于已完成任务刷新任务状态
 	finishedCount := j.sw.GetProgress() + 1 // 已完成数
+	j.jobInfo.ProcessedCount = uint64(finishedCount)
 	isFinished := finishedCount >= int64(j.jobInfo.ProcessDataTotal)
 	updateData := map[string]interface{}{
 		"processed_count": finishedCount,
@@ -452,6 +456,7 @@ func (j *jobLauncher) stopSideEffect() {
 		updateData["status"] = int(pb.JobStatus_JobStatus_Finished)
 
 		errLogCount, err := Job.GetErrCount(j.ctx, int(j.jobInfo.JobID))
+		j.jobInfo.ErrLogCount = uint64(errLogCount)
 		if err != nil {
 			logger.Error(j.ctx, "stopSideEffect call GetErrCount.", zap.Error(err))
 			return // 这里不再更新db了, 等重试

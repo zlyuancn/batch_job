@@ -63,7 +63,7 @@ func (h *httpCallbackBiz) BeforeCreateAndChange(ctx context.Context, args *pb.Jo
 	opts := h.genHttpOpts(timeout, args, rsp)
 
 	// 创建/修改前回调
-	c := http.NewClient("job" + strconv.Itoa(int(args.JobId)))
+	c := http.NewClient("job_" + strconv.Itoa(int(args.GetJobInfo().GetJobId())))
 	sp, err := c.Post(ctx, h.eed.GetHttpCallback().GetBeforeCreate(), nil, opts...)
 	if err != nil {
 		logger.Error(ctx, "BeforeCreateAndChange call http fail.", zap.Error(err))
@@ -90,7 +90,7 @@ func (h *httpCallbackBiz) BeforeRun(ctx context.Context, args *pb.JobBeforeRunRe
 	opts := h.genHttpOpts(timeout, args, rsp)
 
 	// 运行前回调
-	c := http.NewClient("job" + strconv.Itoa(int(args.JobId)))
+	c := http.NewClient("job_" + strconv.Itoa(int(args.GetJobInfo().GetJobId())))
 	sp, err := c.Post(ctx, h.eed.GetHttpCallback().GetBeforeRun(), nil, opts...)
 	if err != nil {
 		logger.Error(ctx, "BeforeRun call http fail.", zap.Error(err))
@@ -118,7 +118,7 @@ func (h *httpCallbackBiz) Process(ctx context.Context, jobInfo *batch_job_list.M
 	opts := h.genHttpOpts(timeout, args, rsp)
 
 	// 处理数据
-	c := http.NewClient("job" + strconv.Itoa(int(jobInfo.JobID)))
+	c := http.NewClient("job_" + strconv.Itoa(int(jobInfo.JobID)) + "_" + strconv.FormatInt(dataIndex, 10))
 	sp, err := c.Post(ctx, h.eed.GetHttpCallback().GetProcess(), nil, opts...)
 	if err != nil {
 		logger.Error(ctx, "Process call http fail.", zap.Error(err))
@@ -140,16 +140,19 @@ func (h *httpCallbackBiz) ProcessStop(ctx context.Context, jobInfo *batch_job_li
 	}
 
 	args := &pb.JobProcessStopReq{
-		JobId:            int64(jobInfo.JobID),
-		JobName:          jobInfo.JobName,
-		BizId:            int32(jobInfo.BizId),
-		BizName:          h.biz.BizName,
-		JobData:          jobInfo.JobData,
-		ProcessDataTotal: int64(jobInfo.ProcessDataTotal),
-		ProcessedCount:   int64(jobInfo.ProcessedCount),
-		RateType:         pb.RateType(jobInfo.RateType),
-		RateSec:          int32(jobInfo.RateSec),
-		IsFinished:       isFinished,
+		JobInfo: &pb.JobCBInfo{
+			JobId:            int64(jobInfo.JobID),
+			JobName:          jobInfo.JobName,
+			BizId:            int32(jobInfo.BizId),
+			BizName:          h.biz.BizName,
+			JobData:          jobInfo.JobData,
+			ProcessDataTotal: int64(jobInfo.ProcessDataTotal),
+			ProcessedCount:   int64(jobInfo.ProcessedCount),
+			ErrLogCount:      int64(jobInfo.ErrLogCount),
+			RateType:         pb.RateType(jobInfo.RateType),
+			RateSec:          int32(jobInfo.RateSec),
+		},
+		IsFinished: isFinished,
 	}
 	rsp := &pb.JobProcessStopRsp{}
 
@@ -157,7 +160,7 @@ func (h *httpCallbackBiz) ProcessStop(ctx context.Context, jobInfo *batch_job_li
 	opts := h.genHttpOpts(timeout, args, rsp)
 
 	// 停止时回调
-	c := http.NewClient("job" + strconv.Itoa(int(args.JobId)))
+	c := http.NewClient("job_" + strconv.Itoa(int(args.GetJobInfo().JobId)))
 	sp, err := c.Post(ctx, h.eed.GetHttpCallback().GetProcessStop(), nil, opts...)
 	if err != nil {
 		logger.Error(ctx, "ProcessStop call http fail.", zap.Error(err))

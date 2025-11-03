@@ -181,16 +181,19 @@ func (*BatchJob) AdminCreateJob(ctx context.Context, req *pb.AdminCreateJobReq) 
 
 	// 创建前回调
 	args := &pb.JobBeforeCreateAndChangeReq{
-		JobId:            jobId,
-		JobName:          req.GetJobName(),
-		BizId:            req.GetBizId(),
-		BizName:          bizInfo.BizName,
-		JobData:          req.GetJobData(),
-		ProcessDataTotal: req.GetProcessDataTotal(),
-		ProcessedCount:   req.GetProcessedCount(),
-		RateType:         req.GetRateType(),
-		RateSec:          req.GetRateSec(),
-		IsCreate:         true,
+		JobInfo: &pb.JobCBInfo{
+			JobId:            jobId,
+			JobName:          req.GetJobName(),
+			BizId:            req.GetBizId(),
+			BizName:          bizInfo.BizName,
+			JobData:          req.GetJobData(),
+			ProcessDataTotal: req.GetProcessDataTotal(),
+			ProcessedCount:   req.GetProcessedCount(),
+			ErrLogCount:      0,
+			RateType:         req.GetRateType(),
+			RateSec:          req.GetRateSec(),
+		},
+		IsCreate: true,
 	}
 	err = b.BeforeCreateAndChange(ctx, args)
 	if err != nil {
@@ -318,16 +321,19 @@ func (*BatchJob) AdminUpdateJob(ctx context.Context, req *pb.AdminUpdateJobReq) 
 
 	// 修改前回调
 	args := &pb.JobBeforeCreateAndChangeReq{
-		JobId:            req.GetJobId(),
-		JobName:          req.GetJobName(),
-		BizId:            int32(jobInfo.BizId),
-		BizName:          bizInfo.BizName,
-		JobData:          req.GetJobData(),
-		ProcessDataTotal: req.GetProcessDataTotal(),
-		ProcessedCount:   req.GetProcessedCount(),
-		RateType:         req.GetRateType(),
-		RateSec:          req.GetRateSec(),
-		IsCreate:         false,
+		JobInfo: &pb.JobCBInfo{
+			JobId:            req.GetJobId(),
+			JobName:          req.GetJobName(),
+			BizId:            int32(jobInfo.BizId),
+			BizName:          bizInfo.BizName,
+			JobData:          req.GetJobData(),
+			ProcessDataTotal: req.GetProcessDataTotal(),
+			ProcessedCount:   req.GetProcessedCount(),
+			ErrLogCount:      int64(jobInfo.ErrLogCount),
+			RateType:         req.GetRateType(),
+			RateSec:          req.GetRateSec(),
+		},
+		IsCreate: false,
 	}
 	err = b.BeforeCreateAndChange(ctx, args)
 	if err != nil {

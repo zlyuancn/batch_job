@@ -6405,6 +6405,125 @@ var _ interface {
 	ErrorName() string
 } = BizAddDataLogRspValidationError{}
 
+// Validate checks the field values on JobCBInfo with the rules defined in the
+// proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *JobCBInfo) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on JobCBInfo with the rules defined in
+// the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in JobCBInfoMultiError, or nil
+// if none found.
+func (m *JobCBInfo) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *JobCBInfo) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for JobId
+
+	// no validation rules for JobName
+
+	// no validation rules for BizId
+
+	// no validation rules for BizName
+
+	// no validation rules for JobData
+
+	// no validation rules for ProcessDataTotal
+
+	// no validation rules for ProcessedCount
+
+	// no validation rules for ErrLogCount
+
+	// no validation rules for RateType
+
+	// no validation rules for RateSec
+
+	if len(errors) > 0 {
+		return JobCBInfoMultiError(errors)
+	}
+
+	return nil
+}
+
+// JobCBInfoMultiError is an error wrapping multiple validation errors returned
+// by JobCBInfo.ValidateAll() if the designated constraints aren't met.
+type JobCBInfoMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m JobCBInfoMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m JobCBInfoMultiError) AllErrors() []error { return m }
+
+// JobCBInfoValidationError is the validation error returned by
+// JobCBInfo.Validate if the designated constraints aren't met.
+type JobCBInfoValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e JobCBInfoValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e JobCBInfoValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e JobCBInfoValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e JobCBInfoValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e JobCBInfoValidationError) ErrorName() string { return "JobCBInfoValidationError" }
+
+// Error satisfies the builtin error interface
+func (e JobCBInfoValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sJobCBInfo.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = JobCBInfoValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = JobCBInfoValidationError{}
+
 // Validate checks the field values on JobBeforeCreateAndChangeReq with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -6427,23 +6546,34 @@ func (m *JobBeforeCreateAndChangeReq) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for JobId
-
-	// no validation rules for JobName
-
-	// no validation rules for BizId
-
-	// no validation rules for BizName
-
-	// no validation rules for JobData
-
-	// no validation rules for ProcessDataTotal
-
-	// no validation rules for ProcessedCount
-
-	// no validation rules for RateType
-
-	// no validation rules for RateSec
+	if all {
+		switch v := interface{}(m.GetJobInfo()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, JobBeforeCreateAndChangeReqValidationError{
+					field:  "JobInfo",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, JobBeforeCreateAndChangeReqValidationError{
+					field:  "JobInfo",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetJobInfo()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return JobBeforeCreateAndChangeReqValidationError{
+				field:  "JobInfo",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
 
 	// no validation rules for IsCreate
 
@@ -6653,23 +6783,34 @@ func (m *JobBeforeRunReq) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for JobId
-
-	// no validation rules for JobName
-
-	// no validation rules for BizId
-
-	// no validation rules for BizName
-
-	// no validation rules for JobData
-
-	// no validation rules for ProcessDataTotal
-
-	// no validation rules for ProcessedCount
-
-	// no validation rules for RateType
-
-	// no validation rules for RateSec
+	if all {
+		switch v := interface{}(m.GetJobInfo()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, JobBeforeRunReqValidationError{
+					field:  "JobInfo",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, JobBeforeRunReqValidationError{
+					field:  "JobInfo",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetJobInfo()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return JobBeforeRunReqValidationError{
+				field:  "JobInfo",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
 
 	// no validation rules for AuthCode
 
@@ -7079,23 +7220,34 @@ func (m *JobProcessStopReq) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for JobId
-
-	// no validation rules for JobName
-
-	// no validation rules for BizId
-
-	// no validation rules for BizName
-
-	// no validation rules for JobData
-
-	// no validation rules for ProcessDataTotal
-
-	// no validation rules for ProcessedCount
-
-	// no validation rules for RateType
-
-	// no validation rules for RateSec
+	if all {
+		switch v := interface{}(m.GetJobInfo()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, JobProcessStopReqValidationError{
+					field:  "JobInfo",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, JobProcessStopReqValidationError{
+					field:  "JobInfo",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetJobInfo()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return JobProcessStopReqValidationError{
+				field:  "JobInfo",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
 
 	// no validation rules for IsFinished
 
