@@ -647,8 +647,8 @@ github.com/zly-app/uapp v0.0.0-20250721063824-0fef763876af/go.mod h1:crbNQYQIyqa
 github.com/zly-app/zapp v1.1.9/go.mod h1:MszpwW6QqAhZZRAKo9UtzT4eaYXkyCMpGuRKBsHFYbw=
 github.com/zly-app/zapp v1.1.11/go.mod h1:itTp7wuwF18fUw0/WvLO13Gid/NpiZmnkUBxtHegW5Q=
 github.com/zly-app/zapp v1.3.17/go.mod h1:1w5AkqKazGiTSb6mWZN4UWph+2jwCbTghALVV7s8mH8=
-github.com/zly-app/zapp v1.3.23 h1:JWNcK0EFo1MQ1Yxj7BIHH0LtpO5FsAc2V8F3zEqmPn0=
-github.com/zly-app/zapp v1.3.23/go.mod h1:XrmFCgaBQHYdxTzr35s/wymDJO/DwWoYd/0ZRfZDceQ=
+github.com/zly-app/zapp v1.3.24 h1:x1rw5+yGoEwL3QIIY6RIpOkPO5Alj8ER9kkvIMSrU4s=
+github.com/zly-app/zapp v1.3.24/go.mod h1:XrmFCgaBQHYdxTzr35s/wymDJO/DwWoYd/0ZRfZDceQ=
 github.com/zlyuancn/connpool v0.0.0-20240529080113-fdbaa79cba97 h1:IxkdvMgQgvkWj3kFY9CR9W4XwtFkj0fOaWJvYuwn3yw=
 github.com/zlyuancn/connpool v0.0.0-20240529080113-fdbaa79cba97/go.mod h1:8LD1Yt5uc6SNBYANF0IpVEx7NM+/d/9+ku5WZ9x/4W8=
 github.com/zlyuancn/sliding_window v0.0.0-20250930091512-134c4ffd3184 h1:IKUQ1zQCiXYFtKqWnm7WKCj9NdQ5KDV3LmbsY3eMwyA=

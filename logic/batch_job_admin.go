@@ -181,14 +181,15 @@ func (*BatchJob) AdminCreateJob(ctx context.Context, req *pb.AdminCreateJobReq) 
 
 	// 创建前回调
 	args := &pb.JobBeforeCreateAndChangeReq{
+		JobId:            jobId,
 		JobName:          req.GetJobName(),
 		BizId:            req.GetBizId(),
+		BizName:          bizInfo.BizName,
 		JobData:          req.GetJobData(),
 		ProcessDataTotal: req.GetProcessDataTotal(),
 		ProcessedCount:   req.GetProcessedCount(),
 		RateType:         req.GetRateType(),
 		RateSec:          req.GetRateSec(),
-		JobId:            jobId,
 		IsCreate:         true,
 	}
 	err = b.BeforeCreateAndChange(ctx, args)
@@ -319,14 +320,15 @@ func (*BatchJob) AdminUpdateJob(ctx context.Context, req *pb.AdminUpdateJobReq) 
 
 	// 修改前回调
 	args := &pb.JobBeforeCreateAndChangeReq{
+		JobId:            req.GetJobId(),
 		JobName:          req.GetJobName(),
 		BizId:            int32(jobInfo.BizId),
+		BizName:          bizInfo.BizName,
 		JobData:          req.GetJobData(),
 		ProcessDataTotal: req.GetProcessDataTotal(),
 		ProcessedCount:   req.GetProcessedCount(),
 		RateType:         req.GetRateType(),
 		RateSec:          req.GetRateSec(),
-		JobId:            req.GetJobId(),
 		IsCreate:         false,
 	}
 	err = b.BeforeCreateAndChange(ctx, args)

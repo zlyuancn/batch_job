@@ -984,9 +984,10 @@
     "batch_jobDataLogQ": {
       "type": "object",
       "properties": {
-        "dataId": {
+        "dataIndex": {
           "type": "string",
-          "title": "数据id"
+          "format": "int64",
+          "title": "数据索引. 从0开始"
         },
         "remark": {
           "type": "string",
@@ -1363,9 +1364,10 @@
     "batch_jobLogInfoByListA": {
       "type": "object",
       "properties": {
-        "dataId": {
+        "dataIndex": {
           "type": "string",
-          "title": "数据id"
+          "format": "int64",
+          "title": "数据索引. 从0开始"
         },
         "remark": {
           "type": "string",

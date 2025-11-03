@@ -57,6 +57,8 @@ func (*jobCli) createLauncher(ctx context.Context, bizInfo *batch_job_biz.Model,
 			JobData:          jobInfo.JobData,
 			ProcessDataTotal: int64(jobInfo.ProcessDataTotal),
 			ProcessedCount:   int64(jobInfo.ProcessedCount),
+			RateType:         pb.RateType(jobInfo.RateType),
+			RateSec:          int32(jobInfo.RateSec),
 			AuthCode:         authCode,
 		}
 		b.BeforeRun(ctx, args)
@@ -394,6 +396,8 @@ func (j *jobLauncher) stopSideEffect() {
 
 	// 替换ctx
 	j.ctx = utils.Ctx.CloneContext(j.ctx)
+	j.ctx = utils.Otel.CtxStart(j.ctx, "stopSideEffect")
+	defer utils.Otel.CtxEnd(j.ctx)
 
 	// 立即写入当前进度日志计数到redis
 	err := j.writeProcess2Cache()
@@ -423,7 +427,7 @@ func (j *jobLauncher) stopSideEffect() {
 		}
 		updateData["err_log_count"] = errLogCount
 	}
-	err = batch_job_list.UpdateOne(j.ctx, int(j.jobInfo.JobID), updateData)
+	err = batch_job_list.UpdateOne(j.ctx, int(j.jobInfo.JobID), updateData, 0)
 	if err != nil {
 		logger.Error(j.ctx, "stopSideEffect call UpdateOne fail.", zap.Error(err))
 		return // 这里失败等重试

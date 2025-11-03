@@ -1,0 +1,37 @@
+syntax = 'proto3';
+package hello; // 决定proto引用路径和rpc路由
+option go_package = "github.com/zlyuancn/batch_job/example/hello/pb"; // 用于对golang包管理的定位
+
+import "google/api/annotations.proto";  // 添加导入
+import "pb/batch_job.proto";
+
+service HelloService{
+  // 创建检查
+  rpc CreateCheck(batch_job.JobBeforeCreateAndChangeReq) returns (batch_job.JobBeforeCreateAndChangeRsp) {
+    option (google.api.http) = {
+      post: "/hello/CreateCheck",
+      body: "*",
+    };
+  }
+  // 运行任务处理
+  rpc Start(batch_job.JobBeforeRunReq) returns (batch_job.JobBeforeRunRsp) {
+    option (google.api.http) = {
+      post: "/hello/Start",
+      body: "*",
+    };
+  }
+  // 处理数据
+  rpc Process(batch_job.JobProcessReq) returns (batch_job.JobProcessRsp) {
+    option (google.api.http) = {
+      post: "/hello/Process",
+      body: "*",
+    };
+  }
+  // 停止任务处理
+  rpc Stop(batch_job.JobProcessStopReq) returns (batch_job.JobProcessStopRsp) {
+    option (google.api.http) = {
+      post: "/hello/Stop",
+      body: "*",
+    };
+  }
+}

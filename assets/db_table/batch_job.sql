@@ -95,14 +95,15 @@ CREATE TABLE `batch_job_log`
 (
     `id`          bigint unsigned  NOT NULL AUTO_INCREMENT,
     `job_id`      int unsigned     NOT NULL COMMENT '任务号',
-    `data_id`     varchar(256)     NOT NULL COMMENT '数据id',
+    `data_index`  bigint unsigned  NOT NULL COMMENT '数据索引, 从0开始',
     `remark`      varchar(4096)    NOT NULL DEFAULT '' COMMENT '备注',
     `extend`      varchar(4096)    NOT NULL DEFAULT '' COMMENT '扩展数据',
     `log_type`    tinyint unsigned NOT NULL DEFAULT 0 COMMENT '日志类型 0=调试Debug 1=信息Info 2=警告Warn 3=错误Err',
     `create_time` datetime         NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     KEY `batch_job_log_job_id` (`job_id`, `create_time` DESC),
-    KEY `batch_job_log_job_id_log_type` (`job_id`, `log_type`, `create_time` DESC)
+    KEY `batch_job_log_job_id_log_type` (`job_id`, `log_type`, `create_time` DESC),
+    KEY `batch_job_log_data_id` (`data_index`, `job_id`, `create_time` DESC)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT ='批量任务日志';

@@ -72,7 +72,7 @@ func (h *httpCallbackBiz) BeforeCreateAndChange(ctx context.Context, args *pb.Jo
 
 	// 检查状态码
 	if sp.StatusCode != rawHttp.StatusOK {
-		err = fmt.Errorf("http StatusCode not ok. is %d", sp.StatusCode)
+		err = fmt.Errorf("http StatusCode not ok. code=%d. body=%s", sp.StatusCode, sp.Body)
 		logger.Error(ctx, "BeforeCreateAndChange call http fail.", zap.Error(err))
 		return err
 	}
@@ -99,7 +99,7 @@ func (h *httpCallbackBiz) BeforeRun(ctx context.Context, args *pb.JobBeforeRunRe
 
 	// 检查状态码
 	if sp.StatusCode != rawHttp.StatusOK {
-		err = fmt.Errorf("http StatusCode not ok. is %d", sp.StatusCode)
+		err = fmt.Errorf("http StatusCode not ok. code=%d. body=%s", sp.StatusCode, sp.Body)
 		logger.Error(ctx, "BeforeRun call http fail.", zap.Error(err))
 		return
 	}
@@ -127,7 +127,7 @@ func (h *httpCallbackBiz) Process(ctx context.Context, jobInfo *batch_job_list.M
 
 	// 检查状态码
 	if sp.StatusCode != rawHttp.StatusOK {
-		err = fmt.Errorf("http StatusCode not ok. is %d", sp.StatusCode)
+		err = fmt.Errorf("http StatusCode not ok. code=%d. body=%s", sp.StatusCode, sp.Body)
 		logger.Error(ctx, "Process call http fail.", zap.Error(err))
 		return err
 	}
@@ -147,6 +147,8 @@ func (h *httpCallbackBiz) ProcessStop(ctx context.Context, jobInfo *batch_job_li
 		JobData:          jobInfo.JobData,
 		ProcessDataTotal: int64(jobInfo.ProcessDataTotal),
 		ProcessedCount:   int64(jobInfo.ProcessedCount),
+		RateType:         pb.RateType(jobInfo.RateType),
+		RateSec:          int32(jobInfo.RateSec),
 		IsFinished:       isFinished,
 	}
 	rsp := &pb.JobProcessStopRsp{}
@@ -164,7 +166,7 @@ func (h *httpCallbackBiz) ProcessStop(ctx context.Context, jobInfo *batch_job_li
 
 	// 检查状态码
 	if sp.StatusCode != rawHttp.StatusOK {
-		err = fmt.Errorf("http StatusCode not ok. is %d", sp.StatusCode)
+		err = fmt.Errorf("http StatusCode not ok. code=%d. body=%s", sp.StatusCode, sp.Body)
 		logger.Error(ctx, "ProcessStop call http fail.", zap.Error(err))
 		return err
 	}

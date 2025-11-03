@@ -1,0 +1,356 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "决定proto引用路径和rpc路由",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "HelloService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/hello/CreateCheck": {
+      "post": {
+        "summary": "创建检查",
+        "operationId": "HelloService_CreateCheck",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/batch_jobJobBeforeCreateAndChangeRsp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/batch_jobJobBeforeCreateAndChangeReq"
+            }
+          }
+        ],
+        "tags": [
+          "HelloService"
+        ]
+      }
+    },
+    "/hello/Process": {
+      "post": {
+        "summary": "处理数据",
+        "operationId": "HelloService_Process",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/batch_jobJobProcessRsp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/batch_jobJobProcessReq"
+            }
+          }
+        ],
+        "tags": [
+          "HelloService"
+        ]
+      }
+    },
+    "/hello/Start": {
+      "post": {
+        "summary": "运行任务处理",
+        "operationId": "HelloService_Start",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/batch_jobJobBeforeRunRsp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/batch_jobJobBeforeRunReq"
+            }
+          }
+        ],
+        "tags": [
+          "HelloService"
+        ]
+      }
+    },
+    "/hello/Stop": {
+      "post": {
+        "summary": "停止任务处理",
+        "operationId": "HelloService_Stop",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/batch_jobJobProcessStopRsp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/batch_jobJobProcessStopReq"
+            }
+          }
+        ],
+        "tags": [
+          "HelloService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "batch_jobJobBeforeCreateAndChangeReq": {
+      "type": "object",
+      "properties": {
+        "jobName": {
+          "type": "string",
+          "title": "任务名称"
+        },
+        "bizId": {
+          "type": "integer",
+          "format": "int32",
+          "title": "业务id. 必填"
+        },
+        "jobData": {
+          "type": "string",
+          "title": "任务数据, 让业务知道应该做什么"
+        },
+        "processDataTotal": {
+          "type": "string",
+          "format": "int64",
+          "title": "需要处理数据总数"
+        },
+        "processedCount": {
+          "type": "string",
+          "format": "int64",
+          "title": "已处理过的数据量, 无论成功还是失败"
+        },
+        "rateType": {
+          "$ref": "#/definitions/batch_jobRateType",
+          "title": "速率类型"
+        },
+        "rateSec": {
+          "type": "integer",
+          "format": "int32",
+          "title": "每秒处理速率. 0表示不限制"
+        },
+        "jobId": {
+          "type": "string",
+          "format": "int64",
+          "title": "任务id"
+        },
+        "isCreate": {
+          "type": "boolean",
+          "title": "是否为创建"
+        }
+      },
+      "title": "创建和修改任务前回调参数"
+    },
+    "batch_jobJobBeforeCreateAndChangeRsp": {
+      "type": "object"
+    },
+    "batch_jobJobBeforeRunReq": {
+      "type": "object",
+      "properties": {
+        "jobId": {
+          "type": "string",
+          "format": "int64",
+          "title": "任务id"
+        },
+        "jobName": {
+          "type": "string",
+          "title": "任务名称"
+        },
+        "bizId": {
+          "type": "integer",
+          "format": "int32",
+          "title": "业务id"
+        },
+        "bizName": {
+          "type": "string",
+          "title": "业务名"
+        },
+        "jobData": {
+          "type": "string",
+          "title": "任务数据, 让业务知道应该做什么"
+        },
+        "processDataTotal": {
+          "type": "string",
+          "format": "int64",
+          "title": "业务中需要处理数据总数"
+        },
+        "processedCount": {
+          "type": "string",
+          "format": "int64",
+          "title": "已处理过的数据量, 无论成功还是失败"
+        },
+        "authCode": {
+          "type": "string",
+          "title": "授权码, 调用业务方法时传参, 用于防止业务多线程抢锁"
+        }
+      },
+      "title": "任务启动前回调参数"
+    },
+    "batch_jobJobBeforeRunRsp": {
+      "type": "object"
+    },
+    "batch_jobJobProcessReq": {
+      "type": "object",
+      "properties": {
+        "jobId": {
+          "type": "string",
+          "format": "int64",
+          "title": "创建的任务id. 必填"
+        },
+        "dataIndex": {
+          "type": "string",
+          "format": "int64",
+          "title": "要处理的数据索引, 从0开始"
+        },
+        "attemptCount": {
+          "type": "integer",
+          "format": "int32",
+          "title": "本次任务短时间内的尝试次数. 表示一个启动器执行过程中对任务的某个数据尝试处理了几次"
+        }
+      },
+      "title": "任务处理回调参数"
+    },
+    "batch_jobJobProcessRsp": {
+      "type": "object"
+    },
+    "batch_jobJobProcessStopReq": {
+      "type": "object",
+      "properties": {
+        "jobId": {
+          "type": "string",
+          "format": "int64",
+          "title": "任务id"
+        },
+        "jobName": {
+          "type": "string",
+          "title": "任务名称"
+        },
+        "bizId": {
+          "type": "integer",
+          "format": "int32",
+          "title": "业务id"
+        },
+        "bizName": {
+          "type": "string",
+          "title": "业务名"
+        },
+        "jobData": {
+          "type": "string",
+          "title": "任务数据, 让业务知道应该做什么"
+        },
+        "processDataTotal": {
+          "type": "string",
+          "format": "int64",
+          "title": "业务中需要处理数据总数"
+        },
+        "processedCount": {
+          "type": "string",
+          "format": "int64",
+          "title": "已处理过的数据量, 无论成功还是失败"
+        },
+        "isFinished": {
+          "type": "boolean",
+          "title": "任务是否已完成"
+        }
+      },
+      "title": "任务停止回调参数"
+    },
+    "batch_jobJobProcessStopRsp": {
+      "type": "object"
+    },
+    "batch_jobRateType": {
+      "type": "string",
+      "enum": [
+        "RateType_RateSec",
+        "RateType_Serialization"
+      ],
+      "default": "RateType_RateSec",
+      "description": "- RateType_RateSec: 标准限速\n - RateType_Serialization: 串行化限速",
+      "title": "速率类型"
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  }
+}

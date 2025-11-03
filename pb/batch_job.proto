@@ -328,7 +328,7 @@ enum DataLogType {
 
 // 日志-请求
 message DataLogQ {
-  string dataId = 1; // 数据id
+  int64 dataIndex = 1; // 数据索引. 从0开始
   string remark = 2; // 备注
   string extend = 3; // 扩展数据
   DataLogType logType = 4; // 日志类型
@@ -336,7 +336,7 @@ message DataLogQ {
 
 // 日志-响应
 message LogInfoByListA {
-  string dataId = 1; // 数据id
+  int64 dataIndex = 1; // 数据索引. 从0开始
   string remark = 2; // 备注
   string extend = 3; // 扩展数据
   DataLogType logType = 4; // 日志类型
@@ -498,15 +498,16 @@ message BizAddDataLogRsp {}
 
 // 创建和修改任务前回调参数
 message JobBeforeCreateAndChangeReq {
-  string jobName = 1; // 任务名称
-  int32 bizId = 2; // 业务id. 必填
-  string jobData = 3; // 任务数据, 让业务知道应该做什么
-  int64 processDataTotal = 4; // 需要处理数据总数
-  int64 processedCount = 5; // 已处理过的数据量, 无论成功还是失败
-  RateType rateType = 6; // 速率类型
-  int32 rateSec = 7; // 每秒处理速率. 0表示不限制
-  int64 jobId = 8; // 任务id
-  bool isCreate = 9; // 是否为创建
+  int64 jobId = 1; // 任务id
+  string jobName = 2; // 任务名称
+  int32 bizId = 3; // 业务id. 必填
+  string bizName = 4; // 业务名
+  string jobData = 5; // 任务数据, 让业务知道应该做什么
+  int64 processDataTotal = 6; // 需要处理数据总数
+  int64 processedCount = 7; // 已处理过的数据量, 无论成功还是失败
+  RateType rateType = 8; // 速率类型
+  int32 rateSec = 9; // 每秒处理速率. 0表示不限制
+  bool isCreate = 10; // 是否为创建
 }
 message JobBeforeCreateAndChangeRsp {}
 
@@ -519,7 +520,9 @@ message JobBeforeRunReq {
   string jobData = 5; // 任务数据, 让业务知道应该做什么
   int64 processDataTotal = 6; // 业务中需要处理数据总数
   int64 processedCount = 7; // 已处理过的数据量, 无论成功还是失败
-  string authCode = 8; // 授权码, 调用业务方法时传参, 用于防止业务多线程抢锁
+  RateType rateType = 8; // 速率类型
+  int32 rateSec = 9; // 每秒处理速率. 0表示不限制
+  string authCode = 10; // 授权码, 调用业务方法时传参, 用于防止业务多线程抢锁
 }
 message JobBeforeRunRsp {}
 
@@ -540,6 +543,8 @@ message JobProcessStopReq {
   string jobData = 5; // 任务数据, 让业务知道应该做什么
   int64 processDataTotal = 6; // 业务中需要处理数据总数
   int64 processedCount = 7; // 已处理过的数据量, 无论成功还是失败
-  bool isFinished = 8; // 任务是否已完成
+  RateType rateType = 8; // 速率类型
+  int32 rateSec = 9; // 每秒处理速率. 0表示不限制
+  bool isFinished = 10; // 任务是否已完成
 }
 message JobProcessStopRsp {}

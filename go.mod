@@ -15,7 +15,7 @@ require (
 	github.com/zly-app/component/sqlx v0.0.0-20250113115202-54207e1efaeb
 	github.com/zly-app/grpc v0.5.2
 	github.com/zly-app/uapp v0.0.0-20250721063824-0fef763876af
-	github.com/zly-app/zapp v1.3.23
+	github.com/zly-app/zapp v1.3.24
 	github.com/zlyuancn/sliding_window v0.0.0-20250930091512-134c4ffd3184
 	go.uber.org/zap v1.27.0
 	golang.org/x/time v0.12.0

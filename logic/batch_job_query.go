@@ -123,6 +123,7 @@ func (b *BatchJob) QueryBizList(ctx context.Context, req *pb.QueryBizListReq) (*
 	// 批量获取数据
 	lines, err := utils.GoQuery(ids, func(id uint) (*batch_job_biz.Model, error) {
 		line, err := b.queryBizInfoByCache(ctx, int(id))
+		logger.Info(ctx, "QueryBizList call queryBizInfoByCache result", zap.Any("line", line), zap.Error(err))
 		if err != nil {
 			logger.Error(ctx, "QueryBizList call queryBizInfoByCache fail.", zap.Uint("id", id), zap.Error(err))
 			return nil, err
@@ -200,7 +201,9 @@ func (b *BatchJob) queryJobInfoByCache(ctx context.Context, jobId int) (*batch_j
 	key := module.CacheKey.GetJobInfo(jobId)
 	ret := &batch_job_list.Model{}
 	err := cache.GetDefCache().Get(ctx, key, ret, cache.WithLoadFn(func(ctx context.Context, key string) (interface{}, error) {
+		logger.Info(ctx, "loadFn", zap.String("key", key))
 		v, err := batch_job_list.GetOneByJobId(ctx, jobId)
+		logger.Info(ctx, "loadFn result", zap.String("key", key), zap.Any("v", v), zap.Error(err))
 		if err == sqlx.ErrNoRows {
 			return nil, nil
 		}
@@ -481,7 +484,7 @@ func (b *BatchJob) QueryJobDataLog(ctx context.Context, req *pb.QueryJobDataLogR
 
 func (*BatchJob) logDbModel2ListPb(line *batch_job_log.Model) *pb.LogInfoByListA {
 	ret := &pb.LogInfoByListA{
-		DataId:     line.DataID,
+		DataIndex:  line.DataIndex,
 		Remark:     line.Remark,
 		Extend:     line.Extend,
 		LogType:    pb.DataLogType(line.LogType),

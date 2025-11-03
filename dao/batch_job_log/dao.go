@@ -30,7 +30,7 @@ var (
 	// selectField = []string{
 	//	"id",
 	//	"job_id",
-	//	"data_id",
+	//	"data_index",
 	//	"remark",
 	//	"extend",
 	//	"log_type",
@@ -44,11 +44,11 @@ const (
 
 type Model struct {
 	ID         uint64    `db:"id"`
-	JobID      uint      `db:"job_id"`   // "任务号"
-	DataID     string    `db:"data_id"`  // "数据id"
-	Remark     string    `db:"remark"`   // "备注"
-	Extend     string    `db:"extend"`   // "扩展数据"
-	LogType    byte      `db:"log_type"` // "日志类型 0=调试Debug 1=信息Info 2=警告Warn 3=错误Err"
+	JobID      uint      `db:"job_id"`     // "任务号"
+	DataIndex  int64     `db:"data_index"` // "数据索引, 从0开始"
+	Remark     string    `db:"remark"`     // "备注"
+	Extend     string    `db:"extend"`     // "扩展数据"
+	LogType    byte      `db:"log_type"`   // "日志类型 0=调试Debug 1=信息Info 2=警告Warn 3=错误Err"
 	CreateTime time.Time `db:"create_time"`
 }
 
@@ -97,11 +97,11 @@ func MultiSave(ctx context.Context, list []*Model) (int64, error) {
 	var data []map[string]any
 	for _, v := range list {
 		data = append(data, map[string]any{
-			"job_id":   v.JobID,
-			"data_id":  v.DataID,
-			"remark":   v.Remark,
-			"extend":   v.Extend,
-			"log_type": v.LogType,
+			"job_id":     v.JobID,
+			"data_index": v.DataIndex,
+			"remark":     v.Remark,
+			"extend":     v.Extend,
+			"log_type":   v.LogType,
 		})
 	}
 	cond, vals, err := builder.BuildInsert(tableName, data)

@@ -2409,7 +2409,7 @@ func (m *DataLogQ) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for DataId
+	// no validation rules for DataIndex
 
 	// no validation rules for Remark
 
@@ -2516,7 +2516,7 @@ func (m *LogInfoByListA) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for DataId
+	// no validation rules for DataIndex
 
 	// no validation rules for Remark
 
@@ -6427,9 +6427,13 @@ func (m *JobBeforeCreateAndChangeReq) validate(all bool) error {
 
 	var errors []error
 
+	// no validation rules for JobId
+
 	// no validation rules for JobName
 
 	// no validation rules for BizId
+
+	// no validation rules for BizName
 
 	// no validation rules for JobData
 
@@ -6440,8 +6444,6 @@ func (m *JobBeforeCreateAndChangeReq) validate(all bool) error {
 	// no validation rules for RateType
 
 	// no validation rules for RateSec
-
-	// no validation rules for JobId
 
 	// no validation rules for IsCreate
 
@@ -6664,6 +6666,10 @@ func (m *JobBeforeRunReq) validate(all bool) error {
 	// no validation rules for ProcessDataTotal
 
 	// no validation rules for ProcessedCount
+
+	// no validation rules for RateType
+
+	// no validation rules for RateSec
 
 	// no validation rules for AuthCode
 
@@ -7086,6 +7092,10 @@ func (m *JobProcessStopReq) validate(all bool) error {
 	// no validation rules for ProcessDataTotal
 
 	// no validation rules for ProcessedCount
+
+	// no validation rules for RateType
+
+	// no validation rules for RateSec
 
 	// no validation rules for IsFinished
 

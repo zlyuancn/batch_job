@@ -3,7 +3,6 @@ package logic
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	"github.com/bytedance/gopkg/util/logger"
 	"github.com/zly-app/cache/v2"
@@ -47,28 +46,17 @@ func (b *BatchJob) BizStartJob(ctx context.Context, req *pb.BizStartJobReq) (*pb
 	}
 
 	// 更新状态和操作人
-	v := &batch_job_list.Model{
-		JobID:      uint(req.GetJobId()),
-		Status:     byte(pb.JobStatus_JobStatus_Running),
-		OpSource:   model.Op_Biz,
-		OpUserID:   model.Op_Biz,
-		OpUserName: model.Op_Biz,
-		OpRemark:   req.GetRemark(),
-		StatusInfo: model.StatusInfo_BizChangeStatus,
-	}
-	count, err := batch_job_list.UpdateStatus(ctx, v, jobInfo.Status)
+	err = batch_job_list.UpdateOne(ctx, int(req.GetJobId()), map[string]interface{}{
+		"status":      byte(pb.JobStatus_JobStatus_Running),
+		"status_info": model.StatusInfo_BizChangeStatus,
+	}, byte(pb.JobStatus_JobStatus_WaitBizRun))
 	if err != nil {
-		logger.Error(ctx, "BizStartJob call UpdateStatus fail.", zap.Error(err))
-		return nil, err
-	}
-	if count != 1 {
-		err = fmt.Errorf("update job status fail. update count != 1. is %d", count)
-		logger.Error(ctx, "BizStartJob call batch_job_biz.UpdateStatus fail.", zap.Error(err))
+		logger.Error(ctx, "BizStartJob call UpdateOne fail.", zap.Error(err))
 		return nil, err
 	}
 
 	// 更新jobInfo状态
-	jobInfo.Status = v.Status
+	jobInfo.Status = byte(pb.JobStatus_JobStatus_Running)
 
 	cloneCtx := utils.Ctx.CloneContext(ctx)
 	// 添加历史记录
@@ -107,6 +95,14 @@ func (b *BatchJob) BizStartJob(ctx context.Context, req *pb.BizStartJobReq) (*pb
 		err = module.Job.SetStopFlag(cloneCtx, int(jobInfo.JobID), false)
 		if err != nil {
 			logger.Error(cloneCtx, "BizStartJob call DelStopFlag fail.", zap.Error(err))
+			return err
+		}
+
+		// 删除等待业务主动启动锁
+		lockKey := module.CacheKey.GetJobBeforeRunLock(int(jobInfo.JobID))
+		err = redis.UnLock(cloneCtx, lockKey, req.GetAuthCode())
+		if err != nil {
+			logger.Error(cloneCtx, "BizStartJob call UnLock WaitBizRun lock fail.", zap.Error(err))
 			return err
 		}
 
@@ -151,18 +147,12 @@ func (b *BatchJob) BizUpdateJobData(ctx context.Context, req *pb.BizUpdateJobDat
 	}
 
 	// 写入数据库
-	v := &batch_job_list.Model{
-		JobID:            uint(req.GetJobId()),
-		JobData:          req.GetJobData(),
-		ProcessDataTotal: uint64(req.GetProcessDataTotal()),
-		ProcessedCount:   uint64(req.GetProcessedCount()),
-		OpSource:         model.Op_Biz,
-		OpUserID:         model.Op_Biz,
-		OpUserName:       model.Op_Biz,
-		OpRemark:         req.GetRemark(),
-		StatusInfo:       model.StatusInfo_BizUpdateJob,
-	}
-	_, err = batch_job_list.BizUpdateJob(ctx, v, jobInfo.Status)
+	err = batch_job_list.UpdateOne(ctx, int(req.GetJobId()), map[string]interface{}{
+		"job_data":           req.GetJobData(),
+		"process_data_total": uint64(req.GetProcessDataTotal()),
+		"processed_count":    uint64(req.GetProcessedCount()),
+		"status_info":        model.StatusInfo_BizChangeStatus,
+	}, byte(pb.JobStatus_JobStatus_WaitBizRun))
 	if err != nil {
 		logger.Error(ctx, "BizUpdateJobData call UpdateOneModelWhereStatus fail.", zap.Error(err))
 		return nil, err
@@ -225,30 +215,25 @@ func (b *BatchJob) BizStopJob(ctx context.Context, req *pb.BizStopJobReq) (*pb.B
 	}
 
 	// 写入停止标记
-	err = module.Job.SetStopFlag(ctx, int(req.GetJobId()), true)
-	if err != nil {
-		logger.Error(ctx, "BizStopJob call SetStopFlag fail.", zap.Error(err))
-		return nil, err
+	if pb.JobStatus(jobInfo.Status) == pb.JobStatus_JobStatus_Running {
+		err = module.Job.SetStopFlag(ctx, int(req.GetJobId()), true)
+		if err != nil {
+			logger.Error(ctx, "BizStopJob call SetStopFlag fail.", zap.Error(err))
+			return nil, err
+		}
 	}
 
-	// 更新状态和操作人
-	v := &batch_job_list.Model{
-		JobID:      uint(req.GetJobId()),
-		Status:     byte(pb.JobStatus_JobStatus_Stopping),
-		OpSource:   model.Op_Biz,
-		OpUserID:   model.Op_Biz,
-		OpUserName: model.Op_Biz,
-		OpRemark:   req.GetRemark(),
-		StatusInfo: model.StatusInfo_BizChangeStatus,
+	// 更新状态
+	status := pb.JobStatus_JobStatus_Stopping
+	if pb.JobStatus(jobInfo.Status) == pb.JobStatus_JobStatus_WaitBizRun {
+		status = pb.JobStatus_JobStatus_Stopped
 	}
-	count, err := batch_job_list.UpdateStatus(ctx, v, jobInfo.Status)
+	err = batch_job_list.UpdateOne(ctx, int(req.GetJobId()), map[string]interface{}{
+		"status":      byte(status),
+		"status_info": model.StatusInfo_BizChangeStatus,
+	}, jobInfo.Status)
 	if err != nil {
-		logger.Error(ctx, "BizStopJob call UpdateStatus fail.", zap.Error(err))
-		return nil, err
-	}
-	if count != 1 {
-		err = fmt.Errorf("update job status fail. update count != 1. is %d", count)
-		logger.Error(ctx, "BizStopJob call batch_job_biz.UpdateStatus fail.", zap.Error(err))
+		logger.Error(ctx, "BizStopJob call UpdateOne fail.", zap.Error(err))
 		return nil, err
 	}
 
@@ -295,11 +280,11 @@ func (b *BatchJob) BizAddDataLog(ctx context.Context, req *pb.BizAddDataLogReq) 
 	lines := make([]*batch_job_log.Model, len(req.GetLog()))
 	for i, a := range req.GetLog() {
 		lines[i] = &batch_job_log.Model{
-			JobID:   uint(req.GetJobId()),
-			DataID:  a.GetDataId(),
-			Remark:  a.GetRemark(),
-			Extend:  a.GetExtend(),
-			LogType: byte(a.GetLogType()),
+			JobID:     uint(req.GetJobId()),
+			DataIndex: a.GetDataIndex(),
+			Remark:    a.GetRemark(),
+			Extend:    a.GetExtend(),
+			LogType:   byte(a.GetLogType()),
 		}
 		if a.GetLogType() == pb.DataLogType_DataLogType_ErrData {
 			errNum++
