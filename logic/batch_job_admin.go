@@ -165,7 +165,7 @@ func (*BatchJob) AdminCreateJob(ctx context.Context, req *pb.AdminCreateJobReq) 
 	}
 
 	// 获取业务
-	b, err := module.Biz.GetBizByDbModel(ctx, bizInfo)
+	b, err := module.Biz.GetBiz(ctx, bizInfo)
 	if err != nil {
 		logger.Error(ctx, "AdminCreateJob call GetBiz fail.", zap.Int32("bizId", req.GetBizId()), zap.Error(err))
 		return nil, err
@@ -218,8 +218,6 @@ func (*BatchJob) AdminCreateJob(ctx context.Context, req *pb.AdminCreateJobReq) 
 	if req.GetStartNow() {
 		v.Status = byte(pb.JobStatus_JobStatus_Running)
 		v.StatusInfo = model.StatusInfo_UserCreateAndRun
-	}
-	if req.GetStartNow() {
 		if b.HasBeforeRunCallback() {
 			v.Status = byte(pb.JobStatus_JobStatus_WaitBizRun)
 		}
@@ -312,7 +310,7 @@ func (*BatchJob) AdminUpdateJob(ctx context.Context, req *pb.AdminUpdateJobReq) 
 	}
 
 	// 获取业务
-	b, err := module.Biz.GetBizByDbModel(ctx, bizInfo)
+	b, err := module.Biz.GetBiz(ctx, bizInfo)
 	if err != nil {
 		logger.Error(ctx, "AdminCreateJob call GetBiz fail.", zap.Uint("bizId", jobInfo.BizId), zap.Error(err))
 		return nil, err
@@ -438,7 +436,7 @@ func (*BatchJob) AdminStartJob(ctx context.Context, req *pb.AdminStartJobReq) (*
 	}
 
 	// 获取业务
-	b, err := module.Biz.GetBizByDbModel(ctx, bizInfo)
+	b, err := module.Biz.GetBiz(ctx, bizInfo)
 	if err != nil {
 		logger.Error(ctx, "AdminStartJob call biz.GetBiz fail.", zap.Error(err))
 		return nil, err

@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/bytedance/sonic"
-	"github.com/zly-app/zapp/logger"
 
 	"github.com/zlyuancn/batch_job/dao/batch_job_biz"
 	"github.com/zlyuancn/batch_job/dao/batch_job_list"
@@ -45,23 +44,11 @@ var Biz = &bizCli{}
 type bizCli struct{}
 
 // 获取业务
-func (b *bizCli) GetBizByBizId(ctx context.Context, bizId int) (Business, error) {
-	// 从db加载biz信息
-	v, err := batch_job_biz.GetOneByBizId(ctx, bizId)
-	if err != nil {
-		logger.Error(ctx, "GetBiz error: %v", err)
-		return nil, err
-	}
-
-	return b.GetBizByDbModel(ctx, v)
-}
-
-// 获取业务
-func (*bizCli) GetBizByDbModel(ctx context.Context, biz *batch_job_biz.Model) (Business, error) {
+func (*bizCli) GetBiz(ctx context.Context, biz *batch_job_biz.Model) (Business, error) {
 	eed := &pb.ExecExtendDataA{}
 	err := sonic.UnmarshalString(biz.ExecExtendData, eed)
 	if err != nil {
-		err = fmt.Errorf("GetBizByDbModel call UnmarshalString ExecExtendData fail. err=%s", err)
+		err = fmt.Errorf("GetBiz call UnmarshalString ExecExtendData fail. err=%s", err)
 		return nil, err
 	}
 

@@ -40,7 +40,7 @@ func (*cacheKeyCli) GetStopFlag(jobId int) string {
 	return conf.Conf.JobStopFlagPrefix + strconv.Itoa(jobId)
 }
 
-// 任务启动前回调锁key
-func (*cacheKeyCli) GetJobBeforeRunLock(jobId int) string {
-	return conf.Conf.JobBeforeRunLockKeyPrefix + strconv.Itoa(jobId)
+// 任务运行锁
+func (*cacheKeyCli) GetRunLockKey(jobId int) string {
+	return conf.Conf.JobRunLockKeyPrefix + strconv.Itoa(jobId)
 }

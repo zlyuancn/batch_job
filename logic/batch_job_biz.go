@@ -10,7 +10,6 @@ import (
 	"github.com/zly-app/zapp/pkg/utils"
 	"go.uber.org/zap"
 
-	"github.com/zlyuancn/batch_job/dao/batch_job_biz"
 	"github.com/zlyuancn/batch_job/dao/batch_job_list"
 	"github.com/zlyuancn/batch_job/dao/batch_job_list_history"
 	"github.com/zlyuancn/batch_job/dao/batch_job_log"
@@ -23,7 +22,7 @@ import (
 // 业务启动. 要求任务必须处于 JobStatus.WaitBizRun 状态
 func (b *BatchJob) BizStartJob(ctx context.Context, req *pb.BizStartJobReq) (*pb.BizStartJobRsp, error) {
 	// 检查授权码
-	key := module.CacheKey.GetJobBeforeRunLock(int(req.GetJobId()))
+	key := module.CacheKey.GetRunLockKey(int(req.GetJobId()))
 	err := redis.CheckLockAuthCode(ctx, key, req.GetAuthCode())
 	if err != nil {
 		logger.Error(ctx, "BizStartJob call CheckLockAuthCode fail.", zap.Error(err))
@@ -98,23 +97,8 @@ func (b *BatchJob) BizStartJob(ctx context.Context, req *pb.BizStartJobReq) (*pb
 			return err
 		}
 
-		// 删除等待业务主动启动锁
-		lockKey := module.CacheKey.GetJobBeforeRunLock(int(jobInfo.JobID))
-		err = redis.UnLock(cloneCtx, lockKey, req.GetAuthCode())
-		if err != nil {
-			logger.Error(cloneCtx, "BizStartJob call UnLock WaitBizRun lock fail.", zap.Error(err))
-			return err
-		}
-
-		// 获取业务信息
-		bizInfo, err := batch_job_biz.GetOneByBizId(cloneCtx, int(jobInfo.BizId))
-		if err != nil {
-			logger.Error(cloneCtx, "BizStartJob call batch_job_biz.GetOneByBizId fail.", zap.Error(err))
-			return err
-		}
-
 		// 创建启动器
-		module.Job.CreateLauncherByData(cloneCtx, bizInfo, jobInfo)
+		module.Job.CreateLauncherByBizStart(cloneCtx, jobInfo, req.GetAuthCode())
 		return nil
 	}, nil)
 
@@ -124,7 +108,7 @@ func (b *BatchJob) BizStartJob(ctx context.Context, req *pb.BizStartJobReq) (*pb
 // 更新任务数据. 要求任务必须处于 JobStatus.WaitBizRun 状态可以使用
 func (b *BatchJob) BizUpdateJobData(ctx context.Context, req *pb.BizUpdateJobDataReq) (*pb.BizUpdateJobDataRsp, error) {
 	// 检查授权码
-	key := module.CacheKey.GetJobBeforeRunLock(int(req.GetJobId()))
+	key := module.CacheKey.GetRunLockKey(int(req.GetJobId()))
 	err := redis.CheckLockAuthCode(ctx, key, req.GetAuthCode())
 	if err != nil {
 		logger.Error(ctx, "BizStartJob call CheckLockAuthCode fail.", zap.Error(err))

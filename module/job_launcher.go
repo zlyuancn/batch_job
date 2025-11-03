@@ -24,22 +24,19 @@ import (
 
 // 创建启动器
 func (j *jobCli) CreateLauncherByData(ctx context.Context, bizInfo *batch_job_biz.Model, jobInfo *batch_job_list.Model) {
-	j.createLauncher(ctx, bizInfo, jobInfo)
-}
-
-func (*jobCli) createLauncher(ctx context.Context, bizInfo *batch_job_biz.Model, jobInfo *batch_job_list.Model) {
 	// 获取业务
-	b, err := Biz.GetBizByDbModel(ctx, bizInfo)
+	b, err := Biz.GetBiz(ctx, bizInfo)
 	if err != nil {
-		logger.Error("createLauncher call GetBizByDbModel fail.", zap.Error(err))
+		logger.Error("createLauncher call GetBiz fail.", zap.Error(err))
 		return
 	}
+
+	lockKey := CacheKey.GetRunLockKey(int(jobInfo.JobID))
 
 	// 如果有启动前回调. 则交给业务处理
 	if b.HasBeforeRunCallback() && pb.JobStatus(jobInfo.Status) == pb.JobStatus_JobStatus_WaitBizRun {
 		// 加等待业务主动启动锁, 这个时间比较长, 防止自动扫描运行中的任务时其它线程抢锁启动
 		ttl := time.Duration(conf.Conf.JobBeforeRunLockAppendTtl)*time.Second + b.GetBeforeRunTimeout()
-		lockKey := CacheKey.GetJobBeforeRunLock(int(jobInfo.JobID))
 		authCode, err := redis.Lock(ctx, lockKey, ttl)
 		if err == redis.LockManyErr { // 加锁失败
 			return
@@ -67,7 +64,6 @@ func (*jobCli) createLauncher(ctx context.Context, bizInfo *batch_job_biz.Model,
 
 	// 由启动器启动任务
 	// 加任务运行锁, 防止自动扫描运行中的任务时其它线程抢锁启动, 下一步流程中会定时对锁续期
-	lockKey := conf.Conf.JobRunLockKeyPrefix + strconv.Itoa(int(jobInfo.JobID))
 	unlock, renew, err := redis.AutoLock(ctx, lockKey, time.Duration(conf.Conf.JobRunLockExtraTtl)*time.Second)
 	if err == redis.LockManyErr { // 加锁失败
 		return
@@ -77,6 +73,41 @@ func (*jobCli) createLauncher(ctx context.Context, bizInfo *batch_job_biz.Model,
 		return
 	}
 
+	// 开始运行
+	jl, err := newJobLauncher(b, bizInfo, jobInfo, unlock, renew)
+	if err != nil {
+		logger.Error("createLauncher call newJobLauncher fail.", zap.Error(err))
+		return
+	}
+	jl.Run()
+}
+
+// 由业务启动创建启动器
+func (*jobCli) CreateLauncherByBizStart(ctx context.Context, jobInfo *batch_job_list.Model, authCode string) {
+	// 获取业务信息
+	bizInfo, err := batch_job_biz.GetOneByBizId(ctx, int(jobInfo.BizId))
+	if err != nil {
+		logger.Error(ctx, "CreateLauncherByBizStart call batch_job_biz.GetOneByBizId fail.", zap.Error(err))
+		return
+	}
+
+	// 获取业务
+	b, err := Biz.GetBiz(ctx, bizInfo)
+	if err != nil {
+		logger.Error("createLauncher call GetBiz fail.", zap.Error(err))
+		return
+	}
+
+	// 根据authCode构建解锁和续期函数
+	lockKey := CacheKey.GetRunLockKey(int(jobInfo.JobID))
+	unlock := redis.KeyUnlock(func() error {
+		return redis.UnLock(ctx, lockKey, authCode)
+	})
+	renew := redis.KeyTtlRenew(func(ctx context.Context, ttl time.Duration) error {
+		return redis.RenewLock(ctx, lockKey, authCode, ttl)
+	})
+
+	// 开始运行
 	jl, err := newJobLauncher(b, bizInfo, jobInfo, unlock, renew)
 	if err != nil {
 		logger.Error("createLauncher call newJobLauncher fail.", zap.Error(err))
