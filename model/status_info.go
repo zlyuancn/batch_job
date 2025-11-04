@@ -13,4 +13,5 @@ const (
 
 	StatusInfo_BizUpdateJob    = "biz update job"    // 仅变更状态
 	StatusInfo_BizChangeStatus = "biz change status" // 仅变更状态
+	StatusInfo_RestorerJob     = "restorer job" // 恢复任务
 )
