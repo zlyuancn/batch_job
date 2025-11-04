@@ -26,6 +26,11 @@ import (
 
 // 创建启动器
 func (j *jobCli) CreateLauncherByData(ctx context.Context, bizInfo *batch_job_biz.Model, jobInfo *batch_job_list.Model) {
+	if conf.Conf.DoNotRunJob {
+		logger.Warn(ctx, "DoNotRunJob")
+		return
+	}
+
 	// 速率检查
 	if !RateLimit.TryRunJobCheckRate(int32(jobInfo.RateSec)) {
 		return
@@ -102,6 +107,11 @@ func (j *jobCli) CreateLauncherByData(ctx context.Context, bizInfo *batch_job_bi
 
 // 由业务启动创建启动器
 func (*jobCli) CreateLauncherByBizStart(ctx context.Context, jobInfo *batch_job_list.Model, authCode string) {
+	if conf.Conf.DoNotRunJob {
+		logger.Warn(ctx, "DoNotRunJob")
+		return
+	}
+
 	// 速率检查
 	if !RateLimit.TryRunJobCheckRate(int32(jobInfo.RateSec)) {
 		return

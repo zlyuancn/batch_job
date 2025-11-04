@@ -31,6 +31,11 @@ func newRestorer() *restorerCli {
 }
 
 func (r *restorerCli) Restorer(ctx context.Context) error {
+	if conf.Conf.DoNotRunJob {
+		logger.Warn(ctx, "DoNotRunJob")
+		return nil
+	}
+
 	// 扫描活跃的任务
 	queryTime := time.Now().Add(-time.Duration(conf.Conf.RecoverJobLastActivateDay*24) * time.Hour)
 	for {

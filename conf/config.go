@@ -111,6 +111,7 @@ type Config struct {
 
 	// 节点速率控制
 
+	DoNotRunJob               bool  // 禁止运行任务, 如果设为true, 将不会创建任务启动器
 	NodeMaxRate               int32 // 节点允许最大速率
 	AllowNoRateLimitJob       bool  // 是否允许执行不限速任务
 	NoRateLimitJobMappingRate int32 // 对不限速任务映射为指定速率
