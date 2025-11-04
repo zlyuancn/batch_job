@@ -11,6 +11,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/zlyuancn/batch_job/client/db"
+	"github.com/zlyuancn/batch_job/pb"
 )
 
 var (
@@ -28,25 +29,6 @@ var (
 		}
 		return selectAllFields
 	}()
-
-	selectFieldByQueryList = []string{
-		"job_id",
-		"biz_id",
-		"job_name",
-		"process_data_total",
-		"processed_count",
-		"err_log_count",
-		"status",
-		"create_time",
-		"update_time",
-		"op_source",
-		"op_user_id",
-		"op_user_name",
-		"op_remark",
-		"status_info",
-		"rate_sec",
-		"rate_type",
-	}
 )
 
 const (
@@ -64,13 +46,14 @@ type Model struct {
 	Status           byte      `db:"status"`             // "任务状态 0=已创建 1=等待业务主动启动 2=运行中 3=已完成 4=正在停止 5=已停止"
 	CreateTime       time.Time `db:"create_time"`
 	UpdateTime       time.Time `db:"update_time"`
-	OpSource         string    `db:"op_source"`    // "最后操作来源"
-	OpUserID         string    `db:"op_user_id"`   // "最后操作用户id"
-	OpUserName       string    `db:"op_user_name"` // "最后操作用户名"
-	OpRemark         string    `db:"op_remark"`    // "最后操作备注"
-	RateSec          uint      `db:"rate_sec"`     // "每秒处理速率. 0表示不限制"
-	RateType         byte      `db:"rate_type"`    // "速率类型. 0=通过rate_sec限速, 1=串行化"
-	StatusInfo       string    `db:"status_info"`  // "状态信息"
+	OpSource         string    `db:"op_source"`     // "最后操作来源"
+	OpUserID         string    `db:"op_user_id"`    // "最后操作用户id"
+	OpUserName       string    `db:"op_user_name"`  // "最后操作用户名"
+	OpRemark         string    `db:"op_remark"`     // "最后操作备注"
+	RateSec          uint      `db:"rate_sec"`      // "每秒处理速率. 0表示不限制"
+	RateType         byte      `db:"rate_type"`     // "速率类型. 0=通过rate_sec限速, 1=串行化"
+	StatusInfo       string    `db:"status_info"`   // "状态信息"
+	ActivateTime     time.Time `db:"activate_time"` // 最后启动时间
 }
 
 func CreateOneModel(ctx context.Context, v *Model) (int64, error) {
@@ -95,6 +78,7 @@ func CreateOneModel(ctx context.Context, v *Model) (int64, error) {
 		"status_info":        v.StatusInfo,
 		"rate_sec":           v.RateSec,
 		"rate_type":          v.RateType,
+		"activate_time":      v.ActivateTime,
 	})
 	cond, vals, err := builder.BuildInsert(tableName, data)
 	if err != nil {
@@ -132,7 +116,7 @@ func GetOne(ctx context.Context, where map[string]any, selectField []string) (*M
 	return &ret, nil
 }
 
-func GetOneByJobId(ctx context.Context, jobId int) (*Model, error) {
+func GetOneByJobId(ctx context.Context, jobId uint) (*Model, error) {
 	where := map[string]interface{}{
 		"job_id": jobId,
 	}
@@ -144,10 +128,17 @@ func GetOneByJobId(ctx context.Context, jobId int) (*Model, error) {
 	return v, nil
 }
 
-func MultiGet(ctx context.Context, where map[string]any) ([]*Model, error) {
-	cond, vals, err := builder.BuildSelect(tableName, where, selectFieldByQueryList)
+// 查询活跃任务
+func QueryActivateJob(ctx context.Context, queryTime time.Time, limit uint) ([]*Model, error) {
+	where := map[string]interface{}{
+		"activate_time >": queryTime,
+		"status in":       []byte{byte(pb.JobStatus_JobStatus_WaitBizRun), byte(pb.JobStatus_JobStatus_Running), byte(pb.JobStatus_JobStatus_Stopping)},
+		"_orderby":        "activate_time asc",
+		"_limit":          []uint{0, limit},
+	}
+	cond, vals, err := builder.BuildSelect(tableName, where, []string{"job_id", "activate_time", "rate_sec", "status"})
 	if err != nil {
-		logger.Log.Error(ctx, "MultiGet BuildSelect err",
+		logger.Log.Error(ctx, "QueryActivateJob BuildSelect err",
 			zap.Any("where", where),
 			zap.Error(err),
 		)
@@ -157,7 +148,7 @@ func MultiGet(ctx context.Context, where map[string]any) ([]*Model, error) {
 	ret := []*Model{}
 	err = db.GetSqlx().Find(ctx, &ret, cond, vals...)
 	if err != nil {
-		logger.Error(ctx, "MultiGet Find fail.", zap.String("cond", cond), zap.Any("vals", vals), zap.Error(err))
+		logger.Error(ctx, "QueryActivateJob Find fail.", zap.String("cond", cond), zap.Any("vals", vals), zap.Error(err))
 		return nil, err
 	}
 	return ret, nil
@@ -251,12 +242,12 @@ limit 1;`
 }
 
 // 仅更新状态和操作人相关信息
-func UpdateStatus(ctx context.Context, v *Model, whereStatus byte) (int64, error) {
+func AdminUpdateStatus(ctx context.Context, v *Model, whereStatus byte) (int64, error) {
 	if v == nil {
-		return 0, errors.New("UpdateStatus v is empty")
+		return 0, errors.New("AdminUpdateStatus v is empty")
 	}
 	if v.JobID == 0 {
-		return 0, errors.New("UpdateStatus JobID is empty")
+		return 0, errors.New("AdminUpdateStatus JobID is empty")
 	}
 	const cond = `
 update batch_job_list
@@ -267,7 +258,8 @@ set
     op_user_id=?,
     op_user_name=?,
     op_remark=?,
-    status_info=?
+    status_info=?,
+    activate_time=?
 where job_id = ?
     and status = ?
 limit 1;`
@@ -278,12 +270,13 @@ limit 1;`
 		v.OpUserName,
 		v.OpRemark,
 		v.StatusInfo,
+		v.ActivateTime,
 		v.JobID,
 		whereStatus,
 	}
 	result, err := db.GetSqlx().Exec(ctx, cond, vals...)
 	if nil != err {
-		logger.Error(ctx, "UpdateStatus fail.", zap.String("cond", cond), zap.Any("vals", vals), zap.Error(err))
+		logger.Error(ctx, "AdminUpdateStatus fail.", zap.String("cond", cond), zap.Any("vals", vals), zap.Error(err))
 		return 0, err
 	}
 	return result.RowsAffected()

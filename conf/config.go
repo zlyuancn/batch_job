@@ -29,6 +29,13 @@ const (
 	defJobFlushCheckStopFlagInterval    = 1
 	defJobProcessCumulativeErrorRate    = 10
 	defJobProcessOneDataMaxAttemptCount = 5
+	defJobProcessErrWaitRetryTimeSec    = 3
+	defAllowCreateNoRateLimitJob        = false
+
+	defNodeMaxRate               = 10000
+	defNoRateLimitJobMappingRate = 1000
+
+	defRecoverJobLastActivateDay = 30
 )
 
 var Conf = Config{
@@ -58,13 +65,22 @@ var Conf = Config{
 	JobFlushCheckStopFlagInterval:    defJobFlushCheckStopFlagInterval,
 	JobProcessCumulativeErrorRate:    defJobProcessCumulativeErrorRate,
 	JobProcessOneDataMaxAttemptCount: defJobProcessOneDataMaxAttemptCount,
+	JobProcessErrWaitRetryTimeSec:    defJobProcessErrWaitRetryTimeSec,
+	AllowCreateNoRateLimitJob:        defAllowCreateNoRateLimitJob,
+
+	NodeMaxRate:               defNodeMaxRate,
+	NoRateLimitJobMappingRate: defNoRateLimitJobMappingRate,
+	RecoverJobLastActivateDay: defRecoverJobLastActivateDay,
 }
 
 type Config struct {
+	// 组件名
+
 	SqlxName  string // sqlx组件名
 	RedisName string // redis组件名
 
 	// redisKey
+
 	JobIdGenKey                          string // 任务id生成key前缀
 	JobOpLockKeyPrefix                   string // 任务操作锁前缀
 	JobStopFlagPrefix                    string // 任务停止flag前缀
@@ -82,12 +98,26 @@ type Config struct {
 	JobInfoKeyPrefix                     string // 缓存任务信息的key前缀
 	JobInfoCacheTtl                      int    // 任务信息的缓存ttl秒数
 
-	JobRunThreadCount                int // 任务运行时使用多少线程
-	JobSlidingWindowSize             int // 任务运行时使用的滑动窗口大小. 一般设置为线程的2倍, 为了避免性能浪费不应该小于线程数
-	JobFlushProcessedCountInterval   int // 将任务进度刷新到redis缓存间隔时间, 单位秒
-	JobFlushCheckStopFlagInterval    int // 检查停止标记间隔时间, 单位秒
-	JobProcessCumulativeErrorRate    int // 一秒内允许累计处理错误的数量, 超出后会停止任务等待重新启动
-	JobProcessOneDataMaxAttemptCount int // 一条数据最大尝试处理次数, 多次失败会导致任务停止等待重新启动
+	// 任务控制
+
+	JobRunThreadCount                int  // 任务运行时使用多少线程
+	JobSlidingWindowSize             int  // 任务运行时使用的滑动窗口大小. 一般设置为线程的2倍, 为了避免性能浪费不应该小于线程数
+	JobFlushProcessedCountInterval   int  // 将任务进度刷新到redis缓存间隔时间, 单位秒
+	JobFlushCheckStopFlagInterval    int  // 检查停止标记间隔时间, 单位秒
+	JobProcessCumulativeErrorRate    int  // 一秒内允许累计处理错误的数量, 超出后会停止任务等待重新启动
+	JobProcessOneDataMaxAttemptCount int  // 一条数据最大尝试处理次数, 多次失败会导致任务停止等待重新启动
+	JobProcessErrWaitRetryTimeSec    int  // 任务处理失败等待重试时间, 单位秒
+	AllowCreateNoRateLimitJob        bool // 是否允许创建不限速任务
+
+	// 节点速率控制
+
+	NodeMaxRate               int32 // 节点允许最大速率
+	AllowNoRateLimitJob       bool  // 是否允许执行不限速任务
+	NoRateLimitJobMappingRate int32 // 对不限速任务映射为指定速率
+
+	// 恢复器
+	RecoverJobLastActivateDay int // 恢复最后多少天处于活跃的任务
+
 }
 
 func (conf *Config) Check() {
@@ -159,7 +189,21 @@ func (conf *Config) Check() {
 	if conf.JobFlushCheckStopFlagInterval < 1 {
 		conf.JobFlushCheckStopFlagInterval = defJobFlushCheckStopFlagInterval
 	}
+	if conf.JobProcessErrWaitRetryTimeSec < 1 {
+		conf.JobProcessErrWaitRetryTimeSec = defJobProcessErrWaitRetryTimeSec
+	}
 	if conf.JobProcessOneDataMaxAttemptCount < 1 {
 		conf.JobProcessOneDataMaxAttemptCount = defJobProcessOneDataMaxAttemptCount
+	}
+
+	if conf.NodeMaxRate < 1 {
+		conf.NodeMaxRate = defNodeMaxRate
+	}
+	if conf.NoRateLimitJobMappingRate < 1 {
+		conf.NoRateLimitJobMappingRate = defNoRateLimitJobMappingRate
+	}
+
+	if conf.RecoverJobLastActivateDay < 1 {
+		conf.RecoverJobLastActivateDay = defRecoverJobLastActivateDay
 	}
 }

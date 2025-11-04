@@ -6,7 +6,7 @@ CREATE TABLE `batch_job_biz`
     `exec_type`        tinyint unsigned NOT NULL DEFAULT 0 COMMENT '执行类型',
     `exec_extend_data` varchar(4096)    NOT NULL DEFAULT '' COMMENT '执行器扩展数据',
     `create_time`      datetime         NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `update_time`      datetime         NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `update_time`      datetime         NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `op_source`        varchar(32)      NOT NULL DEFAULT '' COMMENT '最后操作来源',
     `op_user_id`       varchar(32)      NOT NULL DEFAULT '' COMMENT '最后操作用户id',
     `op_user_name`     varchar(32)      NOT NULL DEFAULT '' COMMENT '最后操作用户名',
@@ -51,7 +51,7 @@ CREATE TABLE `batch_job_list`
     `err_log_count`      bigint unsigned    NOT NULL DEFAULT 0 COMMENT '错误日志数',
     `status`             tinyint unsigned   NOT NULL DEFAULT 0 COMMENT '任务状态 0=已创建 1=等待业务主动启动 2=运行中 3=已完成 4=正在停止 5=已停止',
     `create_time`        datetime           NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `update_time`        datetime           NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `update_time`        datetime           NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `op_source`          varchar(32)        NOT NULL DEFAULT '' COMMENT '最后操作来源',
     `op_user_id`         varchar(32)        NOT NULL DEFAULT '' COMMENT '最后操作用户id',
     `op_user_name`       varchar(32)        NOT NULL DEFAULT '' COMMENT '最后操作用户名',
@@ -59,10 +59,12 @@ CREATE TABLE `batch_job_list`
     `status_info`        varchar(1024)      NOT NULL DEFAULT '' COMMENT '状态信息',
     `rate_type`          tinyint unsigned   NOT NULL DEFAULT 0 COMMENT '速率类型. 0=通过rate_sec限速, 1=串行化',
     `rate_sec`           int unsigned       NOT NULL DEFAULT 0 COMMENT '每秒处理速率. 0表示不限制',
+    `activate_time`      datetime           NOT NULL DEFAULT '0000-00-00 00:00:00' comment '最后激活时间',
     PRIMARY KEY (`id`),
     UNIQUE KEY (`job_id`),
     KEY `batch_job_list_biz_id` (`biz_id`, `status`, `update_time` DESC),
-    KEY `batch_job_list_job_id_op_user_id_create_time_index` (`biz_id`, `op_user_id`, `status`, `create_time` DESC)
+    KEY `batch_job_list_job_id_op_user_id_create_time_index` (`biz_id`, `op_user_id`, `status`, `create_time` DESC) comment '搜索',
+    KEY `batch_job_list_activate_time_status_job_id_index` (`activate_time` desc, `status`, `job_id`, `rate_sec`) comment '恢复器扫描运行中的任务时索引覆盖'
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT ='批量任务列表';

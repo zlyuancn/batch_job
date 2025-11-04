@@ -206,18 +206,21 @@ participant d as mysql
 opt 定时任务启动
 a ->> b: 触发
 
-b -->> d: 获取正在运行的任务列表
-b -->> b: 获取节点的任务数上限
-b ->> c: 将当前节点信息写入到 zset 表中. score表示当前秒级时间戳
-b -->> c: 获取最近5分钟的节点数
-b -->> b: 将任务数平分给节点得出上限, 并与配置的上限取其小值为实际节点任务数上限
+b -->> d: 获取最近正在运行的任务列表
+b -->> b: 获取节点的速率上限
 
 loop 遍历每一条任务
-  alt 当前已达到节点任务数上限
-    b -->> b: 结束
+  alt 如果累加该任务速率超过节点速率上限
+    b ->> a: 结束
   end
+  b ->> c: 尝试获取启动锁
+  alt 获取启动锁失败
+    b ->> a: 结束
+  end
+  b -->> b: 增加速率上限
   b ->> b: 创建启动器
 end
+b ->> a: 结束
 end
 ```
 
@@ -229,10 +232,17 @@ end
 sequenceDiagram
 participant api
 participant b as 服务
+participant d as mysql
 
 opt api启动
 api ->> b: 触发
-b ->> b: 创建启动器
+b ->> d: 更新任务状态
+par 异步执行
+  alt 如果执行该任务超过速率上限
+    b ->> b: 结束
+  end
+  b ->> b: 创建启动器
+end
 b ->> api: ok
 end
 ```

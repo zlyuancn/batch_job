@@ -7,18 +7,16 @@ import (
 	"github.com/bytedance/sonic"
 	"github.com/zly-app/cache/v2"
 	"github.com/zly-app/component/redis"
-	"github.com/zly-app/component/sqlx"
 	"github.com/zly-app/zapp/logger"
+	"github.com/zly-app/zapp/pkg/utils"
 	"go.uber.org/zap"
 
 	"github.com/zlyuancn/batch_job/client/db"
-	"github.com/zlyuancn/batch_job/conf"
 	"github.com/zlyuancn/batch_job/dao/batch_job_biz"
 	"github.com/zlyuancn/batch_job/dao/batch_job_list"
 	"github.com/zlyuancn/batch_job/dao/batch_job_log"
 	"github.com/zlyuancn/batch_job/module"
 	"github.com/zlyuancn/batch_job/pb"
-	"github.com/zlyuancn/batch_job/utils"
 )
 
 // 查询所有业务名
@@ -60,26 +58,13 @@ func (b *BatchJob) queryAllBizName(ctx context.Context) ([]*pb.QueryAllBizNameRs
 
 // 查询业务信息
 func (b *BatchJob) QueryBizInfo(ctx context.Context, req *pb.QueryBizInfoReq) (*pb.QueryBizInfoRsp, error) {
-	line, err := b.queryBizInfoByCache(ctx, int(req.GetBizId()))
+	line, err := module.Biz.GetBizInfoByCache(ctx, int(req.GetBizId()))
 	if err != nil {
-		logger.Error(ctx, "QueryBizInfo call queryBizInfoByCache fail.", zap.Error(err))
+		logger.Error(ctx, "QueryBizInfo call GetBizInfoByCache fail.", zap.Error(err))
 		return nil, err
 	}
 	ret := b.bizDbModel2Pb(line)
 	return &pb.QueryBizInfoRsp{Line: ret}, nil
-}
-
-func (b *BatchJob) queryBizInfoByCache(ctx context.Context, bizId int) (*batch_job_biz.Model, error) {
-	key := module.CacheKey.GetBizInfo(bizId)
-	ret := &batch_job_biz.Model{}
-	err := cache.GetDefCache().Get(ctx, key, ret, cache.WithLoadFn(func(ctx context.Context, key string) (interface{}, error) {
-		v, err := batch_job_biz.GetOneByBizId(ctx, bizId)
-		if err == sqlx.ErrNoRows {
-			return nil, nil
-		}
-		return v, err
-	}), cache.WithExpire(conf.Conf.BizInfoCacheTtl))
-	return ret, err
 }
 
 // 查询业务列表
@@ -122,10 +107,10 @@ func (b *BatchJob) QueryBizList(ctx context.Context, req *pb.QueryBizListReq) (*
 
 	// 批量获取数据
 	lines, err := utils.GoQuery(ids, func(id uint) (*batch_job_biz.Model, error) {
-		line, err := b.queryBizInfoByCache(ctx, int(id))
-		logger.Info(ctx, "QueryBizList call queryBizInfoByCache result", zap.Any("line", line), zap.Error(err))
+		line, err := module.Biz.GetBizInfoByCache(ctx, int(id))
+		logger.Info(ctx, "QueryBizList call GetBizInfoByCache result", zap.Any("line", line), zap.Error(err))
 		if err != nil {
-			logger.Error(ctx, "QueryBizList call queryBizInfoByCache fail.", zap.Uint("id", id), zap.Error(err))
+			logger.Error(ctx, "QueryBizList call GetBizInfoByCache fail.", zap.Uint("id", id), zap.Error(err))
 			return nil, err
 		}
 		return line, nil
@@ -189,27 +174,13 @@ func (*BatchJob) bizDbModel2ListPb(line *batch_job_biz.Model) *pb.BizInfoByListA
 
 // 查询任务基本信息
 func (b *BatchJob) QueryJobInfo(ctx context.Context, req *pb.QueryJobInfoReq) (*pb.QueryJobInfoRsp, error) {
-	line, err := b.queryJobInfoByCache(ctx, int(req.GetJobId()))
+	line, err := module.Job.GetJobInfoByCache(ctx, uint(req.GetJobId()))
 	if err != nil {
 		logger.Error(ctx, "QueryJobInfo call queryJobInfoByCache fail.", zap.Error(err))
 		return nil, err
 	}
 	ret := b.jobDbModel2Pb(line)
 	return &pb.QueryJobInfoRsp{Line: ret}, nil
-}
-func (b *BatchJob) queryJobInfoByCache(ctx context.Context, jobId int) (*batch_job_list.Model, error) {
-	key := module.CacheKey.GetJobInfo(jobId)
-	ret := &batch_job_list.Model{}
-	err := cache.GetDefCache().Get(ctx, key, ret, cache.WithLoadFn(func(ctx context.Context, key string) (interface{}, error) {
-		logger.Info(ctx, "loadFn", zap.String("key", key))
-		v, err := batch_job_list.GetOneByJobId(ctx, jobId)
-		logger.Info(ctx, "loadFn result", zap.String("key", key), zap.Any("v", v), zap.Error(err))
-		if err == sqlx.ErrNoRows {
-			return nil, nil
-		}
-		return v, err
-	}), cache.WithExpire(conf.Conf.JobInfoCacheTtl))
-	return ret, err
 }
 
 // 查询任务列表
@@ -277,16 +248,9 @@ func (b *BatchJob) QueryJobList(ctx context.Context, req *pb.QueryJobListReq) (*
 	}
 
 	// 批量获取数据
-	lines, err := utils.GoQuery(ids, func(id uint) (*batch_job_list.Model, error) {
-		line, err := b.queryJobInfoByCache(ctx, int(id))
-		if err != nil {
-			logger.Error(ctx, "QueryJobList call queryJobInfoByCache fail.", zap.Uint("id", id), zap.Error(err))
-			return nil, err
-		}
-		return line, nil
-	}, true)
+	lines, err := module.Job.BatchGetJobInfoByCache(ctx, ids)
 	if err != nil {
-		logger.Error(ctx, "QueryJobList call query fail.", zap.Error(err))
+		logger.Error(ctx, "QueryJobList call BatchGetJobInfoByCache fail.", zap.Error(err))
 		return nil, err
 	}
 
@@ -393,16 +357,13 @@ func (*BatchJob) jobDbModel2ListPb(line *batch_job_list.Model) *pb.JobInfoByList
 // 查询任务状态信息, 用于获取运行中的任务的变化数据
 func (b *BatchJob) QueryJobStateInfo(ctx context.Context, req *pb.QueryJobStateInfoReq) (*pb.QueryJobStateInfoRsp, error) {
 	// 批量获取数据
-	lines, err := utils.GoQuery(req.GetJobIds(), func(id int64) (*batch_job_list.Model, error) {
-		line, err := b.queryJobInfoByCache(ctx, int(id))
-		if err != nil {
-			logger.Error(ctx, "QueryJobStateInfo call queryJobInfoByCache fail.", zap.Int64("id", id), zap.Error(err))
-			return nil, err
-		}
-		return line, nil
-	}, true)
+	ids := make([]uint, len(req.GetJobIds()))
+	for i, id := range req.GetJobIds() {
+		ids[i] = uint(id)
+	}
+	lines, err := module.Job.BatchGetJobInfoByCache(ctx, ids)
 	if err != nil {
-		logger.Error(ctx, "QueryJobStateInfo call query fail.", zap.Error(err))
+		logger.Error(ctx, "QueryJobStateInfo call BatchGetJobInfoByCache fail.", zap.Error(err))
 		return nil, err
 	}
 

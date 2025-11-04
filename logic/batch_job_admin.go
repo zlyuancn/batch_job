@@ -157,6 +157,11 @@ func (*BatchJob) AdminUpdateBiz(ctx context.Context, req *pb.AdminUpdateBizReq) 
 
 // 创建任务
 func (*BatchJob) AdminCreateJob(ctx context.Context, req *pb.AdminCreateJobReq) (*pb.AdminCreateJobRsp, error) {
+	// 不限速检查
+	if !conf.Conf.AllowCreateNoRateLimitJob && req.GetRateSec() < 1 {
+		return nil, errors.New("create tasks with no rate limit")
+	}
+
 	// 获取业务信息
 	bizInfo, err := batch_job_biz.GetOneByBizId(ctx, int(req.GetBizId()))
 	if err != nil {
@@ -224,6 +229,7 @@ func (*BatchJob) AdminCreateJob(ctx context.Context, req *pb.AdminCreateJobReq) 
 		if b.HasBeforeRunCallback() {
 			v.Status = byte(pb.JobStatus_JobStatus_WaitBizRun)
 		}
+		v.ActivateTime = time.Now()
 	}
 	_, err = batch_job_list.CreateOneModel(ctx, v)
 	if err != nil {
@@ -281,6 +287,11 @@ func (*BatchJob) AdminCreateJob(ctx context.Context, req *pb.AdminCreateJobReq) 
 
 // 修改任务
 func (*BatchJob) AdminUpdateJob(ctx context.Context, req *pb.AdminUpdateJobReq) (*pb.AdminUpdateJobRsp, error) {
+	// 不限速检查
+	if !conf.Conf.AllowCreateNoRateLimitJob && req.GetRateSec() < 1 {
+		return nil, errors.New("create tasks with no rate limit")
+	}
+
 	// 加锁
 	lockKey := conf.Conf.JobOpLockKeyPrefix + strconv.Itoa(int(req.GetJobId()))
 	unlock, _, err := redis.AutoLock(ctx, lockKey, time.Second*10)
@@ -291,7 +302,7 @@ func (*BatchJob) AdminUpdateJob(ctx context.Context, req *pb.AdminUpdateJobReq) 
 	defer unlock()
 
 	// 获取任务信息
-	jobInfo, err := batch_job_list.GetOneByJobId(ctx, int(req.GetJobId()))
+	jobInfo, err := batch_job_list.GetOneByJobId(ctx, uint(req.GetJobId()))
 	if err != nil {
 		logger.Error(ctx, "AdminUpdateJob call batch_job_list.GetOneByJobId fail.", zap.Error(err))
 		return nil, err
@@ -414,7 +425,7 @@ func (*BatchJob) AdminStartJob(ctx context.Context, req *pb.AdminStartJobReq) (*
 	defer unlock()
 
 	// 获取任务信息
-	jobInfo, err := batch_job_list.GetOneByJobId(ctx, int(req.GetJobId()))
+	jobInfo, err := batch_job_list.GetOneByJobId(ctx, uint(req.GetJobId()))
 	if err != nil {
 		logger.Error(ctx, "AdminStartJob call batch_job_list.GetOneByJobId fail.", zap.Error(err))
 		return nil, err
@@ -450,25 +461,26 @@ func (*BatchJob) AdminStartJob(ctx context.Context, req *pb.AdminStartJobReq) (*
 
 	// 更新状态和操作人
 	v := &batch_job_list.Model{
-		JobID:      uint(req.GetJobId()),
-		Status:     byte(pb.JobStatus_JobStatus_Running),
-		OpSource:   req.GetOp().GetOpSource(),
-		OpUserID:   req.GetOp().GetOpUserid(),
-		OpUserName: req.GetOp().GetOpUserName(),
-		OpRemark:   req.GetOp().GetOpRemark(),
-		StatusInfo: model.StatusInfo_UserChangeStatus,
+		JobID:        uint(req.GetJobId()),
+		Status:       byte(pb.JobStatus_JobStatus_Running),
+		OpSource:     req.GetOp().GetOpSource(),
+		OpUserID:     req.GetOp().GetOpUserid(),
+		OpUserName:   req.GetOp().GetOpUserName(),
+		OpRemark:     req.GetOp().GetOpRemark(),
+		StatusInfo:   model.StatusInfo_UserChangeStatus,
+		ActivateTime: time.Now(),
 	}
 	if b.HasBeforeRunCallback() {
 		v.Status = byte(pb.JobStatus_JobStatus_WaitBizRun)
 	}
-	count, err := batch_job_list.UpdateStatus(ctx, v, jobInfo.Status)
+	count, err := batch_job_list.AdminUpdateStatus(ctx, v, jobInfo.Status)
 	if err != nil {
-		logger.Error(ctx, "AdminStartJob call UpdateStatus fail.", zap.Error(err))
+		logger.Error(ctx, "AdminStartJob call AdminUpdateStatus fail.", zap.Error(err))
 		return nil, err
 	}
 	if count != 1 {
 		err = fmt.Errorf("update job status fail. update count != 1. is %d", count)
-		logger.Error(ctx, "AdminStartJob call batch_job_biz.UpdateStatus fail.", zap.Error(err))
+		logger.Error(ctx, "AdminStartJob call batch_job_biz.AdminUpdateStatus fail.", zap.Error(err))
 		return nil, err
 	}
 
@@ -534,7 +546,7 @@ func (b *BatchJob) AdminStopJob(ctx context.Context, req *pb.AdminStopJobReq) (*
 	defer unlock()
 
 	// 获取任务信息
-	jobInfo, err := batch_job_list.GetOneByJobId(ctx, int(req.GetJobId()))
+	jobInfo, err := batch_job_list.GetOneByJobId(ctx, uint(req.GetJobId()))
 	if err != nil {
 		logger.Error(ctx, "AdminStopJob call batch_job_list.GetOneByJobId fail.", zap.Error(err))
 		return nil, err
@@ -557,13 +569,14 @@ func (b *BatchJob) AdminStopJob(ctx context.Context, req *pb.AdminStopJobReq) (*
 
 	// 更新状态和操作人
 	v := &batch_job_list.Model{
-		JobID:      uint(req.GetJobId()),
-		Status:     byte(pb.JobStatus_JobStatus_Stopping),
-		OpSource:   req.GetOp().GetOpSource(),
-		OpUserID:   req.GetOp().GetOpUserid(),
-		OpUserName: req.GetOp().GetOpUserName(),
-		OpRemark:   req.GetOp().GetOpRemark(),
-		StatusInfo: model.StatusInfo_UserChangeStatus,
+		JobID:        uint(req.GetJobId()),
+		Status:       byte(pb.JobStatus_JobStatus_Stopping),
+		OpSource:     req.GetOp().GetOpSource(),
+		OpUserID:     req.GetOp().GetOpUserid(),
+		OpUserName:   req.GetOp().GetOpUserName(),
+		OpRemark:     req.GetOp().GetOpRemark(),
+		StatusInfo:   model.StatusInfo_UserChangeStatus,
+		ActivateTime: time.Now(),
 	}
 	// 尝试获取运行锁
 	runLockKey := module.CacheKey.GetRunLockKey(int(jobInfo.JobID))
@@ -576,14 +589,14 @@ func (b *BatchJob) AdminStopJob(ctx context.Context, req *pb.AdminStopJobReq) (*
 		return nil, err
 	}
 
-	count, err := batch_job_list.UpdateStatus(ctx, v, jobInfo.Status)
+	count, err := batch_job_list.AdminUpdateStatus(ctx, v, jobInfo.Status)
 	if err != nil {
-		logger.Error(ctx, "AdminStopJob call UpdateStatus fail.", zap.Error(err))
+		logger.Error(ctx, "AdminStopJob call AdminUpdateStatus fail.", zap.Error(err))
 		return nil, err
 	}
 	if count != 1 {
 		err = fmt.Errorf("update job status fail. update count != 1. is %d", count)
-		logger.Error(ctx, "AdminStopJob call batch_job_biz.UpdateStatus fail.", zap.Error(err))
+		logger.Error(ctx, "AdminStopJob call batch_job_biz.AdminUpdateStatus fail.", zap.Error(err))
 		return nil, err
 	}
 
@@ -627,9 +640,9 @@ func (*BatchJob) adminStopJobCB(ctx context.Context, jobInfo *batch_job_list.Mod
 	gpool.GetDefGPool().Go(func() error {
 		_ = redis.UnLock(cloneCtx, lockKey, authCode)
 		// 获取业务信息
-		bizInfo, err := batch_job_biz.GetOneByBizId(cloneCtx, int(jobInfo.BizId))
+		bizInfo, err := module.Biz.GetBizInfoByCache(cloneCtx, int(jobInfo.BizId))
 		if err != nil {
-			logger.Error(cloneCtx, "AdminStopJob call batch_job_biz.GetOneByBizId fail.", zap.Error(err))
+			logger.Error(cloneCtx, "AdminStopJob call GetBizInfoByCache fail.", zap.Error(err))
 			return err
 		}
 

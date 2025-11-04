@@ -30,7 +30,7 @@ func (b *BatchJob) BizStartJob(ctx context.Context, req *pb.BizStartJobReq) (*pb
 	}
 
 	// 获取任务信息
-	jobInfo, err := batch_job_list.GetOneByJobId(ctx, int(req.GetJobId()))
+	jobInfo, err := batch_job_list.GetOneByJobId(ctx, uint(req.GetJobId()))
 	if err != nil {
 		logger.Error(ctx, "BizStartJob call batch_job_list.GetOneByJobId fail.", zap.Error(err))
 		return nil, err
@@ -116,7 +116,7 @@ func (b *BatchJob) BizUpdateJobData(ctx context.Context, req *pb.BizUpdateJobDat
 	}
 
 	// 获取任务信息
-	jobInfo, err := batch_job_list.GetOneByJobId(ctx, int(req.GetJobId()))
+	jobInfo, err := batch_job_list.GetOneByJobId(ctx, uint(req.GetJobId()))
 	if err != nil {
 		logger.Error(ctx, "BizUpdateJobData call batch_job_list.GetOneByJobId fail.", zap.Error(err))
 		return nil, err
@@ -181,7 +181,7 @@ func (b *BatchJob) BizUpdateJobData(ctx context.Context, req *pb.BizUpdateJobDat
 // 要求业务停止运行. 一般为业务判断任务无法继续的时候
 func (b *BatchJob) BizStopJob(ctx context.Context, req *pb.BizStopJobReq) (*pb.BizStopJobRsp, error) {
 	// 获取任务信息
-	jobInfo, err := batch_job_list.GetOneByJobId(ctx, int(req.GetJobId()))
+	jobInfo, err := batch_job_list.GetOneByJobId(ctx, uint(req.GetJobId()))
 	if err != nil {
 		logger.Error(ctx, "BizStopJob call batch_job_list.GetOneByJobId fail.", zap.Error(err))
 		return nil, err
@@ -207,7 +207,7 @@ func (b *BatchJob) BizStopJob(ctx context.Context, req *pb.BizStopJobReq) (*pb.B
 		}
 	}
 
-	// 更新状态
+	// 更新状态. 如果任务处于 WaitBizRun 状态则立即停止
 	status := pb.JobStatus_JobStatus_Stopping
 	if pb.JobStatus(jobInfo.Status) == pb.JobStatus_JobStatus_WaitBizRun {
 		status = pb.JobStatus_JobStatus_Stopped

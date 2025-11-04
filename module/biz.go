@@ -6,7 +6,10 @@ import (
 	"time"
 
 	"github.com/bytedance/sonic"
+	"github.com/zly-app/cache/v2"
+	"github.com/zly-app/component/sqlx"
 
+	"github.com/zlyuancn/batch_job/conf"
 	"github.com/zlyuancn/batch_job/dao/batch_job_biz"
 	"github.com/zlyuancn/batch_job/dao/batch_job_list"
 	"github.com/zlyuancn/batch_job/pb"
@@ -58,4 +61,18 @@ func (*bizCli) GetBiz(ctx context.Context, biz *batch_job_biz.Model) (Business, 
 	}
 
 	return nil, fmt.Errorf("biz type %d not support", biz.ExecType)
+}
+
+// 获取业务数据, 使用缓存
+func (*bizCli) GetBizInfoByCache(ctx context.Context, bizId int) (*batch_job_biz.Model, error) {
+	key := CacheKey.GetBizInfo(bizId)
+	ret := &batch_job_biz.Model{}
+	err := cache.GetDefCache().Get(ctx, key, ret, cache.WithLoadFn(func(ctx context.Context, key string) (interface{}, error) {
+		v, err := batch_job_biz.GetOneByBizId(ctx, bizId)
+		if err == sqlx.ErrNoRows {
+			return nil, nil
+		}
+		return v, err
+	}), cache.WithExpire(conf.Conf.BizInfoCacheTtl))
+	return ret, err
 }

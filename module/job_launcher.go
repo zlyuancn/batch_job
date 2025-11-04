@@ -3,11 +3,13 @@ package module
 import (
 	"context"
 	"fmt"
+	"math"
 	"strconv"
 	"sync/atomic"
 	"time"
 
 	zRedis "github.com/zly-app/component/redis"
+	"github.com/zly-app/zapp/component/gpool"
 	"github.com/zly-app/zapp/logger"
 	"github.com/zly-app/zapp/pkg/utils"
 	"github.com/zlyuancn/sliding_window"
@@ -24,6 +26,11 @@ import (
 
 // 创建启动器
 func (j *jobCli) CreateLauncherByData(ctx context.Context, bizInfo *batch_job_biz.Model, jobInfo *batch_job_list.Model) {
+	// 速率检查
+	if !RateLimit.TryRunJobCheckRate(int32(jobInfo.RateSec)) {
+		return
+	}
+
 	// 获取业务
 	b, err := Biz.GetBiz(ctx, bizInfo)
 	if err != nil {
@@ -76,17 +83,30 @@ func (j *jobCli) CreateLauncherByData(ctx context.Context, bizInfo *batch_job_bi
 		return
 	}
 
-	// 开始运行
+	// 创建任务启动器
 	jl, err := newJobLauncher(b, bizInfo, jobInfo, unlock, renew)
 	if err != nil {
 		logger.Error("createLauncher call newJobLauncher fail.", zap.Error(err))
 		return
 	}
-	jl.Run()
+
+	// 占用节点速率
+	RateLimit.RunJob(ctx, int(jobInfo.JobID), int32(jobInfo.RateSec))
+
+	// 运行
+	gpool.GetDefGPool().Go(func() error {
+		jl.Run()
+		return nil
+	}, nil)
 }
 
 // 由业务启动创建启动器
 func (*jobCli) CreateLauncherByBizStart(ctx context.Context, jobInfo *batch_job_list.Model, authCode string) {
+	// 速率检查
+	if !RateLimit.TryRunJobCheckRate(int32(jobInfo.RateSec)) {
+		return
+	}
+
 	// 获取业务信息
 	bizInfo, err := batch_job_biz.GetOneByBizId(ctx, int(jobInfo.BizId))
 	if err != nil {
@@ -116,7 +136,15 @@ func (*jobCli) CreateLauncherByBizStart(ctx context.Context, jobInfo *batch_job_
 		logger.Error("createLauncher call newJobLauncher fail.", zap.Error(err))
 		return
 	}
-	jl.Run()
+
+	// 占用节点速率
+	RateLimit.RunJob(ctx, int(jobInfo.JobID), int32(jobInfo.RateSec))
+
+	// 运行
+	gpool.GetDefGPool().Go(func() error {
+		jl.Run()
+		return nil
+	}, nil)
 }
 
 type jobLauncher struct {
@@ -168,8 +196,13 @@ func newJobLauncher(b Business, bizInfo *batch_job_biz.Model, jobInfo *batch_job
 		return nil, fmt.Errorf("rateType %d nonsupport", int(jobInfo.RateType))
 	}
 
+	// 限速器
 	if jobInfo.RateSec > 0 { // 限速
-		j.limiter = rate.NewLimiter(rate.Limit(jobInfo.RateSec), int(jobInfo.RateSec)) // 每秒限速
+		bursts := math.Max(float64(int(jobInfo.RateSec)/10), 1)               // 爆发量为上限的十分之一
+		j.limiter = rate.NewLimiter(rate.Limit(jobInfo.RateSec), int(bursts)) // 每秒限速
+	} else { // 节点限速
+		bursts := math.Max(float64(int(conf.Conf.NoRateLimitJobMappingRate)/10), 1) // 爆发量为上限的十分之一
+		j.limiter = rate.NewLimiter(rate.Limit(conf.Conf.NoRateLimitJobMappingRate), int(bursts))
 	}
 
 	// 从cache加载进度
@@ -299,6 +332,8 @@ func (j *jobLauncher) writeProcess2Cache() error {
 }
 
 func (j *jobLauncher) Run() {
+	logger.Warn(j.ctx, "job run", zap.Any("jobInfo", j.jobInfo))
+
 	go j.loopLockKeyRenew()  // 循环续期
 	go j.loopWriteProgress() // 循环写入进度
 	go j.loopCheckStopFlag() // 循环检查停止flag
@@ -405,6 +440,8 @@ func (j *jobLauncher) processData(sn int64) {
 			j.submitStopFlag("multi attempt err." + err.Error())
 			return
 		}
+
+		time.Sleep(time.Duration(conf.Conf.JobProcessErrWaitRetryTimeSec) * time.Second)
 	}
 
 	// 滑动窗口确认当前数据已完成
@@ -432,6 +469,11 @@ func (j *jobLauncher) stopSideEffect() {
 	j.ctx = utils.Ctx.CloneContext(j.ctx)
 	j.ctx = utils.Otel.CtxStart(j.ctx, "stopSideEffect")
 	defer utils.Otel.CtxEnd(j.ctx)
+
+	// 释放节点速率占用
+	RateLimit.StopJob(j.ctx, int(j.jobInfo.JobID))
+
+	logger.Warn(j.ctx, "stopSideEffect", zap.Any("jobInfo", j.jobInfo))
 
 	// 立即写入当前进度日志计数到redis
 	err := j.writeProcess2Cache()

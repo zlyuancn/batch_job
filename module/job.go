@@ -4,12 +4,16 @@ import (
 	"context"
 	"time"
 
+	"github.com/zly-app/cache/v2"
 	"github.com/zly-app/component/redis"
+	"github.com/zly-app/component/sqlx"
 	"github.com/zly-app/zapp/logger"
+	"github.com/zly-app/zapp/pkg/utils"
 	"go.uber.org/zap"
 
 	"github.com/zlyuancn/batch_job/client/db"
 	"github.com/zlyuancn/batch_job/conf"
+	"github.com/zlyuancn/batch_job/dao/batch_job_list"
 	"github.com/zlyuancn/batch_job/dao/batch_job_log"
 	"github.com/zlyuancn/batch_job/pb"
 )
@@ -91,4 +95,35 @@ func (*jobCli) GetErrCount(ctx context.Context, jobId int) (int64, error) {
 		return 0, err
 	}
 	return total, nil
+}
+
+// 查询任务信息, 使用缓存
+func (*jobCli) GetJobInfoByCache(ctx context.Context, jobId uint) (*batch_job_list.Model, error) {
+	key := CacheKey.GetJobInfo(int(jobId))
+	ret := &batch_job_list.Model{}
+	err := cache.GetDefCache().Get(ctx, key, ret, cache.WithLoadFn(func(ctx context.Context, key string) (interface{}, error) {
+		v, err := batch_job_list.GetOneByJobId(ctx, jobId)
+		if err == sqlx.ErrNoRows {
+			return nil, nil
+		}
+		return v, err
+	}), cache.WithExpire(conf.Conf.JobInfoCacheTtl))
+	return ret, err
+}
+
+func (j *jobCli) BatchGetJobInfoByCache(ctx context.Context, jobId []uint) ([]*batch_job_list.Model, error) {
+	// 批量获取数据
+	lines, err := utils.GoQuery(jobId, func(id uint) (*batch_job_list.Model, error) {
+		line, err := j.GetJobInfoByCache(ctx, id)
+		if err != nil {
+			logger.Error(ctx, "BatchGetJobInfoByCache call GetJobInfoByCache fail.", zap.Uint("id", id), zap.Error(err))
+			return nil, err
+		}
+		return line, nil
+	}, true)
+	if err != nil {
+		logger.Error(ctx, "GetJobInfoByCache call query fail.", zap.Error(err))
+		return nil, err
+	}
+	return lines, nil
 }
