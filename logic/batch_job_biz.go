@@ -14,6 +14,7 @@ import (
 	"github.com/zlyuancn/batch_job/dao/batch_job_list_history"
 	"github.com/zlyuancn/batch_job/dao/batch_job_log"
 	"github.com/zlyuancn/batch_job/dao/redis"
+	"github.com/zlyuancn/batch_job/handler"
 	"github.com/zlyuancn/batch_job/model"
 	"github.com/zlyuancn/batch_job/module"
 	"github.com/zlyuancn/batch_job/pb"
@@ -141,6 +142,12 @@ func (b *BatchJob) BizUpdateJobData(ctx context.Context, req *pb.BizUpdateJobDat
 		logger.Error(ctx, "BizUpdateJobData call UpdateOneModelWhereStatus fail.", zap.Error(err))
 		return nil, err
 	}
+	jobInfo.JobData = req.GetJobData()
+	jobInfo.ProcessDataTotal = uint64(req.GetProcessDataTotal())
+	jobInfo.ProcessedCount = uint64(req.GetProcessedCount())
+	jobInfo.StatusInfo = model.StatusInfo_BizChangeStatus
+
+	handler.Trigger(ctx, handler.AfterUpdateJob, jobInfo)
 
 	cloneCtx := utils.Ctx.CloneContext(ctx)
 	// 添加历史记录
@@ -219,6 +226,12 @@ func (b *BatchJob) BizStopJob(ctx context.Context, req *pb.BizStopJobReq) (*pb.B
 	if err != nil {
 		logger.Error(ctx, "BizStopJob call UpdateOne fail.", zap.Error(err))
 		return nil, err
+	}
+	jobInfo.Status = byte(status)
+	jobInfo.StatusInfo = model.StatusInfo_BizChangeStatus
+
+	if status == pb.JobStatus_JobStatus_Stopped{
+		handler.Trigger(ctx, handler.AfterJobStopped, jobInfo)
 	}
 
 	cloneCtx := utils.Ctx.CloneContext(ctx)

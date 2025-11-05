@@ -14,6 +14,7 @@ import (
 	"github.com/zlyuancn/batch_job/dao/batch_job_biz"
 	"github.com/zlyuancn/batch_job/dao/batch_job_list"
 	"github.com/zlyuancn/batch_job/dao/redis"
+	"github.com/zlyuancn/batch_job/handler"
 	"github.com/zlyuancn/batch_job/model"
 	"github.com/zlyuancn/batch_job/pb"
 )
@@ -136,6 +137,8 @@ func (r *restorerCli) restorerJob(ctx context.Context, jobInfos []*batch_job_lis
 			return t, err
 		}
 
+		handler.Trigger(ctx, handler.JobRestorer, realJobInfo)
+
 		// 恢复任务
 		Job.CreateLauncherByData(ctx, realBizInfo, realJobInfo)
 	}
@@ -173,6 +176,11 @@ func (r *restorerCli) restorerJobStopping(ctx context.Context, jobId uint) {
 		logger.Error(ctx, "stopSideEffect call UpdateOne fail.", zap.Uint("jobId", jobId), zap.Error(err))
 		return
 	}
+	jobInfo.Status = byte(pb.JobStatus_JobStatus_Stopped)
+	jobInfo.StatusInfo = "restorerJobStopping"
+
+	handler.Trigger(ctx, handler.AfterJobStopped, jobInfo)
+
 	// 清除缓存
 	err = cache.GetDefCache().Del(ctx, CacheKey.GetJobInfo(int(jobId)))
 	if err != nil {
@@ -193,6 +201,7 @@ func (r *restorerCli) restorerJobStopping(ctx context.Context, jobId uint) {
 		logger.Error(ctx, "restorerJobStopping call biz.GetBiz fail.", zap.Uint("jobId", jobId), zap.Error(err))
 		return
 	}
+
 	// 回调
 	err = b.ProcessStop(ctx, jobInfo, false)
 	if err != nil {

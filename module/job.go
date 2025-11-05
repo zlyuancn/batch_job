@@ -97,7 +97,7 @@ func (*jobCli) GetErrCount(ctx context.Context, jobId int) (int64, error) {
 	return total, nil
 }
 
-// 查询任务信息, 使用缓存
+// 获取任务信息, 使用缓存
 func (*jobCli) GetJobInfoByCache(ctx context.Context, jobId uint) (*batch_job_list.Model, error) {
 	key := CacheKey.GetJobInfo(int(jobId))
 	ret := &batch_job_list.Model{}
@@ -111,6 +111,7 @@ func (*jobCli) GetJobInfoByCache(ctx context.Context, jobId uint) (*batch_job_li
 	return ret, err
 }
 
+// 批量获取任务信息, 使用缓存
 func (j *jobCli) BatchGetJobInfoByCache(ctx context.Context, jobId []uint) ([]*batch_job_list.Model, error) {
 	// 批量获取数据
 	lines, err := utils.GoQuery(jobId, func(id uint) (*batch_job_list.Model, error) {

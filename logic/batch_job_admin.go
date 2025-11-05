@@ -21,6 +21,7 @@ import (
 	"github.com/zlyuancn/batch_job/dao/batch_job_list"
 	"github.com/zlyuancn/batch_job/dao/batch_job_list_history"
 	"github.com/zlyuancn/batch_job/dao/redis"
+	"github.com/zlyuancn/batch_job/handler"
 	"github.com/zlyuancn/batch_job/model"
 	"github.com/zlyuancn/batch_job/module"
 	"github.com/zlyuancn/batch_job/pb"
@@ -184,6 +185,34 @@ func (*BatchJob) AdminCreateJob(ctx context.Context, req *pb.AdminCreateJobReq) 
 		return nil, err
 	}
 
+	// 构造jobInfo
+	jobInfo := &batch_job_list.Model{
+		JobID:            uint(jobId),
+		JobName:          req.GetJobName(),
+		BizId:            uint(req.GetBizId()),
+		JobData:          req.GetJobData(),
+		ProcessDataTotal: uint64(req.GetProcessDataTotal()),
+		ProcessedCount:   uint64(req.GetProcessedCount()),
+		Status:           byte(pb.JobStatus_JobStatus_Created),
+		CreateTime:       time.Now(),
+		UpdateTime:       time.Now(),
+		OpSource:         req.GetOp().GetOpSource(),
+		OpUserID:         req.GetOp().GetOpUserid(),
+		OpUserName:       req.GetOp().GetOpUserName(),
+		OpRemark:         req.GetOp().GetOpRemark(),
+		RateSec:          uint(req.GetRateSec()),
+		RateType:         byte(req.GetRateType()),
+		StatusInfo:       model.StatusInfo_UserOp,
+	}
+	if req.GetStartNow() {
+		jobInfo.Status = byte(pb.JobStatus_JobStatus_Running)
+		jobInfo.StatusInfo = model.StatusInfo_UserCreateAndRun
+		if b.HasBeforeRunCallback() {
+			jobInfo.Status = byte(pb.JobStatus_JobStatus_WaitBizRun)
+		}
+		jobInfo.ActivateTime = time.Now()
+	}
+
 	// 创建前回调
 	args := &pb.JobBeforeCreateAndChangeReq{
 		JobInfo: &pb.JobCBInfo{
@@ -194,7 +223,6 @@ func (*BatchJob) AdminCreateJob(ctx context.Context, req *pb.AdminCreateJobReq) 
 			JobData:          req.GetJobData(),
 			ProcessDataTotal: req.GetProcessDataTotal(),
 			ProcessedCount:   req.GetProcessedCount(),
-			ErrLogCount:      0,
 			RateType:         req.GetRateType(),
 			RateSec:          req.GetRateSec(),
 		},
@@ -207,35 +235,13 @@ func (*BatchJob) AdminCreateJob(ctx context.Context, req *pb.AdminCreateJobReq) 
 	}
 
 	// 写入数据库
-	v := &batch_job_list.Model{
-		JobID:            uint(jobId),
-		JobName:          req.GetJobName(),
-		BizId:            uint(req.GetBizId()),
-		JobData:          req.GetJobData(),
-		ProcessDataTotal: uint64(req.GetProcessDataTotal()),
-		ProcessedCount:   uint64(req.GetProcessedCount()),
-		Status:           byte(pb.JobStatus_JobStatus_Created),
-		OpSource:         req.GetOp().GetOpSource(),
-		OpUserID:         req.GetOp().GetOpUserid(),
-		OpUserName:       req.GetOp().GetOpUserName(),
-		OpRemark:         req.GetOp().GetOpRemark(),
-		RateSec:          uint(req.GetRateSec()),
-		RateType:         byte(req.GetRateType()),
-		StatusInfo:       model.StatusInfo_UserOp,
-	}
-	if req.GetStartNow() {
-		v.Status = byte(pb.JobStatus_JobStatus_Running)
-		v.StatusInfo = model.StatusInfo_UserCreateAndRun
-		if b.HasBeforeRunCallback() {
-			v.Status = byte(pb.JobStatus_JobStatus_WaitBizRun)
-		}
-		v.ActivateTime = time.Now()
-	}
-	_, err = batch_job_list.CreateOneModel(ctx, v)
+	_, err = batch_job_list.CreateOneModel(ctx, jobInfo)
 	if err != nil {
 		logger.Error(ctx, "AdminCreateJob call CreateOneModel fail.", zap.Error(err))
 		return nil, err
 	}
+
+	handler.Trigger(ctx, handler.AfterCreateJob, jobInfo)
 
 	cloneCtx := utils.Ctx.CloneContext(ctx)
 	// 添加历史记录
@@ -253,7 +259,7 @@ func (*BatchJob) AdminCreateJob(ctx context.Context, req *pb.AdminCreateJobReq) 
 		OpRemark:         req.GetOp().GetOpRemark(),
 		RateSec:          uint(req.GetRateSec()),
 		RateType:         byte(req.GetRateType()),
-		StatusInfo:       v.StatusInfo,
+		StatusInfo:       jobInfo.StatusInfo,
 	}
 	gpool.GetDefGPool().Go(func() error {
 		_, err = batch_job_list_history.CreateOneModel(cloneCtx, h)
@@ -277,7 +283,7 @@ func (*BatchJob) AdminCreateJob(ctx context.Context, req *pb.AdminCreateJobReq) 
 	// 立即启动
 	if req.StartNow {
 		gpool.GetDefGPool().Go(func() error {
-			module.Job.CreateLauncherByData(cloneCtx, bizInfo, v)
+			module.Job.CreateLauncherByData(cloneCtx, bizInfo, jobInfo)
 			return nil
 		}, nil)
 	}
@@ -356,9 +362,14 @@ func (*BatchJob) AdminUpdateJob(ctx context.Context, req *pb.AdminUpdateJobReq) 
 	v := &batch_job_list.Model{
 		JobID:            uint(req.GetJobId()),
 		JobName:          req.GetJobName(),
+		BizId:            jobInfo.BizId,
 		JobData:          req.GetJobData(),
 		ProcessDataTotal: uint64(req.GetProcessDataTotal()),
 		ProcessedCount:   uint64(req.GetProcessedCount()),
+		ErrLogCount:      jobInfo.ErrLogCount,
+		Status:           jobInfo.Status,
+		CreateTime:       jobInfo.CreateTime,
+		UpdateTime:       jobInfo.UpdateTime,
 		OpSource:         req.GetOp().GetOpSource(),
 		OpUserID:         req.GetOp().GetOpUserid(),
 		OpUserName:       req.GetOp().GetOpUserName(),
@@ -366,12 +377,15 @@ func (*BatchJob) AdminUpdateJob(ctx context.Context, req *pb.AdminUpdateJobReq) 
 		RateSec:          uint(req.GetRateSec()),
 		RateType:         byte(req.GetRateType()),
 		StatusInfo:       model.StatusInfo_UserOp,
+		ActivateTime:     jobInfo.ActivateTime,
 	}
 	_, err = batch_job_list.AdminUpdateJob(ctx, v, jobInfo.Status)
 	if err != nil {
 		logger.Error(ctx, "AdminUpdateJob call UpdateOneModelWhereStatus fail.", zap.Error(err))
 		return nil, err
 	}
+
+	handler.Trigger(ctx, handler.AfterUpdateJob, v)
 
 	cloneCtx := utils.Ctx.CloneContext(ctx)
 	// 添加历史记录
@@ -484,8 +498,14 @@ func (*BatchJob) AdminStartJob(ctx context.Context, req *pb.AdminStartJobReq) (*
 		return nil, err
 	}
 
-	// 更新jobInfo状态
+	// 更新jobInfo数据
 	jobInfo.Status = v.Status
+	jobInfo.OpSource = req.GetOp().GetOpSource()
+	jobInfo.OpUserID = req.GetOp().GetOpUserid()
+	jobInfo.OpUserName = req.GetOp().GetOpUserName()
+	jobInfo.OpRemark = req.GetOp().GetOpRemark()
+	jobInfo.StatusInfo = model.StatusInfo_UserChangeStatus
+	jobInfo.ActivateTime = time.Now()
 
 	cloneCtx := utils.Ctx.CloneContext(ctx)
 	// 添加历史记录
@@ -600,6 +620,15 @@ func (b *BatchJob) AdminStopJob(ctx context.Context, req *pb.AdminStopJobReq) (*
 		return nil, err
 	}
 
+	// 更新jobInfo数据
+	jobInfo.Status = v.Status
+	jobInfo.OpSource = req.GetOp().GetOpSource()
+	jobInfo.OpUserID = req.GetOp().GetOpUserid()
+	jobInfo.OpUserName = req.GetOp().GetOpUserName()
+	jobInfo.OpRemark = req.GetOp().GetOpRemark()
+	jobInfo.StatusInfo = model.StatusInfo_UserChangeStatus
+	jobInfo.ActivateTime = time.Now()
+
 	cloneCtx := utils.Ctx.CloneContext(ctx)
 	// 添加历史记录
 	h := &batch_job_list_history.Model{
@@ -658,6 +687,9 @@ func (*BatchJob) adminStopJobCB(ctx context.Context, jobInfo *batch_job_list.Mod
 			logger.Error(cloneCtx, "AdminStopJob call ProcessStop fail.", zap.Error(err))
 			return err
 		}
+
+		handler.Trigger(ctx, handler.AfterJobStopped, jobInfo)
+
 		return nil
 	}, nil)
 }

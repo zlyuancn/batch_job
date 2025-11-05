@@ -21,6 +21,7 @@ import (
 	"github.com/zlyuancn/batch_job/dao/batch_job_biz"
 	"github.com/zlyuancn/batch_job/dao/batch_job_list"
 	"github.com/zlyuancn/batch_job/dao/redis"
+	"github.com/zlyuancn/batch_job/handler"
 	"github.com/zlyuancn/batch_job/pb"
 )
 
@@ -98,6 +99,8 @@ func (j *jobCli) CreateLauncherByData(ctx context.Context, bizInfo *batch_job_bi
 	// 占用节点速率
 	RateLimit.RunJob(ctx, int(jobInfo.JobID), int32(jobInfo.RateSec))
 
+	handler.Trigger(ctx, handler.AfterRunJob, jobInfo)
+
 	// 运行
 	gpool.GetDefGPool().Go(func() error {
 		jl.Run()
@@ -149,6 +152,8 @@ func (*jobCli) CreateLauncherByBizStart(ctx context.Context, jobInfo *batch_job_
 
 	// 占用节点速率
 	RateLimit.RunJob(ctx, int(jobInfo.JobID), int32(jobInfo.RateSec))
+
+	handler.Trigger(ctx, handler.AfterRunJob, jobInfo)
 
 	// 运行
 	gpool.GetDefGPool().Go(func() error {
@@ -461,10 +466,10 @@ func (j *jobLauncher) processData(sn int64) {
 // 内部发起停止信号
 func (j *jobLauncher) submitStopFlag(statusInfo string) {
 	if atomic.AddInt32(&j.onceStop, 1) == 1 {
+		j.statusInfo = statusInfo
 		close(j.stopChan)
 		j.cancel()
 		j.sw.Stop()
-		j.statusInfo = statusInfo
 	}
 }
 
@@ -492,6 +497,8 @@ func (j *jobLauncher) stopSideEffect() {
 		// return
 	}
 
+	j.jobInfo.StatusInfo = j.statusInfo
+
 	// 立即写入当前进度日志计数到db, 对于已完成任务刷新任务状态
 	finishedCount := j.sw.GetProgress() + 1 // 已完成数
 	j.jobInfo.ProcessedCount = uint64(finishedCount)
@@ -501,9 +508,12 @@ func (j *jobLauncher) stopSideEffect() {
 		"status_info":     j.statusInfo,
 	}
 	if j.isGotStopFlag {
+		j.jobInfo.Status = byte(pb.JobStatus_JobStatus_Stopped)
 		updateData["status"] = int(pb.JobStatus_JobStatus_Stopped)
 	}
 	if isFinished {
+		j.jobInfo.StatusInfo = "finished"
+		j.jobInfo.Status = byte(pb.JobStatus_JobStatus_Finished)
 		updateData["status_info"] = "finished"
 		updateData["status"] = int(pb.JobStatus_JobStatus_Finished)
 
@@ -514,6 +524,11 @@ func (j *jobLauncher) stopSideEffect() {
 			return // 这里不再更新db了, 等重试
 		}
 		updateData["err_log_count"] = errLogCount
+	} else {
+		errLogCount, _, _ := Job.LoadCacheErrCount(j.ctx, int(j.jobInfo.JobID))
+		if errLogCount > 0 {
+			j.jobInfo.ErrLogCount = uint64(errLogCount)
+		}
 	}
 	err = batch_job_list.UpdateOne(j.ctx, int(j.jobInfo.JobID), updateData, 0)
 	if err != nil {
@@ -535,5 +550,13 @@ func (j *jobLauncher) stopSideEffect() {
 	if err != nil {
 		logger.Error(j.ctx, "stopSideEffect ProcessStop fail.", zap.Error(err))
 		// return // 这里不影响主流程
+	}
+
+	if isFinished {
+		handler.Trigger(j.ctx, handler.JobFinished, j.jobInfo)
+	} else if j.isGotStopFlag {
+		handler.Trigger(j.ctx, handler.AfterJobStopped, j.jobInfo)
+	} else {
+		handler.Trigger(j.ctx, handler.JobRunFailureExit, j.jobInfo)
 	}
 }

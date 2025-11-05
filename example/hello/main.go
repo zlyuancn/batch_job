@@ -17,10 +17,12 @@ func main() {
 	)
 	defer app.Exit()
 
+	// rpc服务
+	pb.RegisterHelloServiceServer(grpc.Server("hello"), logic.NewServer())
+
+	// rpc网关
 	client := pb.NewHelloServiceClient(grpc.GetGatewayClientConn("hello"))
 	_ = pb.RegisterHelloServiceHandlerClient(context.Background(), grpc.GetGatewayMux(), client)
-
-	pb.RegisterHelloServiceServer(grpc.Server("hello"), logic.NewServer())
 
 	app.Run()
 }

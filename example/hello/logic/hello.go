@@ -66,22 +66,24 @@ func (h *Hello) Start(ctx context.Context, req *pb_0.JobBeforeRunReq) (*pb_0.Job
 }
 
 func (h *Hello) Process(ctx context.Context, req *pb_0.JobProcessReq) (*pb_0.JobProcessRsp, error) {
-	// client := pb_0.NewBatchJobServiceClient(grpc.GetClientConn("batch_job"))
-	// _, err := client.BizAddDataLog(ctx, &pb_0.BizAddDataLogReq{
-	// 	JobId: req.GetJobId(),
-	// 	Log: []*pb_0.DataLogQ{
-	// 		{
-	// 			DataIndex: req.GetDataIndex(),
-	// 			Remark:    "测试添加日志",
-	// 			Extend:    "描述",
-	// 			LogType:   pb_0.DataLogType_DataLogType_Err,
-	// 		},
-	// 	},
-	// })
-	// if err != nil {
-	// 	logger.Error(ctx, "Start call BizStartJob fail.", zap.Error(err))
-	// 	return nil, err
-	// }
+	if req.GetDataIndex()%10 == 0 {
+		client := pb_0.NewBatchJobServiceClient(grpc.GetClientConn("batch_job"))
+		_, err := client.BizAddDataLog(ctx, &pb_0.BizAddDataLogReq{
+			JobId: req.GetJobId(),
+			Log: []*pb_0.DataLogQ{
+				{
+					DataIndex: req.GetDataIndex(),
+					Remark:    "测试添加日志",
+					Extend:    "描述",
+					LogType:   pb_0.DataLogType_DataLogType_Err,
+				},
+			},
+		})
+		if err != nil {
+			logger.Error(ctx, "Start call BizStartJob fail.", zap.Error(err))
+			return nil, err
+		}
+	}
 	return &pb_0.JobProcessRsp{}, nil
 }
 
