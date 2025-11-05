@@ -75,7 +75,7 @@ func (h *Hello) Process(ctx context.Context, req *pb_0.JobProcessReq) (*pb_0.Job
 					DataIndex: req.GetDataIndex(),
 					Remark:    "测试添加日志",
 					Extend:    "描述",
-					LogType:   pb_0.DataLogType_DataLogType_Err,
+					LogType:   pb_0.DataLogType_DataLogType_ErrData,
 				},
 			},
 		})

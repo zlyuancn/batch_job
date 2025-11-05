@@ -298,7 +298,7 @@ func (b *BatchJob) BizAddDataLog(ctx context.Context, req *pb.BizAddDataLogReq) 
 	if errNum > 0 {
 		cloneCtx := utils.Ctx.CloneContext(ctx)
 		gpool.GetDefGPool().Go(func() error {
-			_, err := module.Job.IncrCacheErrCount(ctx, int(req.GetJobId()), errNum)
+			_, err := module.Job.IncrCacheErrCount(cloneCtx, int(req.GetJobId()), errNum)
 			if err != nil {
 				logger.Error(cloneCtx, "BizAddDataLog call IncrCacheErrCount fail.", zap.Error(err))
 				// return err
