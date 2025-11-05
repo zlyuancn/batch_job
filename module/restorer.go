@@ -106,46 +106,55 @@ func (r *restorerCli) restorerJob(ctx context.Context, jobInfos []*batch_job_lis
 			continue
 		}
 
-		// 尝试获取运行锁
-		runLockKey := CacheKey.GetRunLockKey(int(jobInfo.JobID))
-		authCode, err := redis.Lock(ctx, runLockKey, time.Duration(conf.Conf.JobRunLockExtraTtl)*time.Second)
-		if err == redis.LockManyErr { // 有别的线程处理
-			continue
-		}
-		if err != nil { // 加锁异常
-			logger.Error(ctx, "restorerJob call set run lock fail.", zap.Uint("jobId", jobInfo.JobID), zap.Error(err))
-			return t, err
-		}
-
-		// 更新任务信息
-		err = batch_job_list.UpdateOne(ctx, int(jobInfo.JobID), map[string]interface{}{
-			"status_info": model.StatusInfo_RestorerJob,
-		}, jobInfo.Status)
-		if err != nil {
-			logger.Error(ctx, "restorerJob call UpdateOne fail.", zap.Uint("jobId", jobInfo.JobID), zap.Error(err))
-			return t, err
-		}
-
-		// 清除缓存
-		err = cache.GetDefCache().Del(ctx, CacheKey.GetJobInfo(int(jobInfo.JobID)))
-		if err != nil {
-			logger.Error(ctx, "restorerJob call clear Cache fail.", zap.Uint("jobId", jobInfo.JobID), zap.Error(err))
-			// return err
-		}
-
-		// 获取真实任务信息
-		realJobInfo, err := batch_job_list.GetOneByJobId(ctx, jobInfo.JobID)
-		if err != nil {
-			logger.Error(ctx, "restorerJob call batch_job_list.GetOneByJobId fail.", zap.Uint("jobId", jobInfo.JobID), zap.Error(err))
-			return t, err
-		}
-
-		handler.Trigger(ctx, handler.JobRestorer, realJobInfo)
-
 		// 恢复任务
-		Job.CreateLauncherByRestorer(ctx, realJobInfo, authCode)
+		err = r.restorerJobRunning(ctx, jobInfo.JobID, jobInfo.Status)
+		if err != nil {
+			logger.Error(ctx, "restorerJob call restorerJobRunning fail.", zap.Uint("jobId", jobInfo.JobID), zap.Error(err))
+			return t, err
+		}
 	}
 	return t, nil
+}
+
+func (r *restorerCli) restorerJobRunning(ctx context.Context, jobId uint, status byte) error {
+	// 尝试获取运行锁
+	runLockKey := CacheKey.GetRunLockKey(int(jobId))
+	authCode, err := redis.Lock(ctx, runLockKey, time.Duration(conf.Conf.JobRunLockExtraTtl)*time.Second)
+	if err == redis.LockManyErr { // 有别的线程处理
+		return nil
+	}
+	if err != nil { // 加锁异常
+		logger.Error(ctx, "restorerJobRunning call set run lock fail.", zap.Uint("jobId", jobId), zap.Error(err))
+		return err
+	}
+
+	// 更新任务信息
+	err = batch_job_list.UpdateOne(ctx, int(jobId), map[string]interface{}{
+		"status_info": model.StatusInfo_RestorerJob,
+	}, status)
+	if err != nil {
+		logger.Error(ctx, "restorerJobRunning call UpdateOne fail.", zap.Uint("jobId", jobId), zap.Error(err))
+		return err
+	}
+
+	// 清除缓存
+	err = cache.GetDefCache().Del(ctx, CacheKey.GetJobInfo(int(jobId)))
+	if err != nil {
+		logger.Error(ctx, "restorerJobRunning call clear Cache fail.", zap.Uint("jobId", jobId), zap.Error(err))
+		// return err
+	}
+
+	// 获取真实任务信息
+	realJobInfo, err := batch_job_list.GetOneByJobId(ctx, jobId)
+	if err != nil {
+		logger.Error(ctx, "restorerJobRunning call batch_job_list.GetOneByJobId fail.", zap.Uint("jobId", jobId), zap.Error(err))
+		return err
+	}
+
+	handler.Trigger(ctx, handler.JobRestorer, realJobInfo)
+
+	// 恢复任务
+	Job.CreateLauncherByRestorer(ctx, realJobInfo, authCode)
 }
 
 // 扭转任务的 Stopping 状态
