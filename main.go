@@ -36,7 +36,7 @@ func main() {
 	_ = pb.RegisterBatchJobServiceHandlerClient(context.Background(), grpc.GetGatewayMux(), client)
 
 	// 定时器
-	cron.RegistryHandler("recover", "@every 10s", true, func(ctx cron.IContext) error {
+	cron.RegistryHandler("recover", "@every 5m", true, func(ctx cron.IContext) error {
 		return module.Restorer.Restorer(ctx)
 	})
 

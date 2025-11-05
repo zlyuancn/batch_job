@@ -43,10 +43,11 @@ func (r *rateLimitCli) TryRunJobCheckRate(rateSec int32) bool {
 // 运行任务, 会增加节点当前速率
 func (r *rateLimitCli) RunJob(ctx context.Context, jobId int, rateSec int32) {
 	r.mx.Lock()
+	oldRateSec := r.jobRateSec[jobId]
 	r.jobRateSec[jobId] = rateSec
 	r.mx.Unlock()
 
-	newRate := atomic.AddInt32(&r.nowRate, rateSec)
+	newRate := atomic.AddInt32(&r.nowRate, rateSec-oldRateSec)
 	logger.Warn(ctx, "node rate change", zap.Int32("rate", newRate))
 }
 

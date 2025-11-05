@@ -11,7 +11,6 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/zlyuancn/batch_job/conf"
-	"github.com/zlyuancn/batch_job/dao/batch_job_biz"
 	"github.com/zlyuancn/batch_job/dao/batch_job_list"
 	"github.com/zlyuancn/batch_job/dao/redis"
 	"github.com/zlyuancn/batch_job/handler"
@@ -107,6 +106,17 @@ func (r *restorerCli) restorerJob(ctx context.Context, jobInfos []*batch_job_lis
 			continue
 		}
 
+		// 尝试获取运行锁
+		runLockKey := CacheKey.GetRunLockKey(int(jobInfo.JobID))
+		authCode, err := redis.Lock(ctx, runLockKey, time.Duration(conf.Conf.JobRunLockExtraTtl)*time.Second)
+		if err == redis.LockManyErr { // 有别的线程处理
+			continue
+		}
+		if err != nil { // 加锁异常
+			logger.Error(ctx, "restorerJob call set run lock fail.", zap.Uint("jobId", jobInfo.JobID), zap.Error(err))
+			return t, err
+		}
+
 		// 更新任务信息
 		err = batch_job_list.UpdateOne(ctx, int(jobInfo.JobID), map[string]interface{}{
 			"status_info": model.StatusInfo_RestorerJob,
@@ -130,17 +140,10 @@ func (r *restorerCli) restorerJob(ctx context.Context, jobInfos []*batch_job_lis
 			return t, err
 		}
 
-		// 获取真实业务信息
-		realBizInfo, err := batch_job_biz.GetOneByBizId(ctx, int(realJobInfo.BizId))
-		if err != nil {
-			logger.Error(ctx, "restorerJob call batch_job_biz.GetOneByBizId fail.", zap.Uint("jobId", jobInfo.JobID), zap.Error(err))
-			return t, err
-		}
-
 		handler.Trigger(ctx, handler.JobRestorer, realJobInfo)
 
 		// 恢复任务
-		Job.CreateLauncherByData(ctx, realBizInfo, realJobInfo)
+		Job.CreateLauncherByRestorer(ctx, realJobInfo, authCode)
 	}
 	return t, nil
 }
