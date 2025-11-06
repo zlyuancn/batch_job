@@ -112,11 +112,19 @@ func (r *restorerCli) restorerJob(ctx context.Context, jobInfos []*batch_job_lis
 			logger.Error(ctx, "restorerJob call restorerJobRunning fail.", zap.Uint("jobId", jobInfo.JobID), zap.Error(err))
 			return t, err
 		}
+
+		// 检查节点速率上限
+		if RateLimit.CheckIsMaxRace() {
+			logger.Warn(ctx, "node is max race")
+			return t, nil
+		}
 	}
 	return t, nil
 }
 
 func (r *restorerCli) restorerJobRunning(ctx context.Context, jobId uint, status byte) error {
+	isRecovered := false
+
 	// 尝试获取运行锁
 	runLockKey := CacheKey.GetRunLockKey(int(jobId))
 	authCode, err := redis.Lock(ctx, runLockKey, time.Duration(conf.Conf.JobRunLockExtraTtl)*time.Second)
@@ -127,6 +135,12 @@ func (r *restorerCli) restorerJobRunning(ctx context.Context, jobId uint, status
 		logger.Error(ctx, "restorerJobRunning call set run lock fail.", zap.Uint("jobId", jobId), zap.Error(err))
 		return err
 	}
+	defer func() {
+		// 如果没有恢复则解锁
+		if !isRecovered {
+			_ = redis.UnLock(ctx, runLockKey, authCode)
+		}
+	}()
 
 	// 更新任务信息
 	err = batch_job_list.UpdateOne(ctx, int(jobId), map[string]interface{}{
@@ -155,6 +169,8 @@ func (r *restorerCli) restorerJobRunning(ctx context.Context, jobId uint, status
 
 	// 恢复任务
 	Job.CreateLauncherByRestorer(ctx, realJobInfo, authCode)
+	isRecovered = true
+	return nil
 }
 
 // 扭转任务的 Stopping 状态

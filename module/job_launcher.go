@@ -589,7 +589,6 @@ func (j *jobLauncher) stopSideEffect() {
 		j.jobInfo.Status = byte(pb.JobStatus_JobStatus_Finished)
 		updateData["status_info"] = "finished"
 		updateData["status"] = int(pb.JobStatus_JobStatus_Finished)
-
 		errLogCount, err := Job.GetErrCount(j.ctx, int(j.jobInfo.JobID))
 		j.jobInfo.ErrLogCount = uint64(errLogCount)
 		if err != nil {
@@ -601,6 +600,7 @@ func (j *jobLauncher) stopSideEffect() {
 		errLogCount, _, _ := Job.LoadCacheErrCount(j.ctx, int(j.jobInfo.JobID))
 		if errLogCount > 0 {
 			j.jobInfo.ErrLogCount = uint64(errLogCount)
+			updateData["err_log_count"] = errLogCount
 		}
 	}
 	err = batch_job_list.UpdateOne(j.ctx, int(j.jobInfo.JobID), updateData, 0)
