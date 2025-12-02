@@ -4,9 +4,9 @@ import (
 	"context"
 	"errors"
 
-	"github.com/bytedance/gopkg/util/logger"
 	"github.com/zly-app/cache/v2"
 	"github.com/zly-app/zapp/component/gpool"
+	"github.com/zly-app/zapp/log"
 	"github.com/zly-app/zapp/pkg/utils"
 	"go.uber.org/zap"
 
@@ -26,14 +26,14 @@ func (b *BatchJob) BizStartJob(ctx context.Context, req *pb.BizStartJobReq) (*pb
 	key := module.CacheKey.GetRunLockKey(int(req.GetJobId()))
 	err := redis.CheckLockAuthCode(ctx, key, req.GetAuthCode())
 	if err != nil {
-		logger.Error(ctx, "BizStartJob call CheckLockAuthCode fail.", zap.Error(err))
+		log.Error(ctx, "BizStartJob call CheckLockAuthCode fail.", zap.Error(err))
 		return nil, err
 	}
 
 	// 获取任务信息
 	jobInfo, err := batch_job_list.GetOneByJobId(ctx, uint(req.GetJobId()))
 	if err != nil {
-		logger.Error(ctx, "BizStartJob call batch_job_list.GetOneByJobId fail.", zap.Error(err))
+		log.Error(ctx, "BizStartJob call batch_job_list.GetOneByJobId fail.", zap.Error(err))
 		return nil, err
 	}
 
@@ -41,7 +41,7 @@ func (b *BatchJob) BizStartJob(ctx context.Context, req *pb.BizStartJobReq) (*pb
 	switch pb.JobStatus(jobInfo.Status) {
 	case pb.JobStatus_JobStatus_WaitBizRun:
 	default:
-		logger.Info(ctx, "BizStartJob fail. status is not WaitBizRun", zap.Int64("jobId", req.GetJobId()))
+		log.Info(ctx, "BizStartJob fail. status is not WaitBizRun", zap.Int64("jobId", req.GetJobId()))
 		return nil, errors.New("status is not WaitBizRun")
 	}
 
@@ -51,7 +51,7 @@ func (b *BatchJob) BizStartJob(ctx context.Context, req *pb.BizStartJobReq) (*pb
 		"status_info": model.StatusInfo_BizChangeStatus,
 	}, byte(pb.JobStatus_JobStatus_WaitBizRun))
 	if err != nil {
-		logger.Error(ctx, "BizStartJob call UpdateOne fail.", zap.Error(err))
+		log.Error(ctx, "BizStartJob call UpdateOne fail.", zap.Error(err))
 		return nil, err
 	}
 
@@ -73,7 +73,7 @@ func (b *BatchJob) BizStartJob(ctx context.Context, req *pb.BizStartJobReq) (*pb
 	gpool.GetDefGPool().Go(func() error {
 		_, err = batch_job_list_history.CreateOneModel(cloneCtx, h)
 		if err != nil {
-			logger.Error(cloneCtx, "BizStartJob call batch_job_list_history.CreateOneModel fail.", zap.Error(err))
+			log.Error(cloneCtx, "BizStartJob call batch_job_list_history.CreateOneModel fail.", zap.Error(err))
 			// return nil, err
 		}
 		return nil
@@ -83,7 +83,7 @@ func (b *BatchJob) BizStartJob(ctx context.Context, req *pb.BizStartJobReq) (*pb
 	gpool.GetDefGPool().Go(func() error {
 		err := cache.GetDefCache().Del(cloneCtx, module.CacheKey.GetJobInfo(int(req.GetJobId())))
 		if err != nil {
-			logger.Error(cloneCtx, "BizStartJob call clear Cache fail.", zap.Error(err))
+			log.Error(cloneCtx, "BizStartJob call clear Cache fail.", zap.Error(err))
 			// return err
 		}
 		return nil
@@ -94,7 +94,7 @@ func (b *BatchJob) BizStartJob(ctx context.Context, req *pb.BizStartJobReq) (*pb
 		// 删除停止标记
 		err = module.Job.SetStopFlag(cloneCtx, int(jobInfo.JobID), false)
 		if err != nil {
-			logger.Error(cloneCtx, "BizStartJob call DelStopFlag fail.", zap.Error(err))
+			log.Error(cloneCtx, "BizStartJob call DelStopFlag fail.", zap.Error(err))
 			return err
 		}
 
@@ -112,14 +112,14 @@ func (b *BatchJob) BizUpdateJobData(ctx context.Context, req *pb.BizUpdateJobDat
 	key := module.CacheKey.GetRunLockKey(int(req.GetJobId()))
 	err := redis.CheckLockAuthCode(ctx, key, req.GetAuthCode())
 	if err != nil {
-		logger.Error(ctx, "BizStartJob call CheckLockAuthCode fail.", zap.Error(err))
+		log.Error(ctx, "BizStartJob call CheckLockAuthCode fail.", zap.Error(err))
 		return nil, err
 	}
 
 	// 获取任务信息
 	jobInfo, err := batch_job_list.GetOneByJobId(ctx, uint(req.GetJobId()))
 	if err != nil {
-		logger.Error(ctx, "BizUpdateJobData call batch_job_list.GetOneByJobId fail.", zap.Error(err))
+		log.Error(ctx, "BizUpdateJobData call batch_job_list.GetOneByJobId fail.", zap.Error(err))
 		return nil, err
 	}
 
@@ -127,7 +127,7 @@ func (b *BatchJob) BizUpdateJobData(ctx context.Context, req *pb.BizUpdateJobDat
 	switch pb.JobStatus(jobInfo.Status) {
 	case pb.JobStatus_JobStatus_WaitBizRun:
 	default:
-		logger.Info(ctx, "BizUpdateJobData fail. status is not WaitBizRun", zap.Int64("jobId", req.GetJobId()))
+		log.Info(ctx, "BizUpdateJobData fail. status is not WaitBizRun", zap.Int64("jobId", req.GetJobId()))
 		return nil, errors.New("status is not WaitBizRun")
 	}
 
@@ -139,7 +139,7 @@ func (b *BatchJob) BizUpdateJobData(ctx context.Context, req *pb.BizUpdateJobDat
 		"status_info":        model.StatusInfo_BizChangeStatus,
 	}, byte(pb.JobStatus_JobStatus_WaitBizRun))
 	if err != nil {
-		logger.Error(ctx, "BizUpdateJobData call UpdateOneModelWhereStatus fail.", zap.Error(err))
+		log.Error(ctx, "BizUpdateJobData call UpdateOneModelWhereStatus fail.", zap.Error(err))
 		return nil, err
 	}
 	jobInfo.JobData = req.GetJobData()
@@ -167,7 +167,7 @@ func (b *BatchJob) BizUpdateJobData(ctx context.Context, req *pb.BizUpdateJobDat
 	gpool.GetDefGPool().Go(func() error {
 		_, err = batch_job_list_history.CreateOneModel(cloneCtx, h)
 		if err != nil {
-			logger.Error(cloneCtx, "BizUpdateJobData call batch_job_list_history.CreateOneModel fail.", zap.Error(err))
+			log.Error(cloneCtx, "BizUpdateJobData call batch_job_list_history.CreateOneModel fail.", zap.Error(err))
 			// return nil, err
 		}
 		return nil
@@ -177,7 +177,7 @@ func (b *BatchJob) BizUpdateJobData(ctx context.Context, req *pb.BizUpdateJobDat
 	gpool.GetDefGPool().Go(func() error {
 		err := cache.GetDefCache().Del(cloneCtx, module.CacheKey.GetJobInfo(int(req.GetJobId())))
 		if err != nil {
-			logger.Error(cloneCtx, "BizUpdateJobData call clear Cache fail.", zap.Error(err))
+			log.Error(cloneCtx, "BizUpdateJobData call clear Cache fail.", zap.Error(err))
 			// return err
 		}
 		return nil
@@ -190,7 +190,7 @@ func (b *BatchJob) BizStopJob(ctx context.Context, req *pb.BizStopJobReq) (*pb.B
 	// 获取任务信息
 	jobInfo, err := batch_job_list.GetOneByJobId(ctx, uint(req.GetJobId()))
 	if err != nil {
-		logger.Error(ctx, "BizStopJob call batch_job_list.GetOneByJobId fail.", zap.Error(err))
+		log.Error(ctx, "BizStopJob call batch_job_list.GetOneByJobId fail.", zap.Error(err))
 		return nil, err
 	}
 
@@ -198,10 +198,10 @@ func (b *BatchJob) BizStopJob(ctx context.Context, req *pb.BizStopJobReq) (*pb.B
 	switch pb.JobStatus(jobInfo.Status) {
 	case pb.JobStatus_JobStatus_WaitBizRun, pb.JobStatus_JobStatus_Running:
 	case pb.JobStatus_JobStatus_Stopping, pb.JobStatus_JobStatus_Stopped:
-		logger.Info(ctx, "AdminStartJob fail. status is stopped", zap.Int64("jobId", req.GetJobId()))
+		log.Info(ctx, "AdminStartJob fail. status is stopped", zap.Int64("jobId", req.GetJobId()))
 		return &pb.BizStopJobRsp{}, nil
 	default:
-		logger.Info(ctx, "BizStopJob fail. status is not running", zap.Int64("jobId", req.GetJobId()))
+		log.Info(ctx, "BizStopJob fail. status is not running", zap.Int64("jobId", req.GetJobId()))
 		return &pb.BizStopJobRsp{}, nil
 	}
 
@@ -209,7 +209,7 @@ func (b *BatchJob) BizStopJob(ctx context.Context, req *pb.BizStopJobReq) (*pb.B
 	if pb.JobStatus(jobInfo.Status) == pb.JobStatus_JobStatus_Running {
 		err = module.Job.SetStopFlag(ctx, int(req.GetJobId()), true)
 		if err != nil {
-			logger.Error(ctx, "BizStopJob call SetStopFlag fail.", zap.Error(err))
+			log.Error(ctx, "BizStopJob call SetStopFlag fail.", zap.Error(err))
 			return nil, err
 		}
 	}
@@ -224,7 +224,7 @@ func (b *BatchJob) BizStopJob(ctx context.Context, req *pb.BizStopJobReq) (*pb.B
 		"status_info": model.StatusInfo_BizChangeStatus,
 	}, jobInfo.Status)
 	if err != nil {
-		logger.Error(ctx, "BizStopJob call UpdateOne fail.", zap.Error(err))
+		log.Error(ctx, "BizStopJob call UpdateOne fail.", zap.Error(err))
 		return nil, err
 	}
 	jobInfo.Status = byte(status)
@@ -249,7 +249,7 @@ func (b *BatchJob) BizStopJob(ctx context.Context, req *pb.BizStopJobReq) (*pb.B
 	gpool.GetDefGPool().Go(func() error {
 		_, err = batch_job_list_history.CreateOneModel(cloneCtx, h)
 		if err != nil {
-			logger.Error(cloneCtx, "BizStopJob call batch_job_list_history.CreateOneModel fail.", zap.Error(err))
+			log.Error(cloneCtx, "BizStopJob call batch_job_list_history.CreateOneModel fail.", zap.Error(err))
 			// return nil, err
 		}
 		return nil
@@ -259,7 +259,7 @@ func (b *BatchJob) BizStopJob(ctx context.Context, req *pb.BizStopJobReq) (*pb.B
 	gpool.GetDefGPool().Go(func() error {
 		err := cache.GetDefCache().Del(cloneCtx, module.CacheKey.GetJobInfo(int(req.GetJobId())))
 		if err != nil {
-			logger.Error(cloneCtx, "BizStopJob call clear Cache fail.", zap.Error(err))
+			log.Error(cloneCtx, "BizStopJob call clear Cache fail.", zap.Error(err))
 			// return err
 		}
 		return nil
@@ -290,7 +290,7 @@ func (b *BatchJob) BizAddDataLog(ctx context.Context, req *pb.BizAddDataLogReq) 
 
 	_, err := batch_job_log.MultiSave(ctx, lines)
 	if err != nil {
-		logger.Error(ctx, "BizAddDataLog call MultiSave fail.", zap.Error(err))
+		log.Error(ctx, "BizAddDataLog call MultiSave fail.", zap.Error(err))
 		return nil, err
 	}
 
@@ -300,7 +300,7 @@ func (b *BatchJob) BizAddDataLog(ctx context.Context, req *pb.BizAddDataLogReq) 
 		gpool.GetDefGPool().Go(func() error {
 			_, err := module.Job.IncrCacheErrCount(cloneCtx, int(req.GetJobId()), errNum)
 			if err != nil {
-				logger.Error(cloneCtx, "BizAddDataLog call IncrCacheErrCount fail.", zap.Error(err))
+				log.Error(cloneCtx, "BizAddDataLog call IncrCacheErrCount fail.", zap.Error(err))
 				// return err
 			}
 			return nil

@@ -6,7 +6,7 @@ import (
 
 	"github.com/zly-app/cache/v2"
 	"github.com/zly-app/zapp/component/gpool"
-	"github.com/zly-app/zapp/logger"
+	"github.com/zly-app/zapp/log"
 	"github.com/zly-app/zapp/pkg/utils"
 	"go.uber.org/zap"
 
@@ -32,7 +32,7 @@ func newRestorer() *restorerCli {
 
 func (r *restorerCli) Restorer(ctx context.Context) error {
 	if conf.Conf.DoNotRunJob {
-		logger.Warn(ctx, "DoNotRunJob")
+		log.Warn(ctx, "DoNotRunJob")
 		return nil
 	}
 
@@ -41,14 +41,14 @@ func (r *restorerCli) Restorer(ctx context.Context) error {
 	for {
 		// 检查节点速率上限
 		if RateLimit.CheckIsMaxRace() {
-			logger.Warn(ctx, "node is max race")
+			log.Warn(ctx, "node is max race")
 			return nil
 		}
 
 		// 查询活动任务
 		jobInfos, err := batch_job_list.QueryActivateJob(ctx, queryTime, oneQueryActivateJobLimit)
 		if err != nil {
-			logger.Error(ctx, "Restorer call batch_job_list.QueryActivateJob fail.", zap.Error(err))
+			log.Error(ctx, "Restorer call batch_job_list.QueryActivateJob fail.", zap.Error(err))
 			return err
 		}
 
@@ -60,7 +60,7 @@ func (r *restorerCli) Restorer(ctx context.Context) error {
 		// 恢复任务, 并设置下一个查询时间
 		queryTime, err = r.restorerJob(ctx, jobInfos)
 		if err != nil {
-			logger.Error(ctx, "Restorer call restorerJob fail.", zap.Error(err))
+			log.Error(ctx, "Restorer call restorerJob fail.", zap.Error(err))
 			return err
 		}
 	}
@@ -89,7 +89,7 @@ func (r *restorerCli) restorerJob(ctx context.Context, jobInfos []*batch_job_lis
 		// 获取停止标记
 		stopFlag, err := Job.GetStopFlag(ctx, int(jobInfo.JobID))
 		if err != nil {
-			logger.Error(ctx, "restorerJob call GetStopFlag fail.", zap.Uint("jobId", jobInfo.JobID), zap.Error(err))
+			log.Error(ctx, "restorerJob call GetStopFlag fail.", zap.Uint("jobId", jobInfo.JobID), zap.Error(err))
 		}
 		if stopFlag {
 			jobId := jobInfo.JobID
@@ -109,13 +109,13 @@ func (r *restorerCli) restorerJob(ctx context.Context, jobInfos []*batch_job_lis
 		// 恢复任务
 		err = r.restorerJobRunning(ctx, jobInfo.JobID, jobInfo.Status)
 		if err != nil {
-			logger.Error(ctx, "restorerJob call restorerJobRunning fail.", zap.Uint("jobId", jobInfo.JobID), zap.Error(err))
+			log.Error(ctx, "restorerJob call restorerJobRunning fail.", zap.Uint("jobId", jobInfo.JobID), zap.Error(err))
 			return t, err
 		}
 
 		// 检查节点速率上限
 		if RateLimit.CheckIsMaxRace() {
-			logger.Warn(ctx, "node is max race")
+			log.Warn(ctx, "node is max race")
 			return t, nil
 		}
 	}
@@ -132,7 +132,7 @@ func (r *restorerCli) restorerJobRunning(ctx context.Context, jobId uint, status
 		return nil
 	}
 	if err != nil { // 加锁异常
-		logger.Error(ctx, "restorerJobRunning call set run lock fail.", zap.Uint("jobId", jobId), zap.Error(err))
+		log.Error(ctx, "restorerJobRunning call set run lock fail.", zap.Uint("jobId", jobId), zap.Error(err))
 		return err
 	}
 	defer func() {
@@ -147,21 +147,21 @@ func (r *restorerCli) restorerJobRunning(ctx context.Context, jobId uint, status
 		"status_info": model.StatusInfo_RestorerJob,
 	}, status)
 	if err != nil {
-		logger.Error(ctx, "restorerJobRunning call UpdateOne fail.", zap.Uint("jobId", jobId), zap.Error(err))
+		log.Error(ctx, "restorerJobRunning call UpdateOne fail.", zap.Uint("jobId", jobId), zap.Error(err))
 		return err
 	}
 
 	// 清除缓存
 	err = cache.GetDefCache().Del(ctx, CacheKey.GetJobInfo(int(jobId)))
 	if err != nil {
-		logger.Error(ctx, "restorerJobRunning call clear Cache fail.", zap.Uint("jobId", jobId), zap.Error(err))
+		log.Error(ctx, "restorerJobRunning call clear Cache fail.", zap.Uint("jobId", jobId), zap.Error(err))
 		// return err
 	}
 
 	// 获取真实任务信息
 	realJobInfo, err := batch_job_list.GetOneByJobId(ctx, jobId)
 	if err != nil {
-		logger.Error(ctx, "restorerJobRunning call batch_job_list.GetOneByJobId fail.", zap.Uint("jobId", jobId), zap.Error(err))
+		log.Error(ctx, "restorerJobRunning call batch_job_list.GetOneByJobId fail.", zap.Uint("jobId", jobId), zap.Error(err))
 		return err
 	}
 
@@ -182,7 +182,7 @@ func (r *restorerCli) restorerJobStopping(ctx context.Context, jobId uint) {
 		return
 	}
 	if err != nil { // 加锁异常
-		logger.Error(ctx, "restorerJobStopping call set run lock fail.", zap.Uint("jobId", jobId), zap.Error(err))
+		log.Error(ctx, "restorerJobStopping call set run lock fail.", zap.Uint("jobId", jobId), zap.Error(err))
 		return
 	}
 	defer unlock()
@@ -190,7 +190,7 @@ func (r *restorerCli) restorerJobStopping(ctx context.Context, jobId uint) {
 	// 获取任务信息
 	jobInfo, err := batch_job_list.GetOneByJobId(ctx, jobId)
 	if err != nil {
-		logger.Error(ctx, "restorerJobStopping call batch_job_list.GetOneByJobId fail.", zap.Uint("jobId", jobId), zap.Error(err))
+		log.Error(ctx, "restorerJobStopping call batch_job_list.GetOneByJobId fail.", zap.Uint("jobId", jobId), zap.Error(err))
 		return
 	}
 
@@ -201,7 +201,7 @@ func (r *restorerCli) restorerJobStopping(ctx context.Context, jobId uint) {
 	}
 	err = batch_job_list.UpdateOne(ctx, int(jobId), updateData, byte(pb.JobStatus_JobStatus_Stopping))
 	if err != nil {
-		logger.Error(ctx, "stopSideEffect call UpdateOne fail.", zap.Uint("jobId", jobId), zap.Error(err))
+		log.Error(ctx, "stopSideEffect call UpdateOne fail.", zap.Uint("jobId", jobId), zap.Error(err))
 		return
 	}
 	jobInfo.Status = byte(pb.JobStatus_JobStatus_Stopped)
@@ -212,28 +212,28 @@ func (r *restorerCli) restorerJobStopping(ctx context.Context, jobId uint) {
 	// 清除缓存
 	err = cache.GetDefCache().Del(ctx, CacheKey.GetJobInfo(int(jobId)))
 	if err != nil {
-		logger.Error(ctx, "stopSideEffect call clear Cache fail.", zap.Uint("jobId", jobId), zap.Error(err))
+		log.Error(ctx, "stopSideEffect call clear Cache fail.", zap.Uint("jobId", jobId), zap.Error(err))
 		// return err
 	}
 
 	// 获取业务信息
 	bizInfo, err := Biz.GetBizInfoByCache(ctx, int(jobInfo.BizId))
 	if err != nil {
-		logger.Error(ctx, "restorerJobStopping call GetBizInfoByCache fail.", zap.Uint("jobId", jobId), zap.Error(err))
+		log.Error(ctx, "restorerJobStopping call GetBizInfoByCache fail.", zap.Uint("jobId", jobId), zap.Error(err))
 		return
 	}
 
 	// 获取业务
 	b, err := Biz.GetBiz(ctx, bizInfo)
 	if err != nil {
-		logger.Error(ctx, "restorerJobStopping call biz.GetBiz fail.", zap.Uint("jobId", jobId), zap.Error(err))
+		log.Error(ctx, "restorerJobStopping call biz.GetBiz fail.", zap.Uint("jobId", jobId), zap.Error(err))
 		return
 	}
 
 	// 回调
 	err = b.ProcessStop(ctx, jobInfo, false)
 	if err != nil {
-		logger.Error(ctx, "restorerJobStopping call ProcessStop fail.", zap.Uint("jobId", jobId), zap.Error(err))
+		log.Error(ctx, "restorerJobStopping call ProcessStop fail.", zap.Uint("jobId", jobId), zap.Error(err))
 		return
 	}
 }

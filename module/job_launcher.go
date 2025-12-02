@@ -10,7 +10,7 @@ import (
 
 	zRedis "github.com/zly-app/component/redis"
 	"github.com/zly-app/zapp/component/gpool"
-	"github.com/zly-app/zapp/logger"
+	"github.com/zly-app/zapp/log"
 	"github.com/zly-app/zapp/pkg/utils"
 	"github.com/zlyuancn/sliding_window"
 	"go.uber.org/zap"
@@ -28,7 +28,7 @@ import (
 // 创建启动器
 func (j *jobCli) CreateLauncherByData(ctx context.Context, bizInfo *batch_job_biz.Model, jobInfo *batch_job_list.Model) {
 	if conf.Conf.DoNotRunJob {
-		logger.Warn(ctx, "DoNotRunJob")
+		log.Warn(ctx, "DoNotRunJob")
 		return
 	}
 
@@ -40,7 +40,7 @@ func (j *jobCli) CreateLauncherByData(ctx context.Context, bizInfo *batch_job_bi
 	// 获取业务
 	b, err := Biz.GetBiz(ctx, bizInfo)
 	if err != nil {
-		logger.Error("CreateLauncherByData call GetBiz fail.", zap.Error(err))
+		log.Error("CreateLauncherByData call GetBiz fail.", zap.Error(err))
 		return
 	}
 
@@ -55,7 +55,7 @@ func (j *jobCli) CreateLauncherByData(ctx context.Context, bizInfo *batch_job_bi
 			return
 		}
 		if err != nil { // 加锁异常
-			logger.Error("createLauncher call AutoLock fail.", zap.Error(err))
+			log.Error("createLauncher call AutoLock fail.", zap.Error(err))
 			return
 		}
 
@@ -85,14 +85,14 @@ func (j *jobCli) CreateLauncherByData(ctx context.Context, bizInfo *batch_job_bi
 		return
 	}
 	if err != nil { // 加锁异常
-		logger.Error("CreateLauncherByData call AutoLock fail.", zap.Error(err))
+		log.Error("CreateLauncherByData call AutoLock fail.", zap.Error(err))
 		return
 	}
 
 	// 创建任务启动器
 	jl, err := newJobLauncher(b, bizInfo, jobInfo, unlock, renew)
 	if err != nil {
-		logger.Error("CreateLauncherByData call newJobLauncher fail.", zap.Error(err))
+		log.Error("CreateLauncherByData call newJobLauncher fail.", zap.Error(err))
 		return
 	}
 
@@ -111,7 +111,7 @@ func (j *jobCli) CreateLauncherByData(ctx context.Context, bizInfo *batch_job_bi
 // 由业务启动创建启动器
 func (*jobCli) CreateLauncherByBizStart(ctx context.Context, jobInfo *batch_job_list.Model, authCode string) {
 	if conf.Conf.DoNotRunJob {
-		logger.Warn(ctx, "DoNotRunJob")
+		log.Warn(ctx, "DoNotRunJob")
 		return
 	}
 
@@ -123,14 +123,14 @@ func (*jobCli) CreateLauncherByBizStart(ctx context.Context, jobInfo *batch_job_
 	// 获取业务信息
 	bizInfo, err := batch_job_biz.GetOneByBizId(ctx, int(jobInfo.BizId))
 	if err != nil {
-		logger.Error(ctx, "CreateLauncherByBizStart call batch_job_biz.GetOneByBizId fail.", zap.Error(err))
+		log.Error(ctx, "CreateLauncherByBizStart call batch_job_biz.GetOneByBizId fail.", zap.Error(err))
 		return
 	}
 
 	// 获取业务
 	b, err := Biz.GetBiz(ctx, bizInfo)
 	if err != nil {
-		logger.Error("CreateLauncherByBizStart call GetBiz fail.", zap.Error(err))
+		log.Error("CreateLauncherByBizStart call GetBiz fail.", zap.Error(err))
 		return
 	}
 
@@ -146,7 +146,7 @@ func (*jobCli) CreateLauncherByBizStart(ctx context.Context, jobInfo *batch_job_
 	// 开始运行
 	jl, err := newJobLauncher(b, bizInfo, jobInfo, unlock, renew)
 	if err != nil {
-		logger.Error("CreateLauncherByBizStart call newJobLauncher fail.", zap.Error(err))
+		log.Error("CreateLauncherByBizStart call newJobLauncher fail.", zap.Error(err))
 		return
 	}
 
@@ -167,14 +167,14 @@ func (*jobCli) CreateLauncherByRestorer(ctx context.Context, jobInfo *batch_job_
 	// 获取业务信息
 	bizInfo, err := batch_job_biz.GetOneByBizId(ctx, int(jobInfo.BizId))
 	if err != nil {
-		logger.Error(ctx, "CreateLauncherByBizStart call batch_job_biz.GetOneByBizId fail.", zap.Error(err))
+		log.Error(ctx, "CreateLauncherByBizStart call batch_job_biz.GetOneByBizId fail.", zap.Error(err))
 		return
 	}
 
 	// 获取业务
 	b, err := Biz.GetBiz(ctx, bizInfo)
 	if err != nil {
-		logger.Error("CreateLauncherByBizStart call GetBiz fail.", zap.Error(err))
+		log.Error("CreateLauncherByBizStart call GetBiz fail.", zap.Error(err))
 		return
 	}
 
@@ -193,7 +193,7 @@ func (*jobCli) CreateLauncherByRestorer(ctx context.Context, jobInfo *batch_job_
 		ttl := time.Duration(conf.Conf.JobBeforeRunLockAppendTtl)*time.Second + b.GetBeforeRunTimeout()
 		err = renew(ctx, ttl) // 续期
 		if err != nil {       // 加锁异常
-			logger.Error("CreateLauncherByRestorer call renew fail.", zap.Error(err))
+			log.Error("CreateLauncherByRestorer call renew fail.", zap.Error(err))
 			return
 		}
 
@@ -219,7 +219,7 @@ func (*jobCli) CreateLauncherByRestorer(ctx context.Context, jobInfo *batch_job_
 	// 开始运行
 	jl, err := newJobLauncher(b, bizInfo, jobInfo, unlock, renew)
 	if err != nil {
-		logger.Error("createLauncher call newJobLauncher fail.", zap.Error(err))
+		log.Error("createLauncher call newJobLauncher fail.", zap.Error(err))
 		return
 	}
 
@@ -296,14 +296,14 @@ func newJobLauncher(b Business, bizInfo *batch_job_biz.Model, jobInfo *batch_job
 	// 从cache加载进度
 	err := j.loadCacheProgress()
 	if err != nil {
-		logger.Error(j.ctx, "newJobLauncher call loadCacheProgress fail.", zap.Error(err))
+		log.Error(j.ctx, "newJobLauncher call loadCacheProgress fail.", zap.Error(err))
 		return nil, err
 	}
 
 	// 从db读取错误数并写入到cache中, 这一步表示, 在运行过程中, 数据查询错误数去缓存获取, 此时业务新增的错误数也会记录到缓存中, 降低mysql负载
 	err = j.writeErrCount2Cache()
 	if err != nil {
-		logger.Error(j.ctx, "newJobLauncher call loadErrCount fail.", zap.Error(err))
+		log.Error(j.ctx, "newJobLauncher call loadErrCount fail.", zap.Error(err))
 		return nil, err
 	}
 
@@ -326,13 +326,13 @@ func (j *jobLauncher) loopLockKeyRenew() {
 		case <-t.C:
 			err := j.lockKeyRenew(j.ctx, time.Duration(conf.Conf.JobRunLockExtraTtl)*time.Second)
 			if err != nil {
-				logger.Error(j.ctx, "lockKeyRenew fail.", zap.Uint("jobId", j.jobInfo.JobID), zap.Error(err))
+				log.Error(j.ctx, "lockKeyRenew fail.", zap.Uint("jobId", j.jobInfo.JobID), zap.Error(err))
 				errCount++
 			} else {
 				errCount = 0
 			}
 			if errCount >= conf.Conf.JobRunLockRenewMaxContinuousErrCount {
-				logger.Error(j.ctx, "lockKeyRenew Continuous fail.", zap.Uint("jobId", j.jobInfo.JobID), zap.Error(err))
+				log.Error(j.ctx, "lockKeyRenew Continuous fail.", zap.Uint("jobId", j.jobInfo.JobID), zap.Error(err))
 				j.submitStopFlag("lockKeyRenew Continuous fail")
 			}
 		}
@@ -351,7 +351,7 @@ func (j *jobLauncher) loopWriteProgress() {
 		case <-t.C:
 			err := j.writeProcess2Cache()
 			if err != nil {
-				logger.Error(j.ctx, "loopWriteProgress call writeProcess2Cache fail.", zap.Error(err))
+				log.Error(j.ctx, "loopWriteProgress call writeProcess2Cache fail.", zap.Error(err))
 			}
 		}
 	}
@@ -369,7 +369,7 @@ func (j *jobLauncher) loopCheckStopFlag() {
 		case <-t.C:
 			flag, _ := Job.GetStopFlag(j.ctx, int(j.jobInfo.JobID))
 			if flag {
-				logger.Warn(j.ctx, "loopCheckStopFlag got stop flag")
+				log.Warn(j.ctx, "loopCheckStopFlag got stop flag")
 				j.isGotStopFlag = true
 				j.submitStopFlag("got stop flag")
 			}
@@ -399,9 +399,13 @@ func (j *jobLauncher) writeErrCount2Cache() error {
 
 	// 写入到缓存
 	key := CacheKey.GetErrCount(int(j.jobInfo.JobID))
-	err = db.GetRedis().Set(j.ctx, key, count, 0).Err()
+	rdb, err := db.GetRedis()
 	if err != nil {
-		logger.Error(j.ctx, "writeErrCount2Cache fail.", zap.Error(err))
+		return err
+	}
+	err = rdb.Set(j.ctx, key, count, 0).Err()
+	if err != nil {
+		log.Error(j.ctx, "writeErrCount2Cache fail.", zap.Error(err))
 		return err
 	}
 	return nil
@@ -411,16 +415,20 @@ func (j *jobLauncher) writeErrCount2Cache() error {
 func (j *jobLauncher) writeProcess2Cache() error {
 	key := CacheKey.GetProcessedCount(int(j.jobInfo.JobID))
 	finishedCount := j.sw.GetProgress() + 1
-	err := db.GetRedis().Set(j.ctx, key, finishedCount, 0).Err()
+	rdb, err := db.GetRedis()
 	if err != nil {
-		logger.Error(j.ctx, "writeProcess2Cache fail.", zap.Error(err))
+		return err
+	}
+	err = rdb.Set(j.ctx, key, finishedCount, 0).Err()
+	if err != nil {
+		log.Error(j.ctx, "writeProcess2Cache fail.", zap.Error(err))
 		return err
 	}
 	return nil
 }
 
 func (j *jobLauncher) Run() {
-	logger.Warn(j.ctx, "job run", zap.Any("jobInfo", j.jobInfo))
+	log.Warn(j.ctx, "job run", zap.Any("jobInfo", j.jobInfo))
 
 	go j.loopLockKeyRenew()  // 循环续期
 	go j.loopWriteProgress() // 循环写入进度
@@ -456,7 +464,7 @@ func (j *jobLauncher) Run() {
 			}
 			if err != nil {
 				j.submitStopFlag("limiter.Wait fail. " + err.Error())
-				logger.Error("job Run call limiter.Wait fail.", zap.Error(err))
+				log.Error("job Run call limiter.Wait fail.", zap.Error(err))
 				return
 			}
 		}
@@ -469,7 +477,7 @@ func (j *jobLauncher) Run() {
 		}
 		if err != nil {
 			j.submitStopFlag("sliding_window get next fail. " + err.Error())
-			logger.Error("job Run get sn fail.", zap.Error(err))
+			log.Error("job Run get sn fail.", zap.Error(err))
 			return
 		}
 
@@ -490,7 +498,7 @@ func (j *jobLauncher) Run() {
 	}
 	if err != nil {
 		j.submitStopFlag("sliding_window wait fail. " + err.Error())
-		logger.Error("job Run wait fail.", zap.Error(err))
+		log.Error("job Run wait fail.", zap.Error(err))
 		return
 	}
 
@@ -503,8 +511,8 @@ func (j *jobLauncher) processData(sn int64) {
 	}()
 
 	name := "job_process_" + strconv.FormatInt(sn, 10)
-	ctx := utils.Otel.CtxStart(j.ctx, name)
-	defer utils.Otel.CtxEnd(ctx)
+	ctx := utils.Trace.CtxStart(j.ctx, name)
+	defer utils.Trace.CtxEnd(ctx)
 
 	// 多次尝试处理任务
 	attemptCount := 0 // 已尝试次数
@@ -515,7 +523,7 @@ func (j *jobLauncher) processData(sn int64) {
 			break
 		}
 
-		logger.Error(ctx, "job Run process fail.", zap.Error(err))
+		log.Error(ctx, "job Run process fail.", zap.Error(err))
 
 		// 检查是否达到错误限速
 		if !j.errLimiter.Allow() { // 表示无法再添加错误了
@@ -555,18 +563,18 @@ func (j *jobLauncher) stopSideEffect() {
 
 	// 替换ctx
 	j.ctx = utils.Ctx.CloneContext(j.ctx)
-	j.ctx = utils.Otel.CtxStart(j.ctx, "stopSideEffect")
-	defer utils.Otel.CtxEnd(j.ctx)
+	j.ctx = utils.Trace.CtxStart(j.ctx, "stopSideEffect")
+	defer utils.Trace.CtxEnd(j.ctx)
 
 	// 释放节点速率占用
 	RateLimit.StopJob(j.ctx, int(j.jobInfo.JobID))
 
-	logger.Warn(j.ctx, "stopSideEffect", zap.Any("jobInfo", j.jobInfo))
+	log.Warn(j.ctx, "stopSideEffect", zap.Any("jobInfo", j.jobInfo))
 
 	// 立即写入当前进度日志计数到redis
 	err := j.writeProcess2Cache()
 	if err != nil {
-		logger.Error(j.ctx, "stopSideEffect call writeProcess2Cache fail.", zap.Error(err))
+		log.Error(j.ctx, "stopSideEffect call writeProcess2Cache fail.", zap.Error(err))
 		// return
 	}
 
@@ -592,7 +600,7 @@ func (j *jobLauncher) stopSideEffect() {
 		errLogCount, err := Job.GetErrCount(j.ctx, int(j.jobInfo.JobID))
 		j.jobInfo.ErrLogCount = uint64(errLogCount)
 		if err != nil {
-			logger.Error(j.ctx, "stopSideEffect call GetErrCount.", zap.Error(err))
+			log.Error(j.ctx, "stopSideEffect call GetErrCount.", zap.Error(err))
 			return // 这里不再更新db了, 等重试
 		}
 		updateData["err_log_count"] = errLogCount
@@ -605,23 +613,26 @@ func (j *jobLauncher) stopSideEffect() {
 	}
 	err = batch_job_list.UpdateOne(j.ctx, int(j.jobInfo.JobID), updateData, 0)
 	if err != nil {
-		logger.Error(j.ctx, "stopSideEffect call UpdateOne fail.", zap.Error(err))
+		log.Error(j.ctx, "stopSideEffect call UpdateOne fail.", zap.Error(err))
 		return // 这里失败等重试
 	}
 
 	// 删除redis进度和错误数, 以及任务数据缓存
 	key1, key2 := CacheKey.GetProcessedCount(int(j.jobInfo.JobID)), CacheKey.GetErrCount(int(j.jobInfo.ErrLogCount))
 	key3 := CacheKey.GetJobInfo(int(j.jobInfo.JobID))
-	err = db.GetRedis().Del(j.ctx, key1, key2, key3).Err()
+	rdb, err := db.GetRedis()
+	if err == nil {
+		err = rdb.Del(j.ctx, key1, key2, key3).Err()
+	}
 	if err != nil && err != zRedis.Nil {
-		logger.Error(j.ctx, "stopSideEffect Del cacheKey fail.", zap.Error(err))
+		log.Error(j.ctx, "stopSideEffect Del cacheKey fail.", zap.Error(err))
 		// return // 这里不影响主流程
 	}
 
 	// 任务停止回调
 	err = j.b.ProcessStop(j.ctx, j.jobInfo, isFinished)
 	if err != nil {
-		logger.Error(j.ctx, "stopSideEffect ProcessStop fail.", zap.Error(err))
+		log.Error(j.ctx, "stopSideEffect ProcessStop fail.", zap.Error(err))
 		// return // 这里不影响主流程
 	}
 

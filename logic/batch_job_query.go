@@ -7,7 +7,7 @@ import (
 	"github.com/bytedance/sonic"
 	"github.com/zly-app/cache/v2"
 	"github.com/zly-app/component/redis"
-	"github.com/zly-app/zapp/logger"
+	"github.com/zly-app/zapp/log"
 	"github.com/zly-app/zapp/pkg/utils"
 	"go.uber.org/zap"
 
@@ -28,7 +28,7 @@ func (b *BatchJob) QueryAllBizName(ctx context.Context, req *pb.QueryAllBizNameR
 		return b.queryAllBizName(ctx)
 	}))
 	if err != nil {
-		logger.Error(ctx, "QueryAllBizName call fail", zap.Error(err))
+		log.Error(ctx, "QueryAllBizName call fail", zap.Error(err))
 		return nil, err
 	}
 
@@ -41,7 +41,7 @@ func (b *BatchJob) queryAllBizName(ctx context.Context) ([]*pb.QueryAllBizNameRs
 	selectField := []string{"biz_id", "biz_name", "status"}
 	lines, err := batch_job_biz.MultiGetBySelect(ctx, where, selectField)
 	if err != nil {
-		logger.Error(ctx, "QueryAllBizName call batch_job_biz.MultiGetBySelect", zap.Error(err))
+		log.Error(ctx, "QueryAllBizName call batch_job_biz.MultiGetBySelect", zap.Error(err))
 		return nil, err
 	}
 
@@ -60,7 +60,7 @@ func (b *BatchJob) queryAllBizName(ctx context.Context) ([]*pb.QueryAllBizNameRs
 func (b *BatchJob) QueryBizInfo(ctx context.Context, req *pb.QueryBizInfoReq) (*pb.QueryBizInfoRsp, error) {
 	line, err := module.Biz.GetBizInfoByCache(ctx, int(req.GetBizId()))
 	if err != nil {
-		logger.Error(ctx, "QueryBizInfo call GetBizInfoByCache fail.", zap.Error(err))
+		log.Error(ctx, "QueryBizInfo call GetBizInfoByCache fail.", zap.Error(err))
 		return nil, err
 	}
 	ret := b.bizDbModel2Pb(line)
@@ -88,7 +88,7 @@ func (b *BatchJob) QueryBizList(ctx context.Context, req *pb.QueryBizListReq) (*
 
 	total, err := batch_job_biz.Count(ctx, where)
 	if err != nil {
-		logger.Error(ctx, "QueryBizList call batch_job_biz.Count", zap.Error(err))
+		log.Error(ctx, "QueryBizList call batch_job_biz.Count", zap.Error(err))
 		return nil, err
 	}
 
@@ -101,22 +101,22 @@ func (b *BatchJob) QueryBizList(ctx context.Context, req *pb.QueryBizListReq) (*
 	// 获取id列表
 	ids, err := batch_job_biz.MultiGetBizId(ctx, where)
 	if err != nil {
-		logger.Error(ctx, "QueryBizList call batch_job_biz.MultiGetBizId", zap.Error(err))
+		log.Error(ctx, "QueryBizList call batch_job_biz.MultiGetBizId", zap.Error(err))
 		return nil, err
 	}
 
 	// 批量获取数据
 	lines, err := utils.GoQuery(ids, func(id uint) (*batch_job_biz.Model, error) {
 		line, err := module.Biz.GetBizInfoByCache(ctx, int(id))
-		logger.Info(ctx, "QueryBizList call GetBizInfoByCache result", zap.Any("line", line), zap.Error(err))
+		log.Info(ctx, "QueryBizList call GetBizInfoByCache result", zap.Any("line", line), zap.Error(err))
 		if err != nil {
-			logger.Error(ctx, "QueryBizList call GetBizInfoByCache fail.", zap.Uint("id", id), zap.Error(err))
+			log.Error(ctx, "QueryBizList call GetBizInfoByCache fail.", zap.Uint("id", id), zap.Error(err))
 			return nil, err
 		}
 		return line, nil
 	}, true)
 	if err != nil {
-		logger.Error(ctx, "QueryBizList call query fail.", zap.Error(err))
+		log.Error(ctx, "QueryBizList call query fail.", zap.Error(err))
 		return nil, err
 	}
 
@@ -176,7 +176,7 @@ func (*BatchJob) bizDbModel2ListPb(line *batch_job_biz.Model) *pb.BizInfoByListA
 func (b *BatchJob) QueryJobInfo(ctx context.Context, req *pb.QueryJobInfoReq) (*pb.QueryJobInfoRsp, error) {
 	line, err := module.Job.GetJobInfoByCache(ctx, uint(req.GetJobId()))
 	if err != nil {
-		logger.Error(ctx, "QueryJobInfo call queryJobInfoByCache fail.", zap.Error(err))
+		log.Error(ctx, "QueryJobInfo call queryJobInfoByCache fail.", zap.Error(err))
 		return nil, err
 	}
 	ret := b.jobDbModel2Pb(line)
@@ -230,7 +230,7 @@ func (b *BatchJob) QueryJobList(ctx context.Context, req *pb.QueryJobListReq) (*
 
 	total, err := batch_job_list.Count(ctx, where)
 	if err != nil {
-		logger.Error(ctx, "QueryJobList call batch_job_list.Count", zap.Error(err))
+		log.Error(ctx, "QueryJobList call batch_job_list.Count", zap.Error(err))
 		return nil, err
 	}
 
@@ -243,14 +243,14 @@ func (b *BatchJob) QueryJobList(ctx context.Context, req *pb.QueryJobListReq) (*
 	// 获取id列表
 	ids, err := batch_job_list.MultiGetJobId(ctx, where)
 	if err != nil {
-		logger.Error(ctx, "QueryJobList call batch_job_list.MultiGetJobId", zap.Error(err))
+		log.Error(ctx, "QueryJobList call batch_job_list.MultiGetJobId", zap.Error(err))
 		return nil, err
 	}
 
 	// 批量获取数据
 	lines, err := module.Job.BatchGetJobInfoByCache(ctx, ids)
 	if err != nil {
-		logger.Error(ctx, "QueryJobList call BatchGetJobInfoByCache fail.", zap.Error(err))
+		log.Error(ctx, "QueryJobList call BatchGetJobInfoByCache fail.", zap.Error(err))
 		return nil, err
 	}
 
@@ -276,7 +276,11 @@ func (*BatchJob) batchRenderRunningJobProcess(ctx context.Context, ret []*pb.Job
 	ps := make([]*redis.StringCmd, 0, len(ret)) // 任务进度
 	es := make([]*redis.StringCmd, 0, len(ret)) // 错误数
 
-	pipe := db.GetRedis().Pipeline()
+	rdb, err := db.GetRedis()
+	if err != nil {
+		return err
+	}
+	pipe := rdb.Pipeline()
 	for _, l := range ret {
 		switch l.Status {
 		case pb.JobStatus_JobStatus_Running, pb.JobStatus_JobStatus_Stopping:
@@ -288,9 +292,9 @@ func (*BatchJob) batchRenderRunningJobProcess(ctx context.Context, ret []*pb.Job
 		ps = append(ps, pipe.Get(ctx, module.CacheKey.GetProcessedCount(int(l.JobId))))
 		es = append(es, pipe.Get(ctx, module.CacheKey.GetErrCount(int(l.JobId))))
 	}
-	_, err := pipe.Exec(ctx)
+	_, err = pipe.Exec(ctx)
 	if err != nil && err != redis.Nil {
-		logger.Error(ctx, "batchRenderRunningJobProcess call pipe.Exec", zap.Error(err))
+		log.Error(ctx, "batchRenderRunningJobProcess call pipe.Exec", zap.Error(err))
 		return err
 	}
 
@@ -363,7 +367,7 @@ func (b *BatchJob) QueryJobStateInfo(ctx context.Context, req *pb.QueryJobStateI
 	}
 	lines, err := module.Job.BatchGetJobInfoByCache(ctx, ids)
 	if err != nil {
-		logger.Error(ctx, "QueryJobStateInfo call BatchGetJobInfoByCache fail.", zap.Error(err))
+		log.Error(ctx, "QueryJobStateInfo call BatchGetJobInfoByCache fail.", zap.Error(err))
 		return nil, err
 	}
 
@@ -424,7 +428,7 @@ func (b *BatchJob) QueryJobDataLog(ctx context.Context, req *pb.QueryJobDataLogR
 
 	lines, err := batch_job_log.MultiGet(ctx, where)
 	if err != nil {
-		logger.Error(ctx, "QueryJobDataLog call batch_job_log.MultiGet", zap.Error(err))
+		log.Error(ctx, "QueryJobDataLog call batch_job_log.MultiGet", zap.Error(err))
 		return nil, err
 	}
 

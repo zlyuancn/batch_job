@@ -7,7 +7,7 @@ import (
 	"github.com/zly-app/service/cron"
 	"github.com/zly-app/uapp"
 	"github.com/zly-app/zapp/config"
-	"github.com/zly-app/zapp/logger"
+	"github.com/zly-app/zapp/log"
 	"go.uber.org/zap"
 
 	"github.com/zlyuancn/batch_job/conf"
@@ -54,18 +54,18 @@ func main() {
 func Handler(ctx context.Context, handlerType handler.HandlerType, jobInfo *batch_job_list.Model) {
 	switch handlerType {
 	case handler.AfterCreateJob:
-		logger.Info(ctx, "Handler AfterCreateJob", zap.Any("jobInfo", jobInfo))
+		log.Info(ctx, "Handler AfterCreateJob", zap.Any("jobInfo", jobInfo))
 	case handler.AfterUpdateJob:
-		logger.Info(ctx, "Handler AfterUpdateJob", zap.Any("jobInfo", jobInfo))
+		log.Info(ctx, "Handler AfterUpdateJob", zap.Any("jobInfo", jobInfo))
 	case handler.AfterRunJob:
-		logger.Info(ctx, "Handler AfterRunJob", zap.Any("jobInfo", jobInfo))
+		log.Info(ctx, "Handler AfterRunJob", zap.Any("jobInfo", jobInfo))
 	case handler.AfterJobStopped:
-		logger.Info(ctx, "Handler AfterJobStopped", zap.Any("jobInfo", jobInfo))
+		log.Info(ctx, "Handler AfterJobStopped", zap.Any("jobInfo", jobInfo))
 	case handler.JobRunFailureExit:
-		logger.Info(ctx, "Handler JobRunFailureExit", zap.Any("jobInfo", jobInfo))
+		log.Info(ctx, "Handler JobRunFailureExit", zap.Any("jobInfo", jobInfo))
 	case handler.JobRestorer:
-		logger.Info(ctx, "Handler JobRestorer", zap.Any("jobInfo", jobInfo))
+		log.Info(ctx, "Handler JobRestorer", zap.Any("jobInfo", jobInfo))
 	case handler.JobFinished:
-		logger.Info(ctx, "Handler JobFinished", zap.Any("jobInfo", jobInfo))
+		log.Info(ctx, "Handler JobFinished", zap.Any("jobInfo", jobInfo))
 	}
 }

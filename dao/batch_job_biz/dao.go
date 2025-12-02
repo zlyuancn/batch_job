@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/didi/gendry/builder"
-	"github.com/zly-app/zapp/logger"
+	"github.com/zly-app/zapp/log"
 	"go.uber.org/zap"
 
 	"github.com/zlyuancn/batch_job/client/db"
@@ -80,7 +80,7 @@ func CreateOneModel(ctx context.Context, v *Model) (int64, error) {
 	})
 	cond, vals, err := builder.BuildInsert(tableName, data)
 	if err != nil {
-		logger.Log.Error(ctx, "CreateOneModel BuildSelect err",
+		log.Error(ctx, "CreateOneModel BuildSelect err",
 			zap.Any("data", data),
 			zap.Error(err),
 		)
@@ -89,7 +89,7 @@ func CreateOneModel(ctx context.Context, v *Model) (int64, error) {
 
 	result, err := db.GetSqlx().Exec(ctx, cond, vals...)
 	if err != nil {
-		logger.Error(ctx, "CreateOneModel fail.", zap.Any("data", data), zap.Error(err))
+		log.Error(ctx, "CreateOneModel fail.", zap.Any("data", data), zap.Error(err))
 		return 0, err
 	}
 	return result.LastInsertId()
@@ -131,7 +131,7 @@ limit 1;`
 	}
 	result, err := db.GetSqlx().Exec(ctx, cond, vals...)
 	if nil != err {
-		logger.Error(ctx, "UpdateOneModel fail.", zap.String("cond", cond), zap.Any("vals", vals), zap.Error(err))
+		log.Error(ctx, "UpdateOneModel fail.", zap.String("cond", cond), zap.Any("vals", vals), zap.Error(err))
 		return 0, err
 	}
 	return result.RowsAffected()
@@ -144,13 +144,13 @@ func GetOne(ctx context.Context, where map[string]any, selectField []string) (*M
 	where["_limit"] = []uint{1} // 限制只查询一条记录
 	cond, vals, err := builder.BuildSelect(tableName, where, selectField)
 	if err != nil {
-		logger.Error(ctx, "GetOne BuildSelect fail.", zap.Any("where", where), zap.Error(err))
+		log.Error(ctx, "GetOne BuildSelect fail.", zap.Any("where", where), zap.Error(err))
 		return nil, err
 	}
 	ret := Model{}
 	err = db.GetSqlx().FindOne(ctx, &ret, cond, vals...)
 	if err != nil {
-		logger.Error(ctx, "GetOne FindOne fail.", zap.String("cond", cond), zap.Any("vals", vals), zap.Error(err))
+		log.Error(ctx, "GetOne FindOne fail.", zap.String("cond", cond), zap.Any("vals", vals), zap.Error(err))
 		return nil, err
 	}
 	return &ret, nil
@@ -159,7 +159,7 @@ func GetOne(ctx context.Context, where map[string]any, selectField []string) (*M
 func MultiGet(ctx context.Context, where map[string]any) ([]*Model, error) {
 	cond, vals, err := builder.BuildSelect(tableName, where, selectFieldByQueryList)
 	if err != nil {
-		logger.Log.Error(ctx, "MultiGet BuildSelect err",
+		log.Error(ctx, "MultiGet BuildSelect err",
 			zap.Any("where", where),
 			zap.Error(err),
 		)
@@ -169,7 +169,7 @@ func MultiGet(ctx context.Context, where map[string]any) ([]*Model, error) {
 	ret := []*Model{}
 	err = db.GetSqlx().Find(ctx, &ret, cond, vals...)
 	if err != nil {
-		logger.Error(ctx, "MultiGet Find fail.", zap.String("cond", cond), zap.Any("vals", vals), zap.Error(err))
+		log.Error(ctx, "MultiGet Find fail.", zap.String("cond", cond), zap.Any("vals", vals), zap.Error(err))
 		return nil, err
 	}
 	return ret, nil
@@ -179,7 +179,7 @@ func MultiGetBizId(ctx context.Context, where map[string]any) ([]uint, error) {
 	selectField := []string{"biz_id"}
 	cond, vals, err := builder.BuildSelect(tableName, where, selectField)
 	if err != nil {
-		logger.Log.Error(ctx, "MultiGetBizId BuildSelect err",
+		log.Error(ctx, "MultiGetBizId BuildSelect err",
 			zap.Any("where", where),
 			zap.Error(err),
 		)
@@ -189,7 +189,7 @@ func MultiGetBizId(ctx context.Context, where map[string]any) ([]uint, error) {
 	ret := []uint{}
 	err = db.GetSqlx().Find(ctx, &ret, cond, vals...)
 	if err != nil {
-		logger.Error(ctx, "MultiGetBizId Find fail.", zap.String("cond", cond), zap.Any("vals", vals), zap.Error(err))
+		log.Error(ctx, "MultiGetBizId Find fail.", zap.String("cond", cond), zap.Any("vals", vals), zap.Error(err))
 		return nil, err
 	}
 	return ret, nil
@@ -198,7 +198,7 @@ func MultiGetBizId(ctx context.Context, where map[string]any) ([]uint, error) {
 func MultiGetBySelect(ctx context.Context, where map[string]any, selectField []string) ([]*Model, error) {
 	cond, vals, err := builder.BuildSelect(tableName, where, selectField)
 	if err != nil {
-		logger.Log.Error(ctx, "MultiGetBySelect BuildSelect err",
+		log.Error(ctx, "MultiGetBySelect BuildSelect err",
 			zap.Any("where", where),
 			zap.Error(err),
 		)
@@ -208,7 +208,7 @@ func MultiGetBySelect(ctx context.Context, where map[string]any, selectField []s
 	ret := []*Model{}
 	err = db.GetSqlx().Find(ctx, &ret, cond, vals...)
 	if err != nil {
-		logger.Error(ctx, "MultiGetBySelect Find fail.", zap.String("cond", cond), zap.Any("vals", vals), zap.Error(err))
+		log.Error(ctx, "MultiGetBySelect Find fail.", zap.String("cond", cond), zap.Any("vals", vals), zap.Error(err))
 		return nil, err
 	}
 	return ret, nil
@@ -217,7 +217,7 @@ func MultiGetBySelect(ctx context.Context, where map[string]any, selectField []s
 func Count(ctx context.Context, where map[string]any) (int64, error) {
 	cond, vals, err := builder.BuildSelect(tableName, where, []string{"count(1)"})
 	if err != nil {
-		logger.Log.Error(ctx, "Count BuildSelect err",
+		log.Error(ctx, "Count BuildSelect err",
 			zap.Any("where", where),
 			zap.Error(err),
 		)
@@ -227,7 +227,7 @@ func Count(ctx context.Context, where map[string]any) (int64, error) {
 	var ret int64
 	err = db.GetSqlx().FindOne(ctx, &ret, cond, vals...)
 	if err != nil {
-		logger.Error(ctx, "Count FindOne fail.", zap.String("cond", cond), zap.Any("vals", vals), zap.Error(err))
+		log.Error(ctx, "Count FindOne fail.", zap.String("cond", cond), zap.Any("vals", vals), zap.Error(err))
 		return 0, err
 	}
 	return ret, nil
@@ -239,7 +239,7 @@ func GetOneByBizId(ctx context.Context, bizId int) (*Model, error) {
 	}
 	v, err := GetOne(ctx, where, selectField)
 	if err != nil {
-		logger.Error(ctx, "GetOneByBizId fail.", zap.Error(err))
+		log.Error(ctx, "GetOneByBizId fail.", zap.Error(err))
 		return nil, err
 	}
 	return v, nil

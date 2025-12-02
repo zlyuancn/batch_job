@@ -7,7 +7,7 @@ import (
 	"github.com/zly-app/cache/v2"
 	"github.com/zly-app/component/redis"
 	"github.com/zly-app/component/sqlx"
-	"github.com/zly-app/zapp/logger"
+	"github.com/zly-app/zapp/log"
 	"github.com/zly-app/zapp/pkg/utils"
 	"go.uber.org/zap"
 
@@ -25,11 +25,14 @@ type jobCli struct{}
 // 写入或删除停止标记
 func (*jobCli) SetStopFlag(ctx context.Context, jobId int, flag bool) error {
 	key := CacheKey.GetStopFlag(jobId)
-	var err error
+	rdb, err := db.GetRedis()
+	if err != nil {
+		return err
+	}
 	if flag {
-		err = db.GetRedis().Set(ctx, key, "1", time.Duration(conf.Conf.JobStopFlagTtl)*time.Second).Err()
+		err = rdb.Set(ctx, key, "1", time.Duration(conf.Conf.JobStopFlagTtl)*time.Second).Err()
 	} else {
-		err = db.GetRedis().Del(ctx, key).Err()
+		err = rdb.Del(ctx, key).Err()
 	}
 	return err
 }
@@ -37,12 +40,16 @@ func (*jobCli) SetStopFlag(ctx context.Context, jobId int, flag bool) error {
 // 获取停止标记
 func (*jobCli) GetStopFlag(ctx context.Context, jobId int) (bool, error) {
 	key := CacheKey.GetStopFlag(jobId)
-	v, err := db.GetRedis().Get(ctx, key).Result()
+	rdb, err := db.GetRedis()
+	if err != nil {
+		return false, err
+	}
+	v, err := rdb.Get(ctx, key).Result()
 	if err == redis.Nil {
 		return false, nil
 	}
 	if err != nil {
-		logger.Error(ctx, "GetStopFlag fail.", zap.Error(err))
+		log.Error(ctx, "GetStopFlag fail.", zap.Error(err))
 		return false, err
 	}
 	return v == "1", nil
@@ -51,7 +58,11 @@ func (*jobCli) GetStopFlag(ctx context.Context, jobId int) (bool, error) {
 // 从redis加载进度, 对于服务突然宕机, 进度是不会写入到db中, 而运行中的任务的实际进度都应该以redis为准
 func (j *jobCli) LoadCacheProgress(ctx context.Context, jobId int) (int64, bool, error) {
 	key := CacheKey.GetProcessedCount(jobId)
-	p, err := db.GetRedis().Get(ctx, key).Int64()
+	rdb, err := db.GetRedis()
+	if err != nil {
+		return 0, false, err
+	}
+	p, err := rdb.Get(ctx, key).Int64()
 	if err == redis.Nil { // redis没有记录数据, 以db数据为准
 		return 0, false, nil
 	}
@@ -65,7 +76,11 @@ func (j *jobCli) LoadCacheProgress(ctx context.Context, jobId int) (int64, bool,
 // 从redis加载错误计数, 对于服务突然宕机, 进度是不会写入到db中, 而运行中的任务的实际进度都应该以redis为准
 func (*jobCli) LoadCacheErrCount(ctx context.Context, jobId int) (int64, bool, error) {
 	key := CacheKey.GetErrCount(jobId)
-	p, err := db.GetRedis().Get(ctx, key).Int64()
+	rdb, err := db.GetRedis()
+	if err != nil {
+		return 0, false, err
+	}
+	p, err := rdb.Get(ctx, key).Int64()
 	if err == redis.Nil { // redis没有记录数据, 以db数据为准
 		return 0, false, nil
 	}
@@ -79,7 +94,11 @@ func (*jobCli) LoadCacheErrCount(ctx context.Context, jobId int) (int64, bool, e
 // 增加错误计数到redis中
 func (*jobCli) IncrCacheErrCount(ctx context.Context, jobId int, num int64) (int64, error) {
 	key := CacheKey.GetErrCount(jobId)
-	p, err := db.GetRedis().IncrBy(ctx, key, num).Result()
+	rdb, err := db.GetRedis()
+	if err != nil {
+		return 0, err
+	}
+	p, err := rdb.IncrBy(ctx, key, num).Result()
 	return p, err
 }
 
@@ -91,7 +110,7 @@ func (*jobCli) GetErrCount(ctx context.Context, jobId int) (int64, error) {
 	}
 	total, err := batch_job_log.Count(ctx, where)
 	if err != nil {
-		logger.Error(ctx, "GetErrCount call batch_job_log.Count", zap.Error(err))
+		log.Error(ctx, "GetErrCount call batch_job_log.Count", zap.Error(err))
 		return 0, err
 	}
 	return total, nil
@@ -117,13 +136,13 @@ func (j *jobCli) BatchGetJobInfoByCache(ctx context.Context, jobId []uint) ([]*b
 	lines, err := utils.GoQuery(jobId, func(id uint) (*batch_job_list.Model, error) {
 		line, err := j.GetJobInfoByCache(ctx, id)
 		if err != nil {
-			logger.Error(ctx, "BatchGetJobInfoByCache call GetJobInfoByCache fail.", zap.Uint("id", id), zap.Error(err))
+			log.Error(ctx, "BatchGetJobInfoByCache call GetJobInfoByCache fail.", zap.Uint("id", id), zap.Error(err))
 			return nil, err
 		}
 		return line, nil
 	}, true)
 	if err != nil {
-		logger.Error(ctx, "GetJobInfoByCache call query fail.", zap.Error(err))
+		log.Error(ctx, "GetJobInfoByCache call query fail.", zap.Error(err))
 		return nil, err
 	}
 	return lines, nil

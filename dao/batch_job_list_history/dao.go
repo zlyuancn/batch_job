@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/didi/gendry/builder"
-	"github.com/zly-app/zapp/logger"
+	"github.com/zly-app/zapp/log"
 	"go.uber.org/zap"
 
 	"github.com/zlyuancn/batch_job/client/db"
@@ -58,7 +58,7 @@ func CreateOneModel(ctx context.Context, v *Model) (int64, error) {
 	})
 	cond, vals, err := builder.BuildInsert(tableName, data)
 	if err != nil {
-		logger.Log.Error(ctx, "CreateOneModel BuildSelect err",
+		log.Error(ctx, "CreateOneModel BuildSelect err",
 			zap.Any("data", data),
 			zap.Error(err),
 		)
@@ -67,7 +67,7 @@ func CreateOneModel(ctx context.Context, v *Model) (int64, error) {
 
 	result, err := db.GetSqlx().Exec(ctx, cond, vals...)
 	if err != nil {
-		logger.Error(ctx, "CreateOneModel fail.", zap.Any("data", data), zap.Error(err))
+		log.Error(ctx, "CreateOneModel fail.", zap.Any("data", data), zap.Error(err))
 		return 0, err
 	}
 	return result.LastInsertId()

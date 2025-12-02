@@ -5,7 +5,7 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"github.com/zly-app/zapp/logger"
+	"github.com/zly-app/zapp/log"
 	"go.uber.org/zap"
 
 	"github.com/zlyuancn/batch_job/conf"
@@ -48,7 +48,7 @@ func (r *rateLimitCli) RunJob(ctx context.Context, jobId int, rateSec int32) {
 	r.mx.Unlock()
 
 	newRate := atomic.AddInt32(&r.nowRate, rateSec-oldRateSec)
-	logger.Warn(ctx, "node rate change", zap.Int32("rate", newRate))
+	log.Warn(ctx, "node rate change", zap.Int32("rate", newRate))
 }
 
 // 停止任务, 会减少节点速率
@@ -66,7 +66,7 @@ func (r *rateLimitCli) StopJob(ctx context.Context, jobId int) {
 
 	if rateSec > 0 {
 		newRate := atomic.AddInt32(&r.nowRate, -rateSec)
-		logger.Warn(ctx, "node rate change", zap.Int32("rate", newRate))
+		log.Warn(ctx, "node rate change", zap.Int32("rate", newRate))
 	}
 }
 

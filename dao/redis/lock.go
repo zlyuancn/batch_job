@@ -8,7 +8,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/zly-app/zapp/logger"
+	"github.com/zly-app/zapp/log"
 	"go.uber.org/zap"
 
 	"github.com/zlyuancn/batch_job/client/db"
@@ -29,13 +29,17 @@ type KeyTtlRenew func(ctx context.Context, ttl time.Duration) error
 func AutoLock(ctx context.Context, lockKey string, ttl time.Duration) (unlock KeyUnlock, renew KeyTtlRenew, err error,
 ) {
 	authCode := strconv.FormatInt(time.Now().Unix(), 32) + strconv.FormatInt(rand.Int63n(1e9), 32) // 生成随机授权码
-	ok, err := db.GetRedis().SetNX(ctx, lockKey, authCode, ttl).Result()
+	rdb, err := db.GetRedis()
 	if err != nil {
-		logger.Error(ctx, "AutoLock set lock fail.", zap.String("key", lockKey), zap.Error(err))
+		return nil, nil, err
+	}
+	ok, err := rdb.SetNX(ctx, lockKey, authCode, ttl).Result()
+	if err != nil {
+		log.Error(ctx, "AutoLock set lock fail.", zap.String("key", lockKey), zap.Error(err))
 		return nil, nil, err
 	}
 	if !ok {
-		logger.Error(ctx, "AutoLock set lock fail. TooMany", zap.String("key", lockKey))
+		log.Error(ctx, "AutoLock set lock fail. TooMany", zap.String("key", lockKey))
 		return nil, nil, LockManyErr
 	}
 
@@ -48,12 +52,12 @@ func AutoLock(ctx context.Context, lockKey string, ttl time.Duration) (unlock Ke
 
 		ok, err := CompareAndDel(ctx, lockKey, authCode)
 		if err != nil {
-			logger.Error(ctx, "Unlock fail.", zap.String("key", lockKey), zap.Error(err))
+			log.Error(ctx, "Unlock fail.", zap.String("key", lockKey), zap.Error(err))
 			return err
 		}
 		if !ok {
 			err = LockAuthCodeIsChanged
-			logger.Error(ctx, "Unlock fail.", zap.String("key", lockKey))
+			log.Error(ctx, "Unlock fail.", zap.String("key", lockKey))
 			return err
 		}
 		return nil
@@ -61,12 +65,12 @@ func AutoLock(ctx context.Context, lockKey string, ttl time.Duration) (unlock Ke
 	renew = func(ctx context.Context, ttl time.Duration) error {
 		ok, err := CompareAndExpire(ctx, lockKey, authCode, ttl)
 		if err != nil {
-			logger.Error(ctx, "Renew fail.", zap.String("key", lockKey), zap.Error(err))
+			log.Error(ctx, "Renew fail.", zap.String("key", lockKey), zap.Error(err))
 			return err
 		}
 		if !ok {
 			err := LockAuthCodeIsChanged
-			logger.Error(ctx, "Renew fail.", zap.String("key", lockKey), zap.Error(err))
+			log.Error(ctx, "Renew fail.", zap.String("key", lockKey), zap.Error(err))
 			return err
 		}
 		return nil
@@ -77,13 +81,17 @@ func AutoLock(ctx context.Context, lockKey string, ttl time.Duration) (unlock Ke
 // 加锁, 返回授权码, 授权码用于解锁和续期
 func Lock(ctx context.Context, lockKey string, lockTime time.Duration) (string, error) {
 	authCode := strconv.FormatInt(time.Now().Unix(), 32) + strconv.FormatInt(rand.Int63n(1e9), 32) // 生成随机授权码
-	ok, err := db.GetRedis().SetNX(ctx, lockKey, authCode, lockTime).Result()
+	rdb, err := db.GetRedis()
 	if err != nil {
-		logger.Error(ctx, "Lock set lock fail.", zap.String("key", lockKey), zap.Error(err))
+		return "", err
+	}
+	ok, err := rdb.SetNX(ctx, lockKey, authCode, lockTime).Result()
+	if err != nil {
+		log.Error(ctx, "Lock set lock fail.", zap.String("key", lockKey), zap.Error(err))
 		return "", err
 	}
 	if !ok {
-		logger.Error(ctx, "Lock set lock fail. TooMany", zap.String("key", lockKey))
+		log.Error(ctx, "Lock set lock fail. TooMany", zap.String("key", lockKey))
 		return "", LockManyErr
 	}
 
@@ -94,12 +102,12 @@ func Lock(ctx context.Context, lockKey string, lockTime time.Duration) (string, 
 func UnLock(ctx context.Context, lockKey, authCode string) error {
 	ok, err := CompareAndDel(ctx, lockKey, authCode)
 	if err != nil {
-		logger.Error(ctx, "Unlock fail.", zap.String("key", lockKey), zap.Error(err))
+		log.Error(ctx, "Unlock fail.", zap.String("key", lockKey), zap.Error(err))
 		return err
 	}
 	if !ok {
 		err = LockAuthCodeIsChanged
-		logger.Error(ctx, "Unlock fail.", zap.String("key", lockKey))
+		log.Error(ctx, "Unlock fail.", zap.String("key", lockKey))
 		return err
 	}
 	return nil
@@ -109,12 +117,12 @@ func UnLock(ctx context.Context, lockKey, authCode string) error {
 func RenewLock(ctx context.Context, lockKey, authCode string, ttl time.Duration) error {
 	ok, err := CompareAndExpire(ctx, lockKey, authCode, ttl)
 	if err != nil {
-		logger.Error(ctx, "RenewLock fail.", zap.String("key", lockKey), zap.Error(err))
+		log.Error(ctx, "RenewLock fail.", zap.String("key", lockKey), zap.Error(err))
 		return err
 	}
 	if !ok {
 		err := LockAuthCodeIsChanged
-		logger.Error(ctx, "RenewLock fail.", zap.String("key", lockKey), zap.Error(err))
+		log.Error(ctx, "RenewLock fail.", zap.String("key", lockKey), zap.Error(err))
 		return err
 	}
 	return nil
@@ -122,14 +130,18 @@ func RenewLock(ctx context.Context, lockKey, authCode string, ttl time.Duration)
 
 // 检查授权码, key不存在也会返回err
 func CheckLockAuthCode(ctx context.Context, lockKey, authCode string) error {
-	v, err := db.GetRedis().Get(ctx, lockKey).Result()
+	rdb, err := db.GetRedis()
 	if err != nil {
-		logger.Error(ctx, "CheckLockAuthCode call Get fail.", zap.Error(err))
+		return err
+	}
+	v, err := rdb.Get(ctx, lockKey).Result()
+	if err != nil {
+		log.Error(ctx, "CheckLockAuthCode call Get fail.", zap.Error(err))
 		return err
 	}
 	if authCode != v {
 		err = LockAuthCodeIsChanged
-		logger.Error(ctx, "CheckLockAuthCode fail.", zap.String("key", lockKey), zap.Error(err))
+		log.Error(ctx, "CheckLockAuthCode fail.", zap.String("key", lockKey), zap.Error(err))
 		return err
 	}
 	return nil

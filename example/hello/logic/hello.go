@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/zly-app/grpc"
-	"github.com/zly-app/zapp/logger"
+	"github.com/zly-app/zapp/log"
 	"go.uber.org/zap"
 
 	"github.com/zlyuancn/batch_job/example/hello/pb"
@@ -37,7 +37,7 @@ func (h *Hello) Start(ctx context.Context, req *pb_0.JobBeforeRunReq) (*pb_0.Job
 	// 	Remark:           "hello业务主动变更",
 	// })
 	// if err != nil {
-	// 	logger.Error(ctx, "Start call BizUpdateJobData fail.", zap.Error(err))
+	// 	log.Error(ctx, "Start call BizUpdateJobData fail.", zap.Error(err))
 	// 	return nil, err
 	// }
 
@@ -47,7 +47,7 @@ func (h *Hello) Start(ctx context.Context, req *pb_0.JobBeforeRunReq) (*pb_0.Job
 	// 	Remark: "hello业务主动停止",
 	// })
 	// if err != nil {
-	// 	logger.Error(ctx, "Start call BizStopJob fail.", zap.Error(err))
+	// 	log.Error(ctx, "Start call BizStopJob fail.", zap.Error(err))
 	// 	return nil, err
 	// }
 	// return &pb_0.JobBeforeRunRsp{}, nil
@@ -58,7 +58,7 @@ func (h *Hello) Start(ctx context.Context, req *pb_0.JobBeforeRunReq) (*pb_0.Job
 		Remark:   "hello业务主动启动",
 	})
 	if err != nil {
-		logger.Error(ctx, "Start call BizStartJob fail.", zap.Error(err))
+		log.Error(ctx, "Start call BizStartJob fail.", zap.Error(err))
 		return nil, err
 	}
 
@@ -80,7 +80,7 @@ func (h *Hello) Process(ctx context.Context, req *pb_0.JobProcessReq) (*pb_0.Job
 			},
 		})
 		if err != nil {
-			logger.Error(ctx, "Start call BizStartJob fail.", zap.Error(err))
+			log.Error(ctx, "Start call BizStartJob fail.", zap.Error(err))
 			return nil, err
 		}
 	}

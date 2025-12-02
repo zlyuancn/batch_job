@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/zly-app/component/http"
-	"github.com/zly-app/zapp/logger"
+	"github.com/zly-app/zapp/log"
 	"go.uber.org/zap"
 
 	"github.com/zlyuancn/batch_job/dao/batch_job_biz"
@@ -66,14 +66,14 @@ func (h *httpCallbackBiz) BeforeCreateAndChange(ctx context.Context, args *pb.Jo
 	c := http.NewClient("job_" + strconv.Itoa(int(args.GetJobInfo().GetJobId())))
 	sp, err := c.Post(ctx, h.eed.GetHttpCallback().GetBeforeCreate(), nil, opts...)
 	if err != nil {
-		logger.Error(ctx, "BeforeCreateAndChange call http fail.", zap.Error(err))
+		log.Error(ctx, "BeforeCreateAndChange call http fail.", zap.Error(err))
 		return err
 	}
 
 	// 检查状态码
 	if sp.StatusCode != rawHttp.StatusOK {
 		err = fmt.Errorf("http StatusCode not ok. code=%d. body=%s", sp.StatusCode, sp.Body)
-		logger.Error(ctx, "BeforeCreateAndChange call http fail.", zap.Error(err))
+		log.Error(ctx, "BeforeCreateAndChange call http fail.", zap.Error(err))
 		return err
 	}
 	return nil
@@ -93,14 +93,14 @@ func (h *httpCallbackBiz) BeforeRun(ctx context.Context, args *pb.JobBeforeRunRe
 	c := http.NewClient("job_" + strconv.Itoa(int(args.GetJobInfo().GetJobId())))
 	sp, err := c.Post(ctx, h.eed.GetHttpCallback().GetBeforeRun(), nil, opts...)
 	if err != nil {
-		logger.Error(ctx, "BeforeRun call http fail.", zap.Error(err))
+		log.Error(ctx, "BeforeRun call http fail.", zap.Error(err))
 		return
 	}
 
 	// 检查状态码
 	if sp.StatusCode != rawHttp.StatusOK {
 		err = fmt.Errorf("http StatusCode not ok. code=%d. body=%s", sp.StatusCode, sp.Body)
-		logger.Error(ctx, "BeforeRun call http fail.", zap.Error(err))
+		log.Error(ctx, "BeforeRun call http fail.", zap.Error(err))
 		return
 	}
 	return
@@ -121,14 +121,14 @@ func (h *httpCallbackBiz) Process(ctx context.Context, jobInfo *batch_job_list.M
 	c := http.NewClient("job_" + strconv.Itoa(int(jobInfo.JobID)) + "_" + strconv.FormatInt(dataIndex, 10))
 	sp, err := c.Post(ctx, h.eed.GetHttpCallback().GetProcess(), nil, opts...)
 	if err != nil {
-		logger.Error(ctx, "Process call http fail.", zap.Error(err))
+		log.Error(ctx, "Process call http fail.", zap.Error(err))
 		return err
 	}
 
 	// 检查状态码
 	if sp.StatusCode != rawHttp.StatusOK {
 		err = fmt.Errorf("http StatusCode not ok. code=%d. body=%s", sp.StatusCode, sp.Body)
-		logger.Error(ctx, "Process call http fail.", zap.Error(err))
+		log.Error(ctx, "Process call http fail.", zap.Error(err))
 		return err
 	}
 	return nil
@@ -163,14 +163,14 @@ func (h *httpCallbackBiz) ProcessStop(ctx context.Context, jobInfo *batch_job_li
 	c := http.NewClient("job_" + strconv.Itoa(int(args.GetJobInfo().JobId)))
 	sp, err := c.Post(ctx, h.eed.GetHttpCallback().GetProcessStop(), nil, opts...)
 	if err != nil {
-		logger.Error(ctx, "ProcessStop call http fail.", zap.Error(err))
+		log.Error(ctx, "ProcessStop call http fail.", zap.Error(err))
 		return err
 	}
 
 	// 检查状态码
 	if sp.StatusCode != rawHttp.StatusOK {
 		err = fmt.Errorf("http StatusCode not ok. code=%d. body=%s", sp.StatusCode, sp.Body)
-		logger.Error(ctx, "ProcessStop call http fail.", zap.Error(err))
+		log.Error(ctx, "ProcessStop call http fail.", zap.Error(err))
 		return err
 	}
 	return nil
