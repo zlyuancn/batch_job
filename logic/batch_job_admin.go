@@ -205,7 +205,7 @@ func (*BatchJob) AdminCreateJob(ctx context.Context, req *pb.AdminCreateJobReq) 
 		OpUserName:       req.GetOp().GetOpUserName(),
 		OpRemark:         req.GetOp().GetOpRemark(),
 		RateSec:          uint(req.GetRateSec()),
-		RateType:         byte(req.GetRateType()),
+		ConcType:         byte(req.GetConcType()),
 		StatusInfo:       model.StatusInfo_UserOp,
 	}
 	if req.GetStartNow() {
@@ -227,7 +227,7 @@ func (*BatchJob) AdminCreateJob(ctx context.Context, req *pb.AdminCreateJobReq) 
 			JobData:          req.GetJobData(),
 			ProcessDataTotal: req.GetProcessDataTotal(),
 			ProcessedCount:   req.GetProcessedCount(),
-			RateType:         req.GetRateType(),
+			ConcType:         req.GetConcType(),
 			RateSec:          req.GetRateSec(),
 		},
 		IsCreate: true,
@@ -262,7 +262,7 @@ func (*BatchJob) AdminCreateJob(ctx context.Context, req *pb.AdminCreateJobReq) 
 		OpUserName:       req.GetOp().GetOpUserName(),
 		OpRemark:         req.GetOp().GetOpRemark(),
 		RateSec:          uint(req.GetRateSec()),
-		RateType:         byte(req.GetRateType()),
+		ConcType:         byte(req.GetConcType()),
 		StatusInfo:       jobInfo.StatusInfo,
 	}
 	gpool.GetDefGPool().Go(func() error {
@@ -351,7 +351,7 @@ func (*BatchJob) AdminUpdateJob(ctx context.Context, req *pb.AdminUpdateJobReq) 
 			ProcessDataTotal: req.GetProcessDataTotal(),
 			ProcessedCount:   req.GetProcessedCount(),
 			ErrLogCount:      int64(jobInfo.ErrLogCount),
-			RateType:         req.GetRateType(),
+			ConcType:         req.GetConcType(),
 			RateSec:          req.GetRateSec(),
 		},
 		IsCreate: false,
@@ -379,7 +379,7 @@ func (*BatchJob) AdminUpdateJob(ctx context.Context, req *pb.AdminUpdateJobReq) 
 		OpUserName:       req.GetOp().GetOpUserName(),
 		OpRemark:         req.GetOp().GetOpRemark(),
 		RateSec:          uint(req.GetRateSec()),
-		RateType:         byte(req.GetRateType()),
+		ConcType:         byte(req.GetConcType()),
 		StatusInfo:       model.StatusInfo_UserOp,
 		ActivateTime:     jobInfo.ActivateTime,
 	}
@@ -406,7 +406,7 @@ func (*BatchJob) AdminUpdateJob(ctx context.Context, req *pb.AdminUpdateJobReq) 
 		OpUserName:       req.GetOp().GetOpUserName(),
 		OpRemark:         req.GetOp().GetOpRemark(),
 		RateSec:          uint(req.GetRateSec()),
-		RateType:         byte(req.GetRateType()),
+		ConcType:         byte(req.GetConcType()),
 		StatusInfo:       model.StatusInfo_UserOp,
 	}
 	gpool.GetDefGPool().Go(func() error {

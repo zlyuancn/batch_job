@@ -69,7 +69,7 @@ func (j *jobCli) CreateLauncherByData(ctx context.Context, bizInfo *batch_job_bi
 				ProcessDataTotal: int64(jobInfo.ProcessDataTotal),
 				ProcessedCount:   int64(jobInfo.ProcessedCount),
 				ErrLogCount:      int64(jobInfo.ErrLogCount),
-				RateType:         pb.RateType(jobInfo.RateType),
+				ConcType:         pb.ConcType(jobInfo.ConcType),
 				RateSec:          int32(jobInfo.RateSec),
 			},
 			AuthCode: authCode,
@@ -207,7 +207,7 @@ func (*jobCli) CreateLauncherByRestorer(ctx context.Context, jobInfo *batch_job_
 				ProcessDataTotal: int64(jobInfo.ProcessDataTotal),
 				ProcessedCount:   int64(jobInfo.ProcessedCount),
 				ErrLogCount:      int64(jobInfo.ErrLogCount),
-				RateType:         pb.RateType(jobInfo.RateType),
+				ConcType:         pb.ConcType(jobInfo.ConcType),
 				RateSec:          int32(jobInfo.RateSec),
 			},
 			AuthCode: authCode,
@@ -275,13 +275,13 @@ func newJobLauncher(b Business, bizInfo *batch_job_biz.Model, jobInfo *batch_job
 	}
 	j.ctx, j.cancel = context.WithCancel(context.Background())
 
-	switch pb.RateType(jobInfo.RateType) {
-	case pb.RateType_RateType_RateSec: // 可以使用多个线程
+	switch pb.ConcType(jobInfo.ConcType) {
+	case pb.ConcType_ConcType_RateSec: // 可以使用多个线程
 		j.threadLock = make(chan struct{}, conf.Conf.JobRunThreadCount) // 可以使用多个线程
-	case pb.RateType_RateType_Serialization: // 串行化
+	case pb.ConcType_ConcType_Serialization: // 串行化
 		j.threadLock = make(chan struct{}, 1) // 只能用一个线程
 	default:
-		return nil, fmt.Errorf("rateType %d nonsupport", int(jobInfo.RateType))
+		return nil, fmt.Errorf("concType %d nonsupport", int(jobInfo.ConcType))
 	}
 
 	// 限速器

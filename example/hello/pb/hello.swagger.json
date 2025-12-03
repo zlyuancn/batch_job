@@ -176,9 +176,9 @@
           "format": "int64",
           "title": "已处理过的数据量, 无论成功还是失败"
         },
-        "rateType": {
-          "$ref": "#/definitions/batch_jobRateType",
-          "title": "速率类型"
+        "concType": {
+          "$ref": "#/definitions/batch_jobConcType",
+          "title": "并发类型"
         },
         "rateSec": {
           "type": "integer",
@@ -314,15 +314,15 @@
     "batch_jobJobProcessStopRsp": {
       "type": "object"
     },
-    "batch_jobRateType": {
+    "batch_jobConcType": {
       "type": "string",
       "enum": [
-        "RateType_RateSec",
-        "RateType_Serialization"
+        "ConcType_RateSec",
+        "ConcType_Serialization"
       ],
-      "default": "RateType_RateSec",
-      "description": "- RateType_RateSec: 标准限速\n - RateType_Serialization: 串行化限速",
-      "title": "速率类型"
+      "default": "ConcType_RateSec",
+      "description": "- ConcType_RateSec: 并行\n - ConcType_Serialization: 串行化",
+      "title": "并发类型"
     },
     "protobufAny": {
       "type": "object",

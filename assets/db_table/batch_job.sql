@@ -57,7 +57,7 @@ CREATE TABLE `batch_job_list`
     `op_user_name`       varchar(32)        NOT NULL DEFAULT '' COMMENT '最后操作用户名',
     `op_remark`          varchar(1024)      NOT NULL DEFAULT '' COMMENT '最后操作备注',
     `status_info`        varchar(1024)      NOT NULL DEFAULT '' COMMENT '状态信息',
-    `rate_type`          tinyint unsigned   NOT NULL DEFAULT 0 COMMENT '速率类型. 0=通过rate_sec限速, 1=串行化',
+    `conc_type`          tinyint unsigned   NOT NULL DEFAULT 0 COMMENT '并发类型. 0=并行, 1=串行化',
     `rate_sec`           int unsigned       NOT NULL DEFAULT 0 COMMENT '每秒处理速率. 0表示不限制',
     `activate_time`      datetime           NOT NULL DEFAULT '0000-00-00 00:00:00' comment '最后激活时间',
     PRIMARY KEY (`id`),
@@ -85,7 +85,7 @@ CREATE TABLE `batch_job_list_history`
     `op_user_name`       varchar(32)        NOT NULL DEFAULT '' COMMENT '最后操作用户名',
     `op_remark`          varchar(1024)      NOT NULL DEFAULT '' COMMENT '最后操作备注',
     `status_info`        varchar(1024)      NOT NULL DEFAULT '' COMMENT '状态信息',
-    `rate_type`          tinyint unsigned   NOT NULL DEFAULT 0 COMMENT '速率类型. 0=通过rate_sec限速, 1=串行化',
+    `conc_type`          tinyint unsigned   NOT NULL DEFAULT 0 COMMENT '并发类型. 0=并行, 1=串行化',
     `rate_sec`           int unsigned       NOT NULL DEFAULT 0 COMMENT '每秒处理速率. 0表示不限制',
     PRIMARY KEY (`id`),
     KEY `batch_job_list_biz_id` (`job_id`, `update_time` DESC)

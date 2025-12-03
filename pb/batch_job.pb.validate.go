@@ -2124,7 +2124,7 @@ func (m *JobInfoA) validate(all bool) error {
 
 	// no validation rules for CreateTime
 
-	// no validation rules for RateType
+	// no validation rules for ConcType
 
 	// no validation rules for RateSec
 
@@ -2274,7 +2274,7 @@ func (m *JobInfoByListA) validate(all bool) error {
 
 	// no validation rules for CreateTime
 
-	// no validation rules for RateType
+	// no validation rules for ConcType
 
 	// no validation rules for RateSec
 
@@ -2645,7 +2645,7 @@ func (m *AdminCreateJobReq) validate(all bool) error {
 
 	// no validation rules for ProcessedCount
 
-	// no validation rules for RateType
+	// no validation rules for ConcType
 
 	// no validation rules for RateSec
 
@@ -2894,7 +2894,7 @@ func (m *AdminUpdateJobReq) validate(all bool) error {
 
 	// no validation rules for ProcessedCount
 
-	// no validation rules for RateType
+	// no validation rules for ConcType
 
 	// no validation rules for RateSec
 
@@ -6443,7 +6443,7 @@ func (m *JobCBInfo) validate(all bool) error {
 
 	// no validation rules for ErrLogCount
 
-	// no validation rules for RateType
+	// no validation rules for ConcType
 
 	// no validation rules for RateSec
 

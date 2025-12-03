@@ -151,7 +151,7 @@ func (h *httpCallbackBiz) ProcessStop(ctx context.Context, jobInfo *batch_job_li
 			ProcessDataTotal: int64(jobInfo.ProcessDataTotal),
 			ProcessedCount:   int64(jobInfo.ProcessedCount),
 			ErrLogCount:      int64(jobInfo.ErrLogCount),
-			RateType:         pb.RateType(jobInfo.RateType),
+			ConcType:         pb.ConcType(jobInfo.ConcType),
 			RateSec:          int32(jobInfo.RateSec),
 		},
 		IsFinished: isFinished,

@@ -623,9 +623,9 @@
           "format": "int64",
           "title": "已处理过的数据量, 无论成功还是失败"
         },
-        "rateType": {
-          "$ref": "#/definitions/batch_jobRateType",
-          "title": "速率类型"
+        "concType": {
+          "$ref": "#/definitions/batch_jobConcType",
+          "title": "并发类型"
         },
         "rateSec": {
           "type": "integer",
@@ -783,9 +783,9 @@
           "format": "int64",
           "title": "已处理过的数据量, 无论成功还是失败"
         },
-        "rateType": {
-          "$ref": "#/definitions/batch_jobRateType",
-          "title": "速率类型"
+        "concType": {
+          "$ref": "#/definitions/batch_jobConcType",
+          "title": "并发类型"
         },
         "rateSec": {
           "type": "integer",
@@ -980,6 +980,16 @@
     },
     "batch_jobBizUpdateJobDataRsp": {
       "type": "object"
+    },
+    "batch_jobConcType": {
+      "type": "string",
+      "enum": [
+        "ConcType_RateSec",
+        "ConcType_Serialization"
+      ],
+      "default": "ConcType_RateSec",
+      "description": "- ConcType_RateSec: 并行\n - ConcType_Serialization: 串行化",
+      "title": "并发类型"
     },
     "batch_jobDataLogQ": {
       "type": "object",
@@ -1206,9 +1216,9 @@
           "format": "int64",
           "title": "创建时间秒级时间戳"
         },
-        "rateType": {
-          "$ref": "#/definitions/batch_jobRateType",
-          "title": "速率类型"
+        "concType": {
+          "$ref": "#/definitions/batch_jobConcType",
+          "title": "并发类型"
         },
         "rateSec": {
           "type": "integer",
@@ -1267,9 +1277,9 @@
           "format": "int64",
           "title": "创建时间秒级时间戳"
         },
-        "rateType": {
-          "$ref": "#/definitions/batch_jobRateType",
-          "title": "速率类型"
+        "concType": {
+          "$ref": "#/definitions/batch_jobConcType",
+          "title": "并发类型"
         },
         "rateSec": {
           "type": "integer",
@@ -1687,16 +1697,6 @@
           }
         }
       }
-    },
-    "batch_jobRateType": {
-      "type": "string",
-      "enum": [
-        "RateType_RateSec",
-        "RateType_Serialization"
-      ],
-      "default": "RateType_RateSec",
-      "description": "- RateType_RateSec: 标准限速\n - RateType_Serialization: 串行化限速",
-      "title": "速率类型"
     },
     "protobufAny": {
       "type": "object",

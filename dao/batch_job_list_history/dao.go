@@ -30,7 +30,7 @@ type Model struct {
 	OpUserName       string    `db:"op_user_name"` // "最后操作用户名"
 	OpRemark         string    `db:"op_remark"`    // "最后操作备注"
 	RateSec          uint      `db:"rate_sec"`     // "每秒处理速率. 0表示不限制"
-	RateType         byte      `db:"rate_type"`    // "速率类型. 0=通过rate_sec限速, 1=串行化"
+	ConcType         byte      `db:"conc_type"`    // "并发类型. 0=并行, 1=串行化"
 	StatusInfo       string    `db:"status_info"`  // "状态信息"
 }
 
@@ -54,7 +54,7 @@ func CreateOneModel(ctx context.Context, v *Model) (int64, error) {
 		"op_remark":          v.OpRemark,
 		"status_info":        v.StatusInfo,
 		"rate_sec":           v.RateSec,
-		"rate_type":          v.RateType,
+		"conc_type":          v.ConcType,
 	})
 	cond, vals, err := builder.BuildInsert(tableName, data)
 	if err != nil {

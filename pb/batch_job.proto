@@ -131,10 +131,10 @@ service BatchJobService{
 
 }
 
-// 速率类型
-enum RateType {
-  RateType_RateSec = 0; // 标准限速
-  RateType_Serialization = 1; // 串行化限速
+// 并发类型
+enum ConcType {
+  ConcType_RateSec = 0; // 并行
+  ConcType_Serialization = 1; // 串行化
 }
 
 // 执行类型
@@ -295,7 +295,7 @@ message JobInfoA {
   int64 errLogCount = 7; // 错误日志数
   JobStatus status = 8; // 任务状态
   int64 createTime = 9; // 创建时间秒级时间戳
-  RateType rateType = 10; // 速率类型
+  ConcType concType = 10; // 并发类型
   int32 rateSec = 11; // 每秒处理速率. 0表示不限制
   OpInfoA op = 12; // 操作信息
   string statusInfo = 13; // 状态信息
@@ -311,7 +311,7 @@ message JobInfoByListA {
   int64 errLogCount = 6; // 错误日志数
   JobStatus status = 7; // 任务状态
   int64 createTime = 8; // 创建时间秒级时间戳
-  RateType rateType = 9; // 速率类型
+  ConcType concType = 9; // 并发类型
   int32 rateSec = 10; // 每秒处理速率. 0表示不限制
   OpInfoA op = 11; // 操作信息
   string statusInfo = 12; // 状态信息
@@ -349,7 +349,7 @@ message AdminCreateJobReq {
   string jobData = 3; // 任务数据, 让业务知道应该做什么
   int64 processDataTotal = 4; // 需要处理数据总数
   int64 processedCount = 5; // 已处理过的数据量, 无论成功还是失败
-  RateType rateType = 6; // 速率类型
+  ConcType concType = 6; // 并发类型
   int32 rateSec = 7; // 每秒处理速率. 0表示不限制
   OpInfoQ op = 8; // 操作信息
   bool startNow = 9; // 创建后是否立即启动
@@ -363,7 +363,7 @@ message AdminUpdateJobReq {
   string jobData = 3; // 任务数据, 让业务知道应该做什么
   int64 processDataTotal = 4; // 需要处理数据总数
   int64 processedCount = 5; // 已处理过的数据量, 无论成功还是失败
-  RateType rateType = 6; // 速率类型
+  ConcType concType = 6; // 并发类型
   int32 rateSec = 7; // 每秒处理速率. 0表示不限制
   OpInfoQ op = 8; // 操作信息
   int64 jobId = 9; // 任务id
@@ -505,7 +505,7 @@ message JobCBInfo {
   int64 processDataTotal = 6; // 需要处理数据总数
   int64 processedCount = 7; // 已处理过的数据量, 无论成功还是失败
   int64 errLogCount = 8; // 错误日志数
-  RateType rateType = 9; // 速率类型
+  ConcType concType = 9; // 并发类型
   int32 rateSec = 10; // 每秒处理速率. 0表示不限制
 }
 

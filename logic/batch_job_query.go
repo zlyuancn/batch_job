@@ -321,7 +321,7 @@ func (*BatchJob) jobDbModel2Pb(line *batch_job_list.Model) *pb.JobInfoA {
 		ErrLogCount:      int64(line.ErrLogCount),
 		Status:           pb.JobStatus(line.Status),
 		CreateTime:       line.CreateTime.Unix(),
-		RateType:         pb.RateType(line.RateType),
+		ConcType:         pb.ConcType(line.ConcType),
 		RateSec:          int32(line.RateSec),
 		Op: &pb.OpInfoA{
 			OpSource:   line.OpSource,
@@ -344,7 +344,7 @@ func (*BatchJob) jobDbModel2ListPb(line *batch_job_list.Model) *pb.JobInfoByList
 		ErrLogCount:      int64(line.ErrLogCount),
 		Status:           pb.JobStatus(line.Status),
 		CreateTime:       line.CreateTime.Unix(),
-		RateType:         pb.RateType(line.RateType),
+		ConcType:         pb.ConcType(line.ConcType),
 		RateSec:          int32(line.RateSec),
 		Op: &pb.OpInfoA{
 			OpSource:   line.OpSource,
