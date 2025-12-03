@@ -523,13 +523,22 @@ message JobBeforeRunReq {
 }
 message JobBeforeRunRsp {}
 
+enum JobProcessCmd {
+  None = 0; // 无
+  StopJob = 1; // 要求立即停止任务.
+  MarkJobIsFinished = 2; // 标记任务已完成. 仅适用于串行化运行的任务. 一般用于提前完成任务.
+}
 // 任务处理回调参数
 message JobProcessReq {
   int64 jobId = 1; // 创建的任务id. 必填
   int64 dataIndex = 2; // 要处理的数据索引, 从0开始
   int32 attemptCount = 3; // 本次任务短时间内的尝试次数. 表示一个启动器执行过程中对任务的某个数据尝试处理了几次
 }
-message JobProcessRsp {}
+message JobProcessRsp {
+  JobProcessCmd cmd = 1; // 命令
+  string remark = 2; // 备注
+  repeated DataLogQ log = 3; // 写入日志内容
+}
 
 // 任务停止回调参数
 message JobProcessStopReq {

@@ -332,6 +332,55 @@ func (DataLogType) EnumDescriptor() ([]byte, []int) {
 	return file_batch_job_proto_rawDescGZIP(), []int{5}
 }
 
+type JobProcessCmd int32
+
+const (
+	JobProcessCmd_None              JobProcessCmd = 0 // 无
+	JobProcessCmd_StopJob           JobProcessCmd = 1 // 要求立即停止任务.
+	JobProcessCmd_MarkJobIsFinished JobProcessCmd = 2 // 标记任务已完成. 仅适用于串行化运行的任务. 一般用于提前完成任务.
+)
+
+// Enum value maps for JobProcessCmd.
+var (
+	JobProcessCmd_name = map[int32]string{
+		0: "None",
+		1: "StopJob",
+		2: "MarkJobIsFinished",
+	}
+	JobProcessCmd_value = map[string]int32{
+		"None":              0,
+		"StopJob":           1,
+		"MarkJobIsFinished": 2,
+	}
+)
+
+func (x JobProcessCmd) Enum() *JobProcessCmd {
+	p := new(JobProcessCmd)
+	*p = x
+	return p
+}
+
+func (x JobProcessCmd) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (JobProcessCmd) Descriptor() protoreflect.EnumDescriptor {
+	return file_batch_job_proto_enumTypes[6].Descriptor()
+}
+
+func (JobProcessCmd) Type() protoreflect.EnumType {
+	return &file_batch_job_proto_enumTypes[6]
+}
+
+func (x JobProcessCmd) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use JobProcessCmd.Descriptor instead.
+func (JobProcessCmd) EnumDescriptor() ([]byte, []int) {
+	return file_batch_job_proto_rawDescGZIP(), []int{6}
+}
+
 // 执行器扩展数据-请求
 type ExecExtendDataQ struct {
 	state         protoimpl.MessageState       `protogen:"open.v1"`
@@ -3866,6 +3915,9 @@ func (x *JobProcessReq) GetAttemptCount() int32 {
 
 type JobProcessRsp struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	Cmd           JobProcessCmd          `protobuf:"varint,1,opt,name=cmd,proto3,enum=batch_job.JobProcessCmd" json:"cmd,omitempty"` // 命令
+	Remark        string                 `protobuf:"bytes,2,opt,name=remark,proto3" json:"remark,omitempty"`                         // 备注
+	Log           []*DataLogQ            `protobuf:"bytes,3,rep,name=log,proto3" json:"log,omitempty"`                               // 写入日志内容
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -3898,6 +3950,27 @@ func (x *JobProcessRsp) ProtoReflect() protoreflect.Message {
 // Deprecated: Use JobProcessRsp.ProtoReflect.Descriptor instead.
 func (*JobProcessRsp) Descriptor() ([]byte, []int) {
 	return file_batch_job_proto_rawDescGZIP(), []int{55}
+}
+
+func (x *JobProcessRsp) GetCmd() JobProcessCmd {
+	if x != nil {
+		return x.Cmd
+	}
+	return JobProcessCmd_None
+}
+
+func (x *JobProcessRsp) GetRemark() string {
+	if x != nil {
+		return x.Remark
+	}
+	return ""
+}
+
+func (x *JobProcessRsp) GetLog() []*DataLogQ {
+	if x != nil {
+		return x.Log
+	}
+	return nil
 }
 
 // 任务停止回调参数
@@ -4331,8 +4404,11 @@ const file_batch_job_proto_rawDesc = "" +
 	"\rJobProcessReq\x12\x14\n" +
 	"\x05jobId\x18\x01 \x01(\x03R\x05jobId\x12\x1c\n" +
 	"\tdataIndex\x18\x02 \x01(\x03R\tdataIndex\x12\"\n" +
-	"\fattemptCount\x18\x03 \x01(\x05R\fattemptCount\"\x0f\n" +
-	"\rJobProcessRsp\"c\n" +
+	"\fattemptCount\x18\x03 \x01(\x05R\fattemptCount\"z\n" +
+	"\rJobProcessRsp\x12*\n" +
+	"\x03cmd\x18\x01 \x01(\x0e2\x18.batch_job.JobProcessCmdR\x03cmd\x12\x16\n" +
+	"\x06remark\x18\x02 \x01(\tR\x06remark\x12%\n" +
+	"\x03log\x18\x03 \x03(\v2\x13.batch_job.DataLogQR\x03log\"c\n" +
 	"\x11JobProcessStopReq\x12.\n" +
 	"\ajobInfo\x18\x01 \x01(\v2\x14.batch_job.JobCBInfoR\ajobInfo\x12\x1e\n" +
 	"\n" +
@@ -4366,7 +4442,11 @@ const file_batch_job_proto_rawDesc = "" +
 	"\x10DataLogType_Info\x10\x01\x12\x14\n" +
 	"\x10DataLogType_Warn\x10\x02\x12\x13\n" +
 	"\x0fDataLogType_Err\x10\x03\x12\x17\n" +
-	"\x13DataLogType_ErrData\x10\x042\x90\x0f\n" +
+	"\x13DataLogType_ErrData\x10\x04*=\n" +
+	"\rJobProcessCmd\x12\b\n" +
+	"\x04None\x10\x00\x12\v\n" +
+	"\aStopJob\x10\x01\x12\x15\n" +
+	"\x11MarkJobIsFinished\x10\x022\x90\x0f\n" +
 	"\x0fBatchJobService\x12y\n" +
 	"\x10AdminRegistryBiz\x12\x1e.batch_job.AdminRegistryBizReq\x1a\x1e.batch_job.AdminRegistryBizRsp\"%\x82\xd3\xe4\x93\x02\x1f:\x01*\"\x1a/BatchJob/AdminRegistryBiz\x12q\n" +
 	"\x0eAdminUpdateBiz\x12\x1c.batch_job.AdminUpdateBizReq\x1a\x1c.batch_job.AdminUpdateBizRsp\"#\x82\xd3\xe4\x93\x02\x1d:\x01*\"\x18/BatchJob/AdminUpdateBiz\x12q\n" +
@@ -4399,7 +4479,7 @@ func file_batch_job_proto_rawDescGZIP() []byte {
 	return file_batch_job_proto_rawDescData
 }
 
-var file_batch_job_proto_enumTypes = make([]protoimpl.EnumInfo, 6)
+var file_batch_job_proto_enumTypes = make([]protoimpl.EnumInfo, 7)
 var file_batch_job_proto_msgTypes = make([]protoimpl.MessageInfo, 59)
 var file_batch_job_proto_goTypes = []any{
 	(RateType)(0),                       // 0: batch_job.RateType
@@ -4408,159 +4488,162 @@ var file_batch_job_proto_goTypes = []any{
 	(JobStatus)(0),                      // 3: batch_job.JobStatus
 	(JobStatusQ)(0),                     // 4: batch_job.JobStatusQ
 	(DataLogType)(0),                    // 5: batch_job.DataLogType
-	(*ExecExtendDataQ)(nil),             // 6: batch_job.ExecExtendDataQ
-	(*KV)(nil),                          // 7: batch_job.KV
-	(*ExecExtendDataHttpCallbackQ)(nil), // 8: batch_job.ExecExtendDataHttpCallbackQ
-	(*ExecExtendDataA)(nil),             // 9: batch_job.ExecExtendDataA
-	(*ExecExtendDataHttpCallbackA)(nil), // 10: batch_job.ExecExtendDataHttpCallbackA
-	(*AdminRegistryBizReq)(nil),         // 11: batch_job.AdminRegistryBizReq
-	(*AdminRegistryBizRsp)(nil),         // 12: batch_job.AdminRegistryBizRsp
-	(*AdminUpdateBizReq)(nil),           // 13: batch_job.AdminUpdateBizReq
-	(*AdminUpdateBizRsp)(nil),           // 14: batch_job.AdminUpdateBizRsp
-	(*OpInfoQ)(nil),                     // 15: batch_job.OpInfoQ
-	(*OpInfoA)(nil),                     // 16: batch_job.OpInfoA
-	(*BizOpHistoryA)(nil),               // 17: batch_job.BizOpHistoryA
-	(*BizInfoA)(nil),                    // 18: batch_job.BizInfoA
-	(*BizInfoByListA)(nil),              // 19: batch_job.BizInfoByListA
-	(*JobInfoA)(nil),                    // 20: batch_job.JobInfoA
-	(*JobInfoByListA)(nil),              // 21: batch_job.JobInfoByListA
-	(*DataLogQ)(nil),                    // 22: batch_job.DataLogQ
-	(*LogInfoByListA)(nil),              // 23: batch_job.LogInfoByListA
-	(*AdminCreateJobReq)(nil),           // 24: batch_job.AdminCreateJobReq
-	(*AdminCreateJobRsp)(nil),           // 25: batch_job.AdminCreateJobRsp
-	(*AdminUpdateJobReq)(nil),           // 26: batch_job.AdminUpdateJobReq
-	(*AdminUpdateJobRsp)(nil),           // 27: batch_job.AdminUpdateJobRsp
-	(*AdminStartJobReq)(nil),            // 28: batch_job.AdminStartJobReq
-	(*AdminStartJobRsp)(nil),            // 29: batch_job.AdminStartJobRsp
-	(*AdminStopJobReq)(nil),             // 30: batch_job.AdminStopJobReq
-	(*AdminStopJobRsp)(nil),             // 31: batch_job.AdminStopJobRsp
-	(*QueryAllBizNameReq)(nil),          // 32: batch_job.QueryAllBizNameReq
-	(*QueryAllBizNameRsp)(nil),          // 33: batch_job.QueryAllBizNameRsp
-	(*QueryBizInfoReq)(nil),             // 34: batch_job.QueryBizInfoReq
-	(*QueryBizInfoRsp)(nil),             // 35: batch_job.QueryBizInfoRsp
-	(*QueryBizListReq)(nil),             // 36: batch_job.QueryBizListReq
-	(*QueryBizListRsp)(nil),             // 37: batch_job.QueryBizListRsp
-	(*QueryJobInfoReq)(nil),             // 38: batch_job.QueryJobInfoReq
-	(*QueryJobInfoRsp)(nil),             // 39: batch_job.QueryJobInfoRsp
-	(*QueryJobListReq)(nil),             // 40: batch_job.QueryJobListReq
-	(*QueryJobListRsp)(nil),             // 41: batch_job.QueryJobListRsp
-	(*QueryJobStateInfoReq)(nil),        // 42: batch_job.QueryJobStateInfoReq
-	(*JobStateInfo)(nil),                // 43: batch_job.JobStateInfo
-	(*QueryJobStateInfoRsp)(nil),        // 44: batch_job.QueryJobStateInfoRsp
-	(*QueryJobDataLogReq)(nil),          // 45: batch_job.QueryJobDataLogReq
-	(*QueryJobDataLogRsp)(nil),          // 46: batch_job.QueryJobDataLogRsp
-	(*BizStartJobReq)(nil),              // 47: batch_job.BizStartJobReq
-	(*BizStartJobRsp)(nil),              // 48: batch_job.BizStartJobRsp
-	(*BizUpdateJobDataReq)(nil),         // 49: batch_job.BizUpdateJobDataReq
-	(*BizUpdateJobDataRsp)(nil),         // 50: batch_job.BizUpdateJobDataRsp
-	(*BizStopJobReq)(nil),               // 51: batch_job.BizStopJobReq
-	(*BizStopJobRsp)(nil),               // 52: batch_job.BizStopJobRsp
-	(*BizAddDataLogReq)(nil),            // 53: batch_job.BizAddDataLogReq
-	(*BizAddDataLogRsp)(nil),            // 54: batch_job.BizAddDataLogRsp
-	(*JobCBInfo)(nil),                   // 55: batch_job.JobCBInfo
-	(*JobBeforeCreateAndChangeReq)(nil), // 56: batch_job.JobBeforeCreateAndChangeReq
-	(*JobBeforeCreateAndChangeRsp)(nil), // 57: batch_job.JobBeforeCreateAndChangeRsp
-	(*JobBeforeRunReq)(nil),             // 58: batch_job.JobBeforeRunReq
-	(*JobBeforeRunRsp)(nil),             // 59: batch_job.JobBeforeRunRsp
-	(*JobProcessReq)(nil),               // 60: batch_job.JobProcessReq
-	(*JobProcessRsp)(nil),               // 61: batch_job.JobProcessRsp
-	(*JobProcessStopReq)(nil),           // 62: batch_job.JobProcessStopReq
-	(*JobProcessStopRsp)(nil),           // 63: batch_job.JobProcessStopRsp
-	(*QueryAllBizNameRsp_LineA)(nil),    // 64: batch_job.QueryAllBizNameRsp.LineA
+	(JobProcessCmd)(0),                  // 6: batch_job.JobProcessCmd
+	(*ExecExtendDataQ)(nil),             // 7: batch_job.ExecExtendDataQ
+	(*KV)(nil),                          // 8: batch_job.KV
+	(*ExecExtendDataHttpCallbackQ)(nil), // 9: batch_job.ExecExtendDataHttpCallbackQ
+	(*ExecExtendDataA)(nil),             // 10: batch_job.ExecExtendDataA
+	(*ExecExtendDataHttpCallbackA)(nil), // 11: batch_job.ExecExtendDataHttpCallbackA
+	(*AdminRegistryBizReq)(nil),         // 12: batch_job.AdminRegistryBizReq
+	(*AdminRegistryBizRsp)(nil),         // 13: batch_job.AdminRegistryBizRsp
+	(*AdminUpdateBizReq)(nil),           // 14: batch_job.AdminUpdateBizReq
+	(*AdminUpdateBizRsp)(nil),           // 15: batch_job.AdminUpdateBizRsp
+	(*OpInfoQ)(nil),                     // 16: batch_job.OpInfoQ
+	(*OpInfoA)(nil),                     // 17: batch_job.OpInfoA
+	(*BizOpHistoryA)(nil),               // 18: batch_job.BizOpHistoryA
+	(*BizInfoA)(nil),                    // 19: batch_job.BizInfoA
+	(*BizInfoByListA)(nil),              // 20: batch_job.BizInfoByListA
+	(*JobInfoA)(nil),                    // 21: batch_job.JobInfoA
+	(*JobInfoByListA)(nil),              // 22: batch_job.JobInfoByListA
+	(*DataLogQ)(nil),                    // 23: batch_job.DataLogQ
+	(*LogInfoByListA)(nil),              // 24: batch_job.LogInfoByListA
+	(*AdminCreateJobReq)(nil),           // 25: batch_job.AdminCreateJobReq
+	(*AdminCreateJobRsp)(nil),           // 26: batch_job.AdminCreateJobRsp
+	(*AdminUpdateJobReq)(nil),           // 27: batch_job.AdminUpdateJobReq
+	(*AdminUpdateJobRsp)(nil),           // 28: batch_job.AdminUpdateJobRsp
+	(*AdminStartJobReq)(nil),            // 29: batch_job.AdminStartJobReq
+	(*AdminStartJobRsp)(nil),            // 30: batch_job.AdminStartJobRsp
+	(*AdminStopJobReq)(nil),             // 31: batch_job.AdminStopJobReq
+	(*AdminStopJobRsp)(nil),             // 32: batch_job.AdminStopJobRsp
+	(*QueryAllBizNameReq)(nil),          // 33: batch_job.QueryAllBizNameReq
+	(*QueryAllBizNameRsp)(nil),          // 34: batch_job.QueryAllBizNameRsp
+	(*QueryBizInfoReq)(nil),             // 35: batch_job.QueryBizInfoReq
+	(*QueryBizInfoRsp)(nil),             // 36: batch_job.QueryBizInfoRsp
+	(*QueryBizListReq)(nil),             // 37: batch_job.QueryBizListReq
+	(*QueryBizListRsp)(nil),             // 38: batch_job.QueryBizListRsp
+	(*QueryJobInfoReq)(nil),             // 39: batch_job.QueryJobInfoReq
+	(*QueryJobInfoRsp)(nil),             // 40: batch_job.QueryJobInfoRsp
+	(*QueryJobListReq)(nil),             // 41: batch_job.QueryJobListReq
+	(*QueryJobListRsp)(nil),             // 42: batch_job.QueryJobListRsp
+	(*QueryJobStateInfoReq)(nil),        // 43: batch_job.QueryJobStateInfoReq
+	(*JobStateInfo)(nil),                // 44: batch_job.JobStateInfo
+	(*QueryJobStateInfoRsp)(nil),        // 45: batch_job.QueryJobStateInfoRsp
+	(*QueryJobDataLogReq)(nil),          // 46: batch_job.QueryJobDataLogReq
+	(*QueryJobDataLogRsp)(nil),          // 47: batch_job.QueryJobDataLogRsp
+	(*BizStartJobReq)(nil),              // 48: batch_job.BizStartJobReq
+	(*BizStartJobRsp)(nil),              // 49: batch_job.BizStartJobRsp
+	(*BizUpdateJobDataReq)(nil),         // 50: batch_job.BizUpdateJobDataReq
+	(*BizUpdateJobDataRsp)(nil),         // 51: batch_job.BizUpdateJobDataRsp
+	(*BizStopJobReq)(nil),               // 52: batch_job.BizStopJobReq
+	(*BizStopJobRsp)(nil),               // 53: batch_job.BizStopJobRsp
+	(*BizAddDataLogReq)(nil),            // 54: batch_job.BizAddDataLogReq
+	(*BizAddDataLogRsp)(nil),            // 55: batch_job.BizAddDataLogRsp
+	(*JobCBInfo)(nil),                   // 56: batch_job.JobCBInfo
+	(*JobBeforeCreateAndChangeReq)(nil), // 57: batch_job.JobBeforeCreateAndChangeReq
+	(*JobBeforeCreateAndChangeRsp)(nil), // 58: batch_job.JobBeforeCreateAndChangeRsp
+	(*JobBeforeRunReq)(nil),             // 59: batch_job.JobBeforeRunReq
+	(*JobBeforeRunRsp)(nil),             // 60: batch_job.JobBeforeRunRsp
+	(*JobProcessReq)(nil),               // 61: batch_job.JobProcessReq
+	(*JobProcessRsp)(nil),               // 62: batch_job.JobProcessRsp
+	(*JobProcessStopReq)(nil),           // 63: batch_job.JobProcessStopReq
+	(*JobProcessStopRsp)(nil),           // 64: batch_job.JobProcessStopRsp
+	(*QueryAllBizNameRsp_LineA)(nil),    // 65: batch_job.QueryAllBizNameRsp.LineA
 }
 var file_batch_job_proto_depIdxs = []int32{
-	8,  // 0: batch_job.ExecExtendDataQ.httpCallback:type_name -> batch_job.ExecExtendDataHttpCallbackQ
-	7,  // 1: batch_job.ExecExtendDataHttpCallbackQ.headers:type_name -> batch_job.KV
-	10, // 2: batch_job.ExecExtendDataA.httpCallback:type_name -> batch_job.ExecExtendDataHttpCallbackA
-	7,  // 3: batch_job.ExecExtendDataHttpCallbackA.headers:type_name -> batch_job.KV
+	9,  // 0: batch_job.ExecExtendDataQ.httpCallback:type_name -> batch_job.ExecExtendDataHttpCallbackQ
+	8,  // 1: batch_job.ExecExtendDataHttpCallbackQ.headers:type_name -> batch_job.KV
+	11, // 2: batch_job.ExecExtendDataA.httpCallback:type_name -> batch_job.ExecExtendDataHttpCallbackA
+	8,  // 3: batch_job.ExecExtendDataHttpCallbackA.headers:type_name -> batch_job.KV
 	1,  // 4: batch_job.AdminRegistryBizReq.execType:type_name -> batch_job.ExecType
-	6,  // 5: batch_job.AdminRegistryBizReq.execExtendData:type_name -> batch_job.ExecExtendDataQ
-	15, // 6: batch_job.AdminRegistryBizReq.op:type_name -> batch_job.OpInfoQ
+	7,  // 5: batch_job.AdminRegistryBizReq.execExtendData:type_name -> batch_job.ExecExtendDataQ
+	16, // 6: batch_job.AdminRegistryBizReq.op:type_name -> batch_job.OpInfoQ
 	2,  // 7: batch_job.AdminRegistryBizReq.status:type_name -> batch_job.BizStatus
 	1,  // 8: batch_job.AdminUpdateBizReq.execType:type_name -> batch_job.ExecType
-	6,  // 9: batch_job.AdminUpdateBizReq.execExtendData:type_name -> batch_job.ExecExtendDataQ
-	15, // 10: batch_job.AdminUpdateBizReq.op:type_name -> batch_job.OpInfoQ
+	7,  // 9: batch_job.AdminUpdateBizReq.execExtendData:type_name -> batch_job.ExecExtendDataQ
+	16, // 10: batch_job.AdminUpdateBizReq.op:type_name -> batch_job.OpInfoQ
 	2,  // 11: batch_job.AdminUpdateBizReq.status:type_name -> batch_job.BizStatus
-	16, // 12: batch_job.BizOpHistoryA.op:type_name -> batch_job.OpInfoA
-	18, // 13: batch_job.BizOpHistoryA.info:type_name -> batch_job.BizInfoA
+	17, // 12: batch_job.BizOpHistoryA.op:type_name -> batch_job.OpInfoA
+	19, // 13: batch_job.BizOpHistoryA.info:type_name -> batch_job.BizInfoA
 	1,  // 14: batch_job.BizInfoA.execType:type_name -> batch_job.ExecType
-	9,  // 15: batch_job.BizInfoA.execExtendData:type_name -> batch_job.ExecExtendDataA
-	16, // 16: batch_job.BizInfoA.op:type_name -> batch_job.OpInfoA
+	10, // 15: batch_job.BizInfoA.execExtendData:type_name -> batch_job.ExecExtendDataA
+	17, // 16: batch_job.BizInfoA.op:type_name -> batch_job.OpInfoA
 	2,  // 17: batch_job.BizInfoA.status:type_name -> batch_job.BizStatus
 	1,  // 18: batch_job.BizInfoByListA.execType:type_name -> batch_job.ExecType
-	16, // 19: batch_job.BizInfoByListA.op:type_name -> batch_job.OpInfoA
+	17, // 19: batch_job.BizInfoByListA.op:type_name -> batch_job.OpInfoA
 	2,  // 20: batch_job.BizInfoByListA.status:type_name -> batch_job.BizStatus
 	3,  // 21: batch_job.JobInfoA.status:type_name -> batch_job.JobStatus
 	0,  // 22: batch_job.JobInfoA.rateType:type_name -> batch_job.RateType
-	16, // 23: batch_job.JobInfoA.op:type_name -> batch_job.OpInfoA
+	17, // 23: batch_job.JobInfoA.op:type_name -> batch_job.OpInfoA
 	3,  // 24: batch_job.JobInfoByListA.status:type_name -> batch_job.JobStatus
 	0,  // 25: batch_job.JobInfoByListA.rateType:type_name -> batch_job.RateType
-	16, // 26: batch_job.JobInfoByListA.op:type_name -> batch_job.OpInfoA
+	17, // 26: batch_job.JobInfoByListA.op:type_name -> batch_job.OpInfoA
 	5,  // 27: batch_job.DataLogQ.logType:type_name -> batch_job.DataLogType
 	5,  // 28: batch_job.LogInfoByListA.logType:type_name -> batch_job.DataLogType
 	0,  // 29: batch_job.AdminCreateJobReq.rateType:type_name -> batch_job.RateType
-	15, // 30: batch_job.AdminCreateJobReq.op:type_name -> batch_job.OpInfoQ
+	16, // 30: batch_job.AdminCreateJobReq.op:type_name -> batch_job.OpInfoQ
 	0,  // 31: batch_job.AdminUpdateJobReq.rateType:type_name -> batch_job.RateType
-	15, // 32: batch_job.AdminUpdateJobReq.op:type_name -> batch_job.OpInfoQ
-	15, // 33: batch_job.AdminStartJobReq.op:type_name -> batch_job.OpInfoQ
-	15, // 34: batch_job.AdminStopJobReq.op:type_name -> batch_job.OpInfoQ
-	64, // 35: batch_job.QueryAllBizNameRsp.line:type_name -> batch_job.QueryAllBizNameRsp.LineA
-	18, // 36: batch_job.QueryBizInfoRsp.line:type_name -> batch_job.BizInfoA
+	16, // 32: batch_job.AdminUpdateJobReq.op:type_name -> batch_job.OpInfoQ
+	16, // 33: batch_job.AdminStartJobReq.op:type_name -> batch_job.OpInfoQ
+	16, // 34: batch_job.AdminStopJobReq.op:type_name -> batch_job.OpInfoQ
+	65, // 35: batch_job.QueryAllBizNameRsp.line:type_name -> batch_job.QueryAllBizNameRsp.LineA
+	19, // 36: batch_job.QueryBizInfoRsp.line:type_name -> batch_job.BizInfoA
 	2,  // 37: batch_job.QueryBizListReq.status:type_name -> batch_job.BizStatus
-	19, // 38: batch_job.QueryBizListRsp.line:type_name -> batch_job.BizInfoByListA
-	20, // 39: batch_job.QueryJobInfoRsp.line:type_name -> batch_job.JobInfoA
+	20, // 38: batch_job.QueryBizListRsp.line:type_name -> batch_job.BizInfoByListA
+	21, // 39: batch_job.QueryJobInfoRsp.line:type_name -> batch_job.JobInfoA
 	4,  // 40: batch_job.QueryJobListReq.status:type_name -> batch_job.JobStatusQ
-	21, // 41: batch_job.QueryJobListRsp.line:type_name -> batch_job.JobInfoByListA
+	22, // 41: batch_job.QueryJobListRsp.line:type_name -> batch_job.JobInfoByListA
 	3,  // 42: batch_job.JobStateInfo.status:type_name -> batch_job.JobStatus
-	16, // 43: batch_job.JobStateInfo.op:type_name -> batch_job.OpInfoA
-	43, // 44: batch_job.QueryJobStateInfoRsp.jobStateInfos:type_name -> batch_job.JobStateInfo
+	17, // 43: batch_job.JobStateInfo.op:type_name -> batch_job.OpInfoA
+	44, // 44: batch_job.QueryJobStateInfoRsp.jobStateInfos:type_name -> batch_job.JobStateInfo
 	5,  // 45: batch_job.QueryJobDataLogReq.logType:type_name -> batch_job.DataLogType
-	23, // 46: batch_job.QueryJobDataLogRsp.line:type_name -> batch_job.LogInfoByListA
-	22, // 47: batch_job.BizAddDataLogReq.log:type_name -> batch_job.DataLogQ
+	24, // 46: batch_job.QueryJobDataLogRsp.line:type_name -> batch_job.LogInfoByListA
+	23, // 47: batch_job.BizAddDataLogReq.log:type_name -> batch_job.DataLogQ
 	0,  // 48: batch_job.JobCBInfo.rateType:type_name -> batch_job.RateType
-	55, // 49: batch_job.JobBeforeCreateAndChangeReq.jobInfo:type_name -> batch_job.JobCBInfo
-	55, // 50: batch_job.JobBeforeRunReq.jobInfo:type_name -> batch_job.JobCBInfo
-	55, // 51: batch_job.JobProcessStopReq.jobInfo:type_name -> batch_job.JobCBInfo
-	2,  // 52: batch_job.QueryAllBizNameRsp.LineA.status:type_name -> batch_job.BizStatus
-	11, // 53: batch_job.BatchJobService.AdminRegistryBiz:input_type -> batch_job.AdminRegistryBizReq
-	13, // 54: batch_job.BatchJobService.AdminUpdateBiz:input_type -> batch_job.AdminUpdateBizReq
-	24, // 55: batch_job.BatchJobService.AdminCreateJob:input_type -> batch_job.AdminCreateJobReq
-	26, // 56: batch_job.BatchJobService.AdminUpdateJob:input_type -> batch_job.AdminUpdateJobReq
-	28, // 57: batch_job.BatchJobService.AdminStartJob:input_type -> batch_job.AdminStartJobReq
-	30, // 58: batch_job.BatchJobService.AdminStopJob:input_type -> batch_job.AdminStopJobReq
-	32, // 59: batch_job.BatchJobService.QueryAllBizName:input_type -> batch_job.QueryAllBizNameReq
-	34, // 60: batch_job.BatchJobService.QueryBizInfo:input_type -> batch_job.QueryBizInfoReq
-	36, // 61: batch_job.BatchJobService.QueryBizList:input_type -> batch_job.QueryBizListReq
-	38, // 62: batch_job.BatchJobService.QueryJobInfo:input_type -> batch_job.QueryJobInfoReq
-	40, // 63: batch_job.BatchJobService.QueryJobList:input_type -> batch_job.QueryJobListReq
-	42, // 64: batch_job.BatchJobService.QueryJobStateInfo:input_type -> batch_job.QueryJobStateInfoReq
-	45, // 65: batch_job.BatchJobService.QueryJobDataLog:input_type -> batch_job.QueryJobDataLogReq
-	47, // 66: batch_job.BatchJobService.BizStartJob:input_type -> batch_job.BizStartJobReq
-	49, // 67: batch_job.BatchJobService.BizUpdateJobData:input_type -> batch_job.BizUpdateJobDataReq
-	51, // 68: batch_job.BatchJobService.BizStopJob:input_type -> batch_job.BizStopJobReq
-	53, // 69: batch_job.BatchJobService.BizAddDataLog:input_type -> batch_job.BizAddDataLogReq
-	12, // 70: batch_job.BatchJobService.AdminRegistryBiz:output_type -> batch_job.AdminRegistryBizRsp
-	14, // 71: batch_job.BatchJobService.AdminUpdateBiz:output_type -> batch_job.AdminUpdateBizRsp
-	25, // 72: batch_job.BatchJobService.AdminCreateJob:output_type -> batch_job.AdminCreateJobRsp
-	27, // 73: batch_job.BatchJobService.AdminUpdateJob:output_type -> batch_job.AdminUpdateJobRsp
-	29, // 74: batch_job.BatchJobService.AdminStartJob:output_type -> batch_job.AdminStartJobRsp
-	31, // 75: batch_job.BatchJobService.AdminStopJob:output_type -> batch_job.AdminStopJobRsp
-	33, // 76: batch_job.BatchJobService.QueryAllBizName:output_type -> batch_job.QueryAllBizNameRsp
-	35, // 77: batch_job.BatchJobService.QueryBizInfo:output_type -> batch_job.QueryBizInfoRsp
-	37, // 78: batch_job.BatchJobService.QueryBizList:output_type -> batch_job.QueryBizListRsp
-	39, // 79: batch_job.BatchJobService.QueryJobInfo:output_type -> batch_job.QueryJobInfoRsp
-	41, // 80: batch_job.BatchJobService.QueryJobList:output_type -> batch_job.QueryJobListRsp
-	44, // 81: batch_job.BatchJobService.QueryJobStateInfo:output_type -> batch_job.QueryJobStateInfoRsp
-	46, // 82: batch_job.BatchJobService.QueryJobDataLog:output_type -> batch_job.QueryJobDataLogRsp
-	48, // 83: batch_job.BatchJobService.BizStartJob:output_type -> batch_job.BizStartJobRsp
-	50, // 84: batch_job.BatchJobService.BizUpdateJobData:output_type -> batch_job.BizUpdateJobDataRsp
-	52, // 85: batch_job.BatchJobService.BizStopJob:output_type -> batch_job.BizStopJobRsp
-	54, // 86: batch_job.BatchJobService.BizAddDataLog:output_type -> batch_job.BizAddDataLogRsp
-	70, // [70:87] is the sub-list for method output_type
-	53, // [53:70] is the sub-list for method input_type
-	53, // [53:53] is the sub-list for extension type_name
-	53, // [53:53] is the sub-list for extension extendee
-	0,  // [0:53] is the sub-list for field type_name
+	56, // 49: batch_job.JobBeforeCreateAndChangeReq.jobInfo:type_name -> batch_job.JobCBInfo
+	56, // 50: batch_job.JobBeforeRunReq.jobInfo:type_name -> batch_job.JobCBInfo
+	6,  // 51: batch_job.JobProcessRsp.cmd:type_name -> batch_job.JobProcessCmd
+	23, // 52: batch_job.JobProcessRsp.log:type_name -> batch_job.DataLogQ
+	56, // 53: batch_job.JobProcessStopReq.jobInfo:type_name -> batch_job.JobCBInfo
+	2,  // 54: batch_job.QueryAllBizNameRsp.LineA.status:type_name -> batch_job.BizStatus
+	12, // 55: batch_job.BatchJobService.AdminRegistryBiz:input_type -> batch_job.AdminRegistryBizReq
+	14, // 56: batch_job.BatchJobService.AdminUpdateBiz:input_type -> batch_job.AdminUpdateBizReq
+	25, // 57: batch_job.BatchJobService.AdminCreateJob:input_type -> batch_job.AdminCreateJobReq
+	27, // 58: batch_job.BatchJobService.AdminUpdateJob:input_type -> batch_job.AdminUpdateJobReq
+	29, // 59: batch_job.BatchJobService.AdminStartJob:input_type -> batch_job.AdminStartJobReq
+	31, // 60: batch_job.BatchJobService.AdminStopJob:input_type -> batch_job.AdminStopJobReq
+	33, // 61: batch_job.BatchJobService.QueryAllBizName:input_type -> batch_job.QueryAllBizNameReq
+	35, // 62: batch_job.BatchJobService.QueryBizInfo:input_type -> batch_job.QueryBizInfoReq
+	37, // 63: batch_job.BatchJobService.QueryBizList:input_type -> batch_job.QueryBizListReq
+	39, // 64: batch_job.BatchJobService.QueryJobInfo:input_type -> batch_job.QueryJobInfoReq
+	41, // 65: batch_job.BatchJobService.QueryJobList:input_type -> batch_job.QueryJobListReq
+	43, // 66: batch_job.BatchJobService.QueryJobStateInfo:input_type -> batch_job.QueryJobStateInfoReq
+	46, // 67: batch_job.BatchJobService.QueryJobDataLog:input_type -> batch_job.QueryJobDataLogReq
+	48, // 68: batch_job.BatchJobService.BizStartJob:input_type -> batch_job.BizStartJobReq
+	50, // 69: batch_job.BatchJobService.BizUpdateJobData:input_type -> batch_job.BizUpdateJobDataReq
+	52, // 70: batch_job.BatchJobService.BizStopJob:input_type -> batch_job.BizStopJobReq
+	54, // 71: batch_job.BatchJobService.BizAddDataLog:input_type -> batch_job.BizAddDataLogReq
+	13, // 72: batch_job.BatchJobService.AdminRegistryBiz:output_type -> batch_job.AdminRegistryBizRsp
+	15, // 73: batch_job.BatchJobService.AdminUpdateBiz:output_type -> batch_job.AdminUpdateBizRsp
+	26, // 74: batch_job.BatchJobService.AdminCreateJob:output_type -> batch_job.AdminCreateJobRsp
+	28, // 75: batch_job.BatchJobService.AdminUpdateJob:output_type -> batch_job.AdminUpdateJobRsp
+	30, // 76: batch_job.BatchJobService.AdminStartJob:output_type -> batch_job.AdminStartJobRsp
+	32, // 77: batch_job.BatchJobService.AdminStopJob:output_type -> batch_job.AdminStopJobRsp
+	34, // 78: batch_job.BatchJobService.QueryAllBizName:output_type -> batch_job.QueryAllBizNameRsp
+	36, // 79: batch_job.BatchJobService.QueryBizInfo:output_type -> batch_job.QueryBizInfoRsp
+	38, // 80: batch_job.BatchJobService.QueryBizList:output_type -> batch_job.QueryBizListRsp
+	40, // 81: batch_job.BatchJobService.QueryJobInfo:output_type -> batch_job.QueryJobInfoRsp
+	42, // 82: batch_job.BatchJobService.QueryJobList:output_type -> batch_job.QueryJobListRsp
+	45, // 83: batch_job.BatchJobService.QueryJobStateInfo:output_type -> batch_job.QueryJobStateInfoRsp
+	47, // 84: batch_job.BatchJobService.QueryJobDataLog:output_type -> batch_job.QueryJobDataLogRsp
+	49, // 85: batch_job.BatchJobService.BizStartJob:output_type -> batch_job.BizStartJobRsp
+	51, // 86: batch_job.BatchJobService.BizUpdateJobData:output_type -> batch_job.BizUpdateJobDataRsp
+	53, // 87: batch_job.BatchJobService.BizStopJob:output_type -> batch_job.BizStopJobRsp
+	55, // 88: batch_job.BatchJobService.BizAddDataLog:output_type -> batch_job.BizAddDataLogRsp
+	72, // [72:89] is the sub-list for method output_type
+	55, // [55:72] is the sub-list for method input_type
+	55, // [55:55] is the sub-list for extension type_name
+	55, // [55:55] is the sub-list for extension extendee
+	0,  // [0:55] is the sub-list for field type_name
 }
 
 func init() { file_batch_job_proto_init() }
@@ -4573,7 +4656,7 @@ func file_batch_job_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_batch_job_proto_rawDesc), len(file_batch_job_proto_rawDesc)),
-			NumEnums:      6,
+			NumEnums:      7,
 			NumMessages:   59,
 			NumExtensions: 0,
 			NumServices:   1,

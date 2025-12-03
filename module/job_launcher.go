@@ -518,7 +518,7 @@ func (j *jobLauncher) processData(sn int64) {
 	attemptCount := 0 // 已尝试次数
 	for {
 		attemptCount++
-		err := j.b.Process(ctx, j.jobInfo, sn, attemptCount)
+		_, err := j.b.Process(ctx, j.jobInfo, sn, attemptCount)
 		if err == nil {
 			break
 		}

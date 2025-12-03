@@ -37,7 +37,7 @@ type Business interface {
 
 	return err表示处理失败
 	*/
-	Process(ctx context.Context, jobInfo *batch_job_list.Model, dataIndex int64, attemptCount int) error
+	Process(ctx context.Context, jobInfo *batch_job_list.Model, dataIndex int64, attemptCount int) (*pb.JobProcessRsp, error)
 	// 任务停止回调
 	ProcessStop(ctx context.Context, jobInfo *batch_job_list.Model, isFinished bool) error
 }

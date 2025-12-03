@@ -108,7 +108,7 @@ func (h *httpCallbackBiz) BeforeRun(ctx context.Context, args *pb.JobBeforeRunRe
 	return
 }
 
-func (h *httpCallbackBiz) Process(ctx context.Context, jobInfo *batch_job_list.Model, dataIndex int64, attemptCount int) error {
+func (h *httpCallbackBiz) Process(ctx context.Context, jobInfo *batch_job_list.Model, dataIndex int64, attemptCount int) (*pb.JobProcessRsp, error) {
 	args := &pb.JobProcessReq{
 		JobId:        int64(jobInfo.JobID),
 		DataIndex:    dataIndex,
@@ -124,16 +124,16 @@ func (h *httpCallbackBiz) Process(ctx context.Context, jobInfo *batch_job_list.M
 	sp, err := c.Post(ctx, h.eed.GetHttpCallback().GetProcess(), nil, opts...)
 	if err != nil {
 		log.Error(ctx, "Process call http fail.", zap.Error(err))
-		return err
+		return rsp, err
 	}
 
 	// 检查状态码
 	if sp.StatusCode != rawHttp.StatusOK {
 		err = fmt.Errorf("http StatusCode not ok. code=%d. body=%s", sp.StatusCode, sp.Body)
 		log.Error(ctx, "Process call http fail.", zap.Error(err))
-		return err
+		return rsp, err
 	}
-	return nil
+	return rsp, nil
 }
 
 func (h *httpCallbackBiz) ProcessStop(ctx context.Context, jobInfo *batch_job_list.Model, isFinished bool) error {

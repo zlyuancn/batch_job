@@ -23,8 +23,8 @@ const (
 	defJobInfoKeyPrefix                     = "batch_job:job_info:"
 	defJobInfoCacheTtl                      = 3600
 
-	defJobRunThreadCount                = 100
-	defJobSlidingWindowSize             = 200
+	defJobRunThreadCount                = 20
+	defJobSlidingWindowSize             = 40
 	defJobFlushProcessedCountInterval   = 1
 	defJobFlushCheckStopFlagInterval    = 1
 	defJobProcessCumulativeErrorRate    = 10
