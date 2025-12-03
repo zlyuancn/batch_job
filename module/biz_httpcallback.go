@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/zly-app/component/http"
+	"github.com/zly-app/zapp/filter"
 	"github.com/zly-app/zapp/log"
 	"go.uber.org/zap"
 
@@ -22,7 +23,7 @@ type httpCallbackBiz struct {
 	headers http.Header
 }
 
-func (h *httpCallbackBiz) genHttpOpts(timeout time.Duration, req, rsp interface{}) []http.Option {
+func (h *httpCallbackBiz) genHttpOpts(ctx context.Context, timeout time.Duration, req, rsp interface{}) (context.Context, []http.Option) {
 	opts := []http.Option{http.WithInJson(req), http.WithOutJson(rsp), http.WithTimeout(timeout)}
 	if h.eed.GetHttpCallback().InsecureSkipVerify {
 		opts = append(opts, http.WithInsecureSkipVerify())
@@ -33,7 +34,8 @@ func (h *httpCallbackBiz) genHttpOpts(timeout time.Duration, req, rsp interface{
 	if h.eed.GetHttpCallback().GetProxy() != "" {
 		opts = append(opts, http.WithProxy(h.eed.GetHttpCallback().GetProxy()))
 	}
-	return opts
+	ctx = filter.WithoutFilterName(ctx, "base.timeout", "base.gpool")
+	return ctx, opts
 }
 
 func (h *httpCallbackBiz) GetBizInfo() *batch_job_biz.Model {
@@ -60,7 +62,7 @@ func (h *httpCallbackBiz) BeforeCreateAndChange(ctx context.Context, args *pb.Jo
 	rsp := &pb.JobBeforeCreateAndChangeRsp{}
 
 	timeout := time.Duration(h.eed.GetHttpCallback().GetBeforeCreateTimeout()) * time.Second
-	opts := h.genHttpOpts(timeout, args, rsp)
+	ctx, opts := h.genHttpOpts(ctx, timeout, args, rsp)
 
 	// 创建/修改前回调
 	c := http.NewClient("job_" + strconv.Itoa(int(args.GetJobInfo().GetJobId())))
@@ -87,7 +89,7 @@ func (h *httpCallbackBiz) BeforeRun(ctx context.Context, args *pb.JobBeforeRunRe
 	rsp := &pb.JobBeforeRunRsp{}
 
 	timeout := time.Duration(h.eed.GetHttpCallback().GetBeforeRunTimeout()) * time.Second
-	opts := h.genHttpOpts(timeout, args, rsp)
+	ctx, opts := h.genHttpOpts(ctx, timeout, args, rsp)
 
 	// 运行前回调
 	c := http.NewClient("job_" + strconv.Itoa(int(args.GetJobInfo().GetJobId())))
@@ -115,7 +117,7 @@ func (h *httpCallbackBiz) Process(ctx context.Context, jobInfo *batch_job_list.M
 	rsp := &pb.JobProcessRsp{}
 
 	timeout := time.Duration(h.eed.GetHttpCallback().GetProcessTimeout()) * time.Second
-	opts := h.genHttpOpts(timeout, args, rsp)
+	ctx, opts := h.genHttpOpts(ctx, timeout, args, rsp)
 
 	// 处理数据
 	c := http.NewClient("job_" + strconv.Itoa(int(jobInfo.JobID)) + "_" + strconv.FormatInt(dataIndex, 10))
@@ -157,7 +159,7 @@ func (h *httpCallbackBiz) ProcessStop(ctx context.Context, jobInfo *batch_job_li
 	rsp := &pb.JobProcessStopRsp{}
 
 	timeout := time.Duration(h.eed.GetHttpCallback().GetProcessStopTimeout()) * time.Second
-	opts := h.genHttpOpts(timeout, args, rsp)
+	ctx, opts := h.genHttpOpts(ctx, timeout, args, rsp)
 
 	// 停止时回调
 	c := http.NewClient("job_" + strconv.Itoa(int(args.GetJobInfo().JobId)))
