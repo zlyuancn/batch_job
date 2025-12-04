@@ -12,7 +12,6 @@ import (
 
 	"github.com/zlyuancn/batch_job/dao/batch_job_list"
 	"github.com/zlyuancn/batch_job/dao/batch_job_list_history"
-	"github.com/zlyuancn/batch_job/dao/batch_job_log"
 	"github.com/zlyuancn/batch_job/dao/redis"
 	"github.com/zlyuancn/batch_job/handler"
 	"github.com/zlyuancn/batch_job/model"
@@ -92,7 +91,7 @@ func (b *BatchJob) BizStartJob(ctx context.Context, req *pb.BizStartJobReq) (*pb
 	// 启动
 	gpool.GetDefGPool().Go(func() error {
 		// 删除停止标记
-		err = module.Job.SetStopFlag(cloneCtx, int(jobInfo.JobID), false)
+		err = module.Job.SetStopFlag(cloneCtx, int(jobInfo.JobID), model.StopFlag_None)
 		if err != nil {
 			log.Error(cloneCtx, "BizStartJob call DelStopFlag fail.", zap.Error(err))
 			return err
@@ -207,7 +206,7 @@ func (b *BatchJob) BizStopJob(ctx context.Context, req *pb.BizStopJobReq) (*pb.B
 
 	// 写入停止标记
 	if pb.JobStatus(jobInfo.Status) == pb.JobStatus_JobStatus_Running {
-		err = module.Job.SetStopFlag(ctx, int(req.GetJobId()), true)
+		err = module.Job.SetStopFlag(ctx, int(req.GetJobId()), model.StopFlag_Stop)
 		if err != nil {
 			log.Error(ctx, "BizStopJob call SetStopFlag fail.", zap.Error(err))
 			return nil, err
@@ -230,7 +229,7 @@ func (b *BatchJob) BizStopJob(ctx context.Context, req *pb.BizStopJobReq) (*pb.B
 	jobInfo.Status = byte(status)
 	jobInfo.StatusInfo = model.StatusInfo_BizChangeStatus
 
-	if status == pb.JobStatus_JobStatus_Stopped{
+	if status == pb.JobStatus_JobStatus_Stopped {
 		handler.Trigger(ctx, handler.AfterJobStopped, jobInfo)
 	}
 
@@ -269,42 +268,10 @@ func (b *BatchJob) BizStopJob(ctx context.Context, req *pb.BizStopJobReq) (*pb.B
 
 // 增加数据日志
 func (b *BatchJob) BizAddDataLog(ctx context.Context, req *pb.BizAddDataLogReq) (*pb.BizAddDataLogRsp, error) {
-	if len(req.GetLog()) == 0 {
-		return &pb.BizAddDataLogRsp{}, nil
-	}
-
-	errNum := int64(0) // 错误计数
-	lines := make([]*batch_job_log.Model, len(req.GetLog()))
-	for i, a := range req.GetLog() {
-		lines[i] = &batch_job_log.Model{
-			JobID:     uint(req.GetJobId()),
-			DataIndex: a.GetDataIndex(),
-			Remark:    a.GetRemark(),
-			Extend:    a.GetExtend(),
-			LogType:   byte(a.GetLogType()),
-		}
-		if a.GetLogType() == pb.DataLogType_DataLogType_ErrData {
-			errNum++
-		}
-	}
-
-	_, err := batch_job_log.MultiSave(ctx, lines)
+	err := module.Job.AddDataLog(ctx, uint(req.GetJobId()), req.GetLog())
 	if err != nil {
-		log.Error(ctx, "BizAddDataLog call MultiSave fail.", zap.Error(err))
+		log.Error(ctx, "BizAddDataLog call AddDataLog fail.", zap.Error(err))
 		return nil, err
-	}
-
-	// 添加错误日志数
-	if errNum > 0 {
-		cloneCtx := utils.Ctx.CloneContext(ctx)
-		gpool.GetDefGPool().Go(func() error {
-			_, err := module.Job.IncrCacheErrCount(cloneCtx, int(req.GetJobId()), errNum)
-			if err != nil {
-				log.Error(cloneCtx, "BizAddDataLog call IncrCacheErrCount fail.", zap.Error(err))
-				// return err
-			}
-			return nil
-		}, nil)
 	}
 	return &pb.BizAddDataLogRsp{}, nil
 }

@@ -12,6 +12,7 @@ import (
 	"github.com/zly-app/zapp/component/gpool"
 	"github.com/zly-app/zapp/log"
 	"github.com/zly-app/zapp/pkg/utils"
+	"github.com/zlyuancn/batch_job/model"
 	"github.com/zlyuancn/sliding_window"
 	"go.uber.org/zap"
 	"golang.org/x/time/rate"
@@ -254,8 +255,8 @@ type jobLauncher struct {
 	renewKeyStopChan chan struct{} // key自动续期具有独立的停止信号
 	onceStop         int32         // 只调用一次stop
 
-	isGotStopFlag bool   // 是否因为收到停止标记而停止
-	statusInfo    string // 停止时的状态信息传递
+	gotStopFlag model.StopFlag // 停止标记
+	statusInfo  string         // 停止时的状态信息传递
 }
 
 func newJobLauncher(b Business, bizInfo *batch_job_biz.Model, jobInfo *batch_job_list.Model,
@@ -322,6 +323,7 @@ func (j *jobLauncher) loopLockKeyRenew() {
 	for {
 		select {
 		case <-j.renewKeyStopChan:
+			_ = j.lockKeyUnlock() // 主动解锁
 			return
 		case <-t.C:
 			err := j.lockKeyRenew(j.ctx, time.Duration(conf.Conf.JobRunLockExtraTtl)*time.Second)
@@ -368,10 +370,10 @@ func (j *jobLauncher) loopCheckStopFlag() {
 			return
 		case <-t.C:
 			flag, _ := Job.GetStopFlag(j.ctx, int(j.jobInfo.JobID))
-			if flag {
+			if flag != model.StopFlag_None {
 				log.Warn(j.ctx, "loopCheckStopFlag got stop flag")
-				j.isGotStopFlag = true
-				j.submitStopFlag("got stop flag")
+				j.gotStopFlag = flag
+				j.submitStopFlag("got stop flag is " + strconv.Itoa(int(j.gotStopFlag)))
 			}
 		}
 	}
@@ -518,8 +520,15 @@ func (j *jobLauncher) processData(sn int64) {
 	attemptCount := 0 // 已尝试次数
 	for {
 		attemptCount++
-		_, err := j.b.Process(ctx, j.jobInfo, sn, attemptCount)
+		rsp, err := j.b.Process(ctx, j.jobInfo, sn, attemptCount)
 		if err == nil {
+			err = j.processJobRsp(utils.Ctx.CloneContext(ctx), sn, rsp)
+			if err != nil {
+				// 对结果处理必须成功, 如果失败就停止运行
+				log.Error(ctx, "job Run process Rsp process fail.", zap.Error(err))
+				j.submitStopFlag("job Run process Rsp process fail." + err.Error())
+				return
+			}
 			break
 		}
 
@@ -558,7 +567,6 @@ func (j *jobLauncher) submitStopFlag(statusInfo string) {
 func (j *jobLauncher) stopSideEffect() {
 	defer func() {
 		close(j.renewKeyStopChan) // 停止续期
-		_ = j.lockKeyUnlock()     // 主动解锁
 	}()
 
 	// 替换ctx
@@ -584,16 +592,21 @@ func (j *jobLauncher) stopSideEffect() {
 	finishedCount := j.sw.GetProgress() + 1 // 已完成数
 	j.jobInfo.ProcessedCount = uint64(finishedCount)
 	isFinished := finishedCount >= int64(j.jobInfo.ProcessDataTotal)
+	if isFinished {
+		j.jobInfo.StatusInfo = "finished"
+	}
 	updateData := map[string]interface{}{
 		"processed_count": finishedCount,
 		"status_info":     j.statusInfo,
 	}
-	if j.isGotStopFlag {
+	switch j.gotStopFlag {
+	case model.StopFlag_Stop:
 		j.jobInfo.Status = byte(pb.JobStatus_JobStatus_Stopped)
 		updateData["status"] = int(pb.JobStatus_JobStatus_Stopped)
+	case model.StopFlag_JobIsFinished:
+		isFinished = true
 	}
 	if isFinished {
-		j.jobInfo.StatusInfo = "finished"
 		j.jobInfo.Status = byte(pb.JobStatus_JobStatus_Finished)
 		updateData["status_info"] = "finished"
 		updateData["status"] = int(pb.JobStatus_JobStatus_Finished)
@@ -636,11 +649,37 @@ func (j *jobLauncher) stopSideEffect() {
 		// return // 这里不影响主流程
 	}
 
-	if isFinished {
+	if isFinished || j.gotStopFlag == model.StopFlag_JobIsFinished {
 		handler.Trigger(j.ctx, handler.JobFinished, j.jobInfo)
-	} else if j.isGotStopFlag {
+	} else if j.gotStopFlag == model.StopFlag_Stop {
 		handler.Trigger(j.ctx, handler.AfterJobStopped, j.jobInfo)
 	} else {
 		handler.Trigger(j.ctx, handler.JobRunFailureExit, j.jobInfo)
 	}
+}
+
+// 对任务处理的响应做处理
+func (j *jobLauncher) processJobRsp(ctx context.Context, sn int64, rsp *pb.JobProcessRsp) error {
+	// 日志处理
+	err := Job.AddDataLog(ctx, j.jobInfo.JobID, rsp.GetLog())
+	if err != nil {
+		log.Error(ctx, "processJobRsp call AddDataLog fail.", zap.Error(err))
+	}
+
+	// 命令处理
+	switch rsp.GetCmd() {
+	case pb.JobProcessCmd_StopJob:
+		_ = Job.SetStopFlag(ctx, int(j.jobInfo.JobID), model.StopFlag_Stop)
+		j.gotStopFlag = model.StopFlag_Stop
+		j.submitStopFlag(rsp.GetRemark())
+	case pb.JobProcessCmd_MarkJobIsFinished:
+		if j.jobInfo.ConcType != byte(pb.ConcType_ConcType_Serialization) {
+			log.Warn(ctx, "processJobRsp cmd=MarkJobIsFinished. but ConcType not Serialization", zap.Int64("sn", sn))
+			break
+		}
+		_ = Job.SetStopFlag(ctx, int(j.jobInfo.JobID), model.StopFlag_JobIsFinished) // 这一步是防止后面流程崩溃后, 恢复器恢复又开始运行了
+		j.gotStopFlag = model.StopFlag_JobIsFinished
+		j.submitStopFlag(rsp.GetRemark())
+	}
+	return nil
 }

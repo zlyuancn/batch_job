@@ -2,6 +2,7 @@ package module
 
 import (
 	"context"
+	"strconv"
 	"time"
 
 	"github.com/zly-app/cache/v2"
@@ -80,7 +81,7 @@ func (r *restorerCli) restorerJob(ctx context.Context, jobInfos []*batch_job_lis
 			jobId := jobInfo.JobID
 			cloneCtx := utils.Ctx.CloneContext(ctx)
 			gpool.GetDefGPool().Go(func() error {
-				r.restorerJobStopping(cloneCtx, jobId)
+				r.restorerJobStopping(cloneCtx, jobId, false)
 				return nil
 			}, nil)
 			continue
@@ -91,11 +92,11 @@ func (r *restorerCli) restorerJob(ctx context.Context, jobInfos []*batch_job_lis
 		if err != nil {
 			log.Error(ctx, "restorerJob call GetStopFlag fail.", zap.Uint("jobId", jobInfo.JobID), zap.Error(err))
 		}
-		if stopFlag {
+		if stopFlag != model.StopFlag_None {
 			jobId := jobInfo.JobID
 			cloneCtx := utils.Ctx.CloneContext(ctx)
 			gpool.GetDefGPool().Go(func() error {
-				r.restorerJobStopping(cloneCtx, jobId)
+				r.restorerJobStopping(cloneCtx, jobId, stopFlag == model.StopFlag_JobIsFinished)
 				return nil
 			}, nil)
 			continue
@@ -174,7 +175,7 @@ func (r *restorerCli) restorerJobRunning(ctx context.Context, jobId uint, status
 }
 
 // 扭转任务的 Stopping 状态
-func (r *restorerCli) restorerJobStopping(ctx context.Context, jobId uint) {
+func (r *restorerCli) restorerJobStopping(ctx context.Context, jobId uint, isGotFinishedFlag bool) {
 	// 尝试获取运行锁
 	runLockKey := CacheKey.GetRunLockKey(int(jobId))
 	unlock, _, err := redis.AutoLock(ctx, runLockKey, time.Duration(conf.Conf.JobRunLockExtraTtl)*time.Second)
@@ -194,18 +195,25 @@ func (r *restorerCli) restorerJobStopping(ctx context.Context, jobId uint) {
 		return
 	}
 
+	status := pb.JobStatus_JobStatus_Stopped
+	statusInfo := "restorerJobStopping"
+	if isGotFinishedFlag {
+		status = pb.JobStatus_JobStatus_Finished
+		statusInfo = "got stop flag is " + strconv.Itoa(int(model.StopFlag_JobIsFinished))
+	}
+
 	// 更新任务状态
 	updateData := map[string]interface{}{
-		"status":      pb.JobStatus_JobStatus_Stopped,
-		"status_info": "restorerJobStopping",
+		"status":      status,
+		"status_info": statusInfo,
 	}
-	err = batch_job_list.UpdateOne(ctx, int(jobId), updateData, byte(pb.JobStatus_JobStatus_Stopping))
+	err = batch_job_list.UpdateOne(ctx, int(jobId), updateData, jobInfo.Status)
 	if err != nil {
 		log.Error(ctx, "stopSideEffect call UpdateOne fail.", zap.Uint("jobId", jobId), zap.Error(err))
 		return
 	}
-	jobInfo.Status = byte(pb.JobStatus_JobStatus_Stopped)
-	jobInfo.StatusInfo = "restorerJobStopping"
+	jobInfo.Status = byte(status)
+	jobInfo.StatusInfo = statusInfo
 
 	handler.Trigger(ctx, handler.AfterJobStopped, jobInfo)
 

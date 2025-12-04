@@ -4,11 +4,14 @@ import (
 	"context"
 	"time"
 
+	"github.com/spf13/cast"
 	"github.com/zly-app/cache/v2"
 	"github.com/zly-app/component/redis"
 	"github.com/zly-app/component/sqlx"
+	"github.com/zly-app/zapp/component/gpool"
 	"github.com/zly-app/zapp/log"
 	"github.com/zly-app/zapp/pkg/utils"
+	"github.com/zlyuancn/batch_job/model"
 	"go.uber.org/zap"
 
 	"github.com/zlyuancn/batch_job/client/db"
@@ -23,36 +26,36 @@ var Job = &jobCli{}
 type jobCli struct{}
 
 // 写入或删除停止标记
-func (*jobCli) SetStopFlag(ctx context.Context, jobId int, flag bool) error {
+func (*jobCli) SetStopFlag(ctx context.Context, jobId int, flag model.StopFlag) error {
 	key := CacheKey.GetStopFlag(jobId)
 	rdb, err := db.GetRedis()
 	if err != nil {
 		return err
 	}
-	if flag {
-		err = rdb.Set(ctx, key, "1", time.Duration(conf.Conf.JobStopFlagTtl)*time.Second).Err()
-	} else {
+	if flag == model.StopFlag_None {
 		err = rdb.Del(ctx, key).Err()
+	} else {
+		err = rdb.Set(ctx, key, "1", time.Duration(conf.Conf.JobStopFlagTtl)*time.Second).Err()
 	}
 	return err
 }
 
 // 获取停止标记
-func (*jobCli) GetStopFlag(ctx context.Context, jobId int) (bool, error) {
+func (*jobCli) GetStopFlag(ctx context.Context, jobId int) (model.StopFlag, error) {
 	key := CacheKey.GetStopFlag(jobId)
 	rdb, err := db.GetRedis()
 	if err != nil {
-		return false, err
+		return model.StopFlag_None, err
 	}
 	v, err := rdb.Get(ctx, key).Result()
 	if err == redis.Nil {
-		return false, nil
+		return model.StopFlag_None, nil
 	}
 	if err != nil {
 		log.Error(ctx, "GetStopFlag fail.", zap.Error(err))
-		return false, err
+		return model.StopFlag_None, err
 	}
-	return v == "1", nil
+	return model.StopFlag(cast.ToInt(v)), nil
 }
 
 // 从redis加载进度, 对于服务突然宕机, 进度是不会写入到db中, 而运行中的任务的实际进度都应该以redis为准
@@ -146,4 +149,45 @@ func (j *jobCli) BatchGetJobInfoByCache(ctx context.Context, jobId []uint) ([]*b
 		return nil, err
 	}
 	return lines, nil
+}
+
+func (j *jobCli) AddDataLog(ctx context.Context, jobId uint, dataLog []*pb.DataLogQ) error {
+	if len(dataLog) == 0 {
+		return nil
+	}
+
+	errNum := int64(0) // 错误计数
+	lines := make([]*batch_job_log.Model, len(dataLog))
+	for i, a := range dataLog {
+		lines[i] = &batch_job_log.Model{
+			JobID:     jobId,
+			DataIndex: a.GetDataIndex(),
+			Remark:    a.GetRemark(),
+			Extend:    a.GetExtend(),
+			LogType:   byte(a.GetLogType()),
+		}
+		if a.GetLogType() == pb.DataLogType_DataLogType_ErrData {
+			errNum++
+		}
+	}
+
+	_, err := batch_job_log.MultiSave(ctx, lines)
+	if err != nil {
+		log.Error(ctx, "AddDataLog call MultiSave fail.", zap.Error(err))
+		return err
+	}
+
+	// 添加错误日志数
+	if errNum > 0 {
+		cloneCtx := utils.Ctx.CloneContext(ctx)
+		gpool.GetDefGPool().Go(func() error {
+			_, err := Job.IncrCacheErrCount(cloneCtx, int(jobId), errNum)
+			if err != nil {
+				log.Error(cloneCtx, "AddDataLog call IncrCacheErrCount fail.", zap.Error(err))
+				// return err
+			}
+			return nil
+		}, nil)
+	}
+	return nil
 }

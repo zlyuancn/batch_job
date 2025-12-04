@@ -545,7 +545,7 @@ func (*BatchJob) AdminStartJob(ctx context.Context, req *pb.AdminStartJobReq) (*
 	// 启动
 	gpool.GetDefGPool().Go(func() error {
 		// 删除停止标记
-		err = module.Job.SetStopFlag(cloneCtx, int(jobInfo.JobID), false)
+		err = module.Job.SetStopFlag(cloneCtx, int(jobInfo.JobID), model.StopFlag_None)
 		if err != nil {
 			log.Error(cloneCtx, "AdminStartJob call DelStopFlag fail.", zap.Error(err))
 			return err
@@ -585,7 +585,7 @@ func (b *BatchJob) AdminStopJob(ctx context.Context, req *pb.AdminStopJobReq) (*
 	}
 
 	// 写入停止标记
-	err = module.Job.SetStopFlag(ctx, int(req.GetJobId()), true)
+	err = module.Job.SetStopFlag(ctx, int(req.GetJobId()), model.StopFlag_Stop)
 	if err != nil {
 		log.Error(ctx, "AdminStopJob call SetStopFlag fail.", zap.Error(err))
 		return nil, err
