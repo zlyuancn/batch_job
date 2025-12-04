@@ -1090,6 +1090,10 @@
         "proxy": {
           "type": "string",
           "title": "代理"
+        },
+        "rspParseField": {
+          "type": "string",
+          "title": "有些网关会对响应数据包装一层, 这里告诉批量工具实际响应数据是哪个字段. 只允许一层"
         }
       },
       "title": "执行器扩展数据-响应-HttpCallback"
@@ -1148,6 +1152,10 @@
         "proxy": {
           "type": "string",
           "title": "代理"
+        },
+        "rspParseField": {
+          "type": "string",
+          "title": "有些网关会对响应数据包装一层, 这里告诉批量工具实际响应数据是哪个字段. 只允许一层"
         }
       },
       "title": "执行器扩展数据-请求-HttpCallback"

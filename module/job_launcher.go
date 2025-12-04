@@ -593,7 +593,7 @@ func (j *jobLauncher) stopSideEffect() {
 	j.jobInfo.ProcessedCount = uint64(finishedCount)
 	isFinished := finishedCount >= int64(j.jobInfo.ProcessDataTotal)
 	if isFinished {
-		j.jobInfo.StatusInfo = "finished"
+		j.statusInfo = "finished"
 	}
 	updateData := map[string]interface{}{
 		"processed_count": finishedCount,
@@ -608,7 +608,6 @@ func (j *jobLauncher) stopSideEffect() {
 	}
 	if isFinished {
 		j.jobInfo.Status = byte(pb.JobStatus_JobStatus_Finished)
-		updateData["status_info"] = "finished"
 		updateData["status"] = int(pb.JobStatus_JobStatus_Finished)
 		errLogCount, err := Job.GetErrCount(j.ctx, int(j.jobInfo.JobID))
 		j.jobInfo.ErrLogCount = uint64(errLogCount)
@@ -629,6 +628,7 @@ func (j *jobLauncher) stopSideEffect() {
 		log.Error(j.ctx, "stopSideEffect call UpdateOne fail.", zap.Error(err))
 		return // 这里失败等重试
 	}
+	j.jobInfo.StatusInfo = j.statusInfo
 
 	// 删除redis进度和错误数, 以及任务数据缓存
 	key1, key2 := CacheKey.GetProcessedCount(int(j.jobInfo.JobID)), CacheKey.GetErrCount(int(j.jobInfo.ErrLogCount))

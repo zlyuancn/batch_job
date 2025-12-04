@@ -24,7 +24,16 @@ type httpCallbackBiz struct {
 }
 
 func (h *httpCallbackBiz) genHttpOpts(ctx context.Context, timeout time.Duration, req, rsp interface{}) (context.Context, []http.Option) {
-	opts := []http.Option{http.WithInJson(req), http.WithOutJson(rsp), http.WithTimeout(timeout)}
+	parsedRsp := rsp
+	h.eed.GetHttpCallback().RspParseField = "data"
+	if h.eed.GetHttpCallback().GetRspParseField() != "" {
+		temp := map[string]interface{}{
+			h.eed.GetHttpCallback().GetRspParseField(): rsp,
+		}
+		parsedRsp = &temp
+	}
+
+	opts := []http.Option{http.WithInJson(req), http.WithOutJson(parsedRsp), http.WithTimeout(timeout)}
 	if h.eed.GetHttpCallback().InsecureSkipVerify {
 		opts = append(opts, http.WithInsecureSkipVerify())
 	}

@@ -165,6 +165,7 @@ message ExecExtendDataHttpCallbackQ {
   bool insecureSkipVerify = 9; // 是否验证服务器的证书链和主机名
   repeated KV headers = 10; // header
   string proxy = 11; // 代理
+  string rspParseField = 12; // 有些网关会对响应数据包装一层, 这里告诉批量工具实际响应数据是哪个字段. 只允许一层
 }
 
 // 执行器扩展数据-响应
@@ -185,6 +186,7 @@ message ExecExtendDataHttpCallbackA {
   bool insecureSkipVerify = 9; // 是否验证服务器的证书链和主机名
   repeated KV headers = 10; // header
   string proxy = 11; // 代理
+  string rspParseField = 12; // 有些网关会对响应数据包装一层, 这里告诉批量工具实际响应数据是哪个字段. 只允许一层
 }
 
 // 业务状态
