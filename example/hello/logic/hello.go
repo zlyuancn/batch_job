@@ -84,6 +84,20 @@ func (h *Hello) Process(ctx context.Context, req *pb_0.JobProcessReq) (*pb_0.Job
 			return nil, err
 		}
 	}
+	if req.GetDataIndex()%10 == 1 {
+		l := []*pb_0.DataLogQ{
+			{
+				DataIndex: req.GetDataIndex(),
+				Remark:    "测试rsp添加日志",
+				Extend:    "rsp添加日志描述",
+				LogType:   pb_0.DataLogType_DataLogType_ErrData,
+			},
+		}
+		return &pb_0.JobProcessRsp{Log: l}, nil
+	}
+	if req.GetDataIndex() == 19 {
+		return &pb_0.JobProcessRsp{Cmd: pb_0.JobProcessCmd_MarkJobIsFinished, Remark: "测试rsp标记为已完成"}, nil
+	}
 	return &pb_0.JobProcessRsp{}, nil
 }
 
