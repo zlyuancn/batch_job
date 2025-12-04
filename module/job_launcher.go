@@ -516,19 +516,14 @@ func (j *jobLauncher) processData(sn int64) {
 	ctx := utils.Trace.CtxStart(j.ctx, name)
 	defer utils.Trace.CtxEnd(ctx)
 
+	var processRsp *pb.JobProcessRsp
 	// 多次尝试处理任务
 	attemptCount := 0 // 已尝试次数
 	for {
 		attemptCount++
 		rsp, err := j.b.Process(ctx, j.jobInfo, sn, attemptCount)
 		if err == nil {
-			err = j.processJobRsp(utils.Ctx.CloneContext(ctx), sn, rsp)
-			if err != nil {
-				// 对结果处理必须成功, 如果失败就停止运行
-				log.Error(ctx, "job Run process Rsp process fail.", zap.Error(err))
-				j.submitStopFlag("job Run process Rsp process fail." + err.Error())
-				return
-			}
+			processRsp = rsp
 			break
 		}
 
@@ -551,6 +546,14 @@ func (j *jobLauncher) processData(sn int64) {
 
 	// 滑动窗口确认当前数据已完成
 	j.sw.Ack(sn)
+
+	err := j.processJobRsp(utils.Ctx.CloneContext(ctx), sn, processRsp)
+	if err != nil {
+		// 对结果处理必须成功, 如果失败就停止运行
+		log.Error(ctx, "job Run process Rsp process fail.", zap.Error(err))
+		j.submitStopFlag("job Run process Rsp process fail." + err.Error())
+		return
+	}
 }
 
 // 内部发起停止信号
