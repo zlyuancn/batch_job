@@ -3,17 +3,16 @@ module github.com/zlyuancn/batch_job
 go 1.25.0
 
 require (
-	github.com/bytedance/gopkg v0.1.3
 	github.com/bytedance/sonic v1.14.2
 	github.com/didi/gendry v1.9.0
 	github.com/envoyproxy/protoc-gen-validate v1.2.1
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.3
 	github.com/spf13/cast v1.3.1
 	github.com/zly-app/cache/v2 v2.0.11
-	github.com/zly-app/component/http v0.0.0-20251201104934-96e59c17144e
+	github.com/zly-app/component/http v0.0.0-20251205041122-9e84deef01af
 	github.com/zly-app/component/redis v0.0.0-20251201104934-96e59c17144e
 	github.com/zly-app/component/sqlx v0.0.0-20251201104934-96e59c17144e
-	github.com/zly-app/grpc v0.5.3
+	github.com/zly-app/grpc v0.5.4
 	github.com/zly-app/service/cron v0.0.0-20251201123525-ab839839c4b2
 	github.com/zly-app/uapp v0.0.0-20251201110646-673ce4a3e75f
 	github.com/zly-app/zapp v1.4.1
@@ -28,6 +27,7 @@ require (
 require (
 	github.com/ClickHouse/clickhouse-go v1.4.7 // indirect
 	github.com/allegro/bigcache/v3 v3.1.0 // indirect
+	github.com/bytedance/gopkg v0.1.3 // indirect
 	github.com/bytedance/sonic/loader v0.4.0 // indirect
 	github.com/cenkalti/backoff/v5 v5.0.3 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect

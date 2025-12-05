@@ -8,13 +8,13 @@ import (
 	"github.com/zly-app/uapp"
 	"github.com/zly-app/zapp/config"
 	"github.com/zly-app/zapp/log"
+	"github.com/zlyuancn/batch_job/module"
 	"go.uber.org/zap"
 
 	"github.com/zlyuancn/batch_job/conf"
 	"github.com/zlyuancn/batch_job/dao/batch_job_list"
 	"github.com/zlyuancn/batch_job/handler"
 	"github.com/zlyuancn/batch_job/logic"
-	"github.com/zlyuancn/batch_job/module"
 	"github.com/zlyuancn/batch_job/pb"
 )
 

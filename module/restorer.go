@@ -38,7 +38,7 @@ func (r *restorerCli) Restorer(ctx context.Context) error {
 	}
 
 	// 扫描活跃的任务
-	queryTime := time.Now().Add(-time.Duration(conf.Conf.RecoverJobLastActivateDay*24) * time.Hour)
+	nextQueryTime := time.Now().Add(-time.Duration(conf.Conf.RecoverJobLastActivateDay*24) * time.Hour)
 	for {
 		// 检查节点速率上限
 		if RateLimit.CheckIsMaxRace() {
@@ -47,7 +47,7 @@ func (r *restorerCli) Restorer(ctx context.Context) error {
 		}
 
 		// 查询活动任务
-		jobInfos, err := batch_job_list.QueryActivateJob(ctx, queryTime, oneQueryActivateJobLimit)
+		jobInfos, err := batch_job_list.QueryActivateJob(ctx, nextQueryTime, oneQueryActivateJobLimit)
 		if err != nil {
 			log.Error(ctx, "Restorer call batch_job_list.QueryActivateJob fail.", zap.Error(err))
 			return err
@@ -59,7 +59,7 @@ func (r *restorerCli) Restorer(ctx context.Context) error {
 		}
 
 		// 恢复任务, 并设置下一个查询时间
-		queryTime, err = r.restorerJob(ctx, jobInfos)
+		nextQueryTime, err = r.restorerJob(ctx, jobInfos)
 		if err != nil {
 			log.Error(ctx, "Restorer call restorerJob fail.", zap.Error(err))
 			return err
@@ -69,11 +69,11 @@ func (r *restorerCli) Restorer(ctx context.Context) error {
 
 // 恢复任务
 func (r *restorerCli) restorerJob(ctx context.Context, jobInfos []*batch_job_list.Model) (time.Time, error) {
-	t := time.Now()
+	nextQueryTime := time.Now()
 	for i, jobInfo := range jobInfos {
 		// 重设活动时间
-		if !jobInfo.ActivateTime.IsZero() && (i == 0 || t.Before(jobInfo.ActivateTime)) {
-			t = jobInfo.ActivateTime
+		if !jobInfo.ActivateTime.IsZero() && (i == 0 || nextQueryTime.Before(jobInfo.ActivateTime)) {
+			nextQueryTime = jobInfo.ActivateTime
 		}
 
 		// 对于停止中的任务单独处理, 这里不会占用节点速率
@@ -111,16 +111,16 @@ func (r *restorerCli) restorerJob(ctx context.Context, jobInfos []*batch_job_lis
 		err = r.restorerJobRunning(ctx, jobInfo.JobID, jobInfo.Status)
 		if err != nil {
 			log.Error(ctx, "restorerJob call restorerJobRunning fail.", zap.Uint("jobId", jobInfo.JobID), zap.Error(err))
-			return t, err
+			return nextQueryTime, err
 		}
 
 		// 检查节点速率上限
 		if RateLimit.CheckIsMaxRace() {
 			log.Warn(ctx, "node is max race")
-			return t, nil
+			return nextQueryTime, nil
 		}
 	}
-	return t, nil
+	return nextQueryTime, nil
 }
 
 func (r *restorerCli) restorerJobRunning(ctx context.Context, jobId uint, status byte) error {
