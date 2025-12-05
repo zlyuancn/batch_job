@@ -17,7 +17,7 @@ type HandlerType int
 
 const (
 	// 创建任务后
-	AfterCreateJob = iota
+	AfterCreateJob HandlerType = iota
 
 	// 更新任务后
 	AfterUpdateJob

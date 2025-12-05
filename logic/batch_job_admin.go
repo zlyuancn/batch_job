@@ -12,6 +12,7 @@ import (
 	"github.com/zly-app/zapp/component/gpool"
 	"github.com/zly-app/zapp/log"
 	"github.com/zly-app/zapp/pkg/utils"
+	"github.com/zlyuancn/batch_job/interceptor"
 	"go.uber.org/zap"
 
 	"github.com/zlyuancn/batch_job/client/db"
@@ -238,6 +239,22 @@ func (*BatchJob) AdminCreateJob(ctx context.Context, req *pb.AdminCreateJobReq) 
 		return nil, err
 	}
 
+	// 创建前拦截
+	err = interceptor.Trigger(ctx, interceptor.BeforeCreateJob, req.GetOp(), jobInfo)
+	if err != nil {
+		log.Error(ctx, "AdminCreateJob call interceptor fail.", zap.Error(err))
+		return nil, err
+	}
+
+	// 启动前拦截
+	if req.GetStartNow() {
+		err = interceptor.Trigger(ctx, interceptor.BeforeRunJob, req.GetOp(), jobInfo)
+		if err != nil {
+			log.Error(ctx, "AdminCreateJob StartNow call interceptor fail.", zap.Error(err))
+			return nil, err
+		}
+	}
+
 	// 写入数据库
 	_, err = batch_job_list.CreateOneModel(ctx, jobInfo)
 	if err != nil {
@@ -285,7 +302,7 @@ func (*BatchJob) AdminCreateJob(ctx context.Context, req *pb.AdminCreateJobReq) 
 	}, nil)
 
 	// 立即启动
-	if req.StartNow {
+	if req.GetStartNow() {
 		gpool.GetDefGPool().Go(func() error {
 			module.Job.CreateLauncherByData(cloneCtx, bizInfo, jobInfo)
 			return nil
@@ -362,7 +379,7 @@ func (*BatchJob) AdminUpdateJob(ctx context.Context, req *pb.AdminUpdateJobReq) 
 		return nil, err
 	}
 
-	// 写入数据库
+	// 写入数据库的数据
 	v := &batch_job_list.Model{
 		JobID:            uint(req.GetJobId()),
 		JobName:          req.GetJobName(),
@@ -383,6 +400,15 @@ func (*BatchJob) AdminUpdateJob(ctx context.Context, req *pb.AdminUpdateJobReq) 
 		StatusInfo:       model.StatusInfo_UserOp,
 		ActivateTime:     jobInfo.ActivateTime,
 	}
+
+	// 更新前拦截
+	err = interceptor.Trigger(ctx, interceptor.BeforeUpdateJob, req.GetOp(), v)
+	if err != nil {
+		log.Error(ctx, "AdminUpdateJob call interceptor fail.", zap.Error(err))
+		return nil, err
+	}
+
+	// 写入数据库
 	_, err = batch_job_list.AdminUpdateJob(ctx, v, jobInfo.Status)
 	if err != nil {
 		log.Error(ctx, "AdminUpdateJob call UpdateOneModelWhereStatus fail.", zap.Error(err))
@@ -477,7 +503,7 @@ func (*BatchJob) AdminStartJob(ctx context.Context, req *pb.AdminStartJobReq) (*
 		return nil, err
 	}
 
-	// 更新状态和操作人
+	// 更新状态和操作人的数据
 	v := &batch_job_list.Model{
 		JobID:        uint(req.GetJobId()),
 		Status:       byte(pb.JobStatus_JobStatus_Running),
@@ -491,6 +517,24 @@ func (*BatchJob) AdminStartJob(ctx context.Context, req *pb.AdminStartJobReq) (*
 	if b.HasBeforeRunCallback() {
 		v.Status = byte(pb.JobStatus_JobStatus_WaitBizRun)
 	}
+
+	// 更新jobInfo数据
+	jobInfo.Status = v.Status
+	jobInfo.OpSource = req.GetOp().GetOpSource()
+	jobInfo.OpUserID = req.GetOp().GetOpUserid()
+	jobInfo.OpUserName = req.GetOp().GetOpUserName()
+	jobInfo.OpRemark = req.GetOp().GetOpRemark()
+	jobInfo.StatusInfo = model.StatusInfo_UserChangeStatus
+	jobInfo.ActivateTime = time.Now()
+
+	// 启动前拦截
+	err = interceptor.Trigger(ctx, interceptor.BeforeRunJob, req.GetOp(), v)
+	if err != nil {
+		log.Error(ctx, "AdminStartJob call interceptor fail.", zap.Error(err))
+		return nil, err
+	}
+
+	// 更新状态和操作人
 	count, err := batch_job_list.AdminUpdateStatus(ctx, v, jobInfo.Status)
 	if err != nil {
 		log.Error(ctx, "AdminStartJob call AdminUpdateStatus fail.", zap.Error(err))
@@ -501,15 +545,6 @@ func (*BatchJob) AdminStartJob(ctx context.Context, req *pb.AdminStartJobReq) (*
 		log.Error(ctx, "AdminStartJob call batch_job_biz.AdminUpdateStatus fail.", zap.Error(err))
 		return nil, err
 	}
-
-	// 更新jobInfo数据
-	jobInfo.Status = v.Status
-	jobInfo.OpSource = req.GetOp().GetOpSource()
-	jobInfo.OpUserID = req.GetOp().GetOpUserid()
-	jobInfo.OpUserName = req.GetOp().GetOpUserName()
-	jobInfo.OpRemark = req.GetOp().GetOpRemark()
-	jobInfo.StatusInfo = model.StatusInfo_UserChangeStatus
-	jobInfo.ActivateTime = time.Now()
 
 	cloneCtx := utils.Ctx.CloneContext(ctx)
 	// 添加历史记录
