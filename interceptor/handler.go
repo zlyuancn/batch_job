@@ -3,11 +3,16 @@ package interceptor
 import (
 	"context"
 
+	"github.com/zlyuancn/batch_job/dao/batch_job_biz"
 	"github.com/zlyuancn/batch_job/dao/batch_job_list"
-	"github.com/zlyuancn/batch_job/pb"
 )
 
-type Interceptor func(ctx context.Context, handlerType InterceptorType, op *pb.OpInfoQ, jobInfo *batch_job_list.Model) error
+type Info struct {
+	BizInfo *batch_job_biz.Model  // 业务信息
+	JobInfo *batch_job_list.Model // 任务信息
+}
+
+type Interceptor func(ctx context.Context, handlerType InterceptorType, info *Info) error
 
 var interceptorList = map[InterceptorType][]Interceptor{}
 
@@ -30,9 +35,9 @@ func AddInterceptor(t InterceptorType, hs ...Interceptor) {
 }
 
 // 触发
-func Trigger(ctx context.Context, t InterceptorType, op *pb.OpInfoQ, jobInfo *batch_job_list.Model) error {
+func Trigger(ctx context.Context, t InterceptorType, info *Info) error {
 	for _, h := range interceptorList[t] {
-		err := h(ctx, t, op, jobInfo)
+		err := h(ctx, t, info)
 		if err != nil {
 			return err
 		}

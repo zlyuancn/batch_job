@@ -5,11 +5,16 @@ import (
 
 	"github.com/zly-app/zapp/component/gpool"
 	"github.com/zly-app/zapp/pkg/utils"
-
+	"github.com/zlyuancn/batch_job/dao/batch_job_biz"
 	"github.com/zlyuancn/batch_job/dao/batch_job_list"
 )
 
-type Handler func(ctx context.Context, handlerType HandlerType, jobInfo *batch_job_list.Model)
+type Info struct {
+	BizInfo *batch_job_biz.Model  // 业务信息
+	JobInfo *batch_job_list.Model // 任务信息
+}
+
+type Handler func(ctx context.Context, handlerType HandlerType, info *Info)
 
 var handlers = map[HandlerType][]Handler{}
 
@@ -43,11 +48,11 @@ func AddHandler(t HandlerType, hs ...Handler) {
 }
 
 // 触发
-func Trigger(ctx context.Context, t HandlerType, jobInfo *batch_job_list.Model) {
+func Trigger(ctx context.Context, t HandlerType, info *Info) {
 	cloneCtx := utils.Ctx.CloneContext(ctx)
 	gpool.GetDefGPool().Go(func() error {
 		for _, h := range handlers[t] {
-			h(cloneCtx, t, jobInfo)
+			h(cloneCtx, t, info)
 		}
 		return nil
 	}, nil)

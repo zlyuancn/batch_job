@@ -100,7 +100,10 @@ func (j *jobCli) CreateLauncherByData(ctx context.Context, bizInfo *batch_job_bi
 	// 占用节点速率
 	RateLimit.RunJob(ctx, int(jobInfo.JobID), int32(jobInfo.RateSec))
 
-	handler.Trigger(ctx, handler.AfterRunJob, jobInfo)
+	handler.Trigger(ctx, handler.AfterRunJob, &handler.Info{
+		BizInfo: bizInfo,
+		JobInfo: jobInfo,
+	})
 
 	// 运行
 	gpool.GetDefGPool().Go(func() error {
@@ -154,7 +157,10 @@ func (*jobCli) CreateLauncherByBizStart(ctx context.Context, jobInfo *batch_job_
 	// 占用节点速率
 	RateLimit.RunJob(ctx, int(jobInfo.JobID), int32(jobInfo.RateSec))
 
-	handler.Trigger(ctx, handler.AfterRunJob, jobInfo)
+	handler.Trigger(ctx, handler.AfterRunJob, &handler.Info{
+		BizInfo: bizInfo,
+		JobInfo: jobInfo,
+	})
 
 	// 运行
 	gpool.GetDefGPool().Go(func() error {
@@ -164,14 +170,7 @@ func (*jobCli) CreateLauncherByBizStart(ctx context.Context, jobInfo *batch_job_
 }
 
 // 由恢复器创建启动器
-func (*jobCli) CreateLauncherByRestorer(ctx context.Context, jobInfo *batch_job_list.Model, authCode string) {
-	// 获取业务信息
-	bizInfo, err := batch_job_biz.GetOneByBizId(ctx, int(jobInfo.BizId))
-	if err != nil {
-		log.Error(ctx, "CreateLauncherByBizStart call batch_job_biz.GetOneByBizId fail.", zap.Error(err))
-		return
-	}
-
+func (*jobCli) CreateLauncherByRestorer(ctx context.Context, bizInfo *batch_job_biz.Model, jobInfo *batch_job_list.Model, authCode string) {
 	// 获取业务
 	b, err := Biz.GetBiz(ctx, bizInfo)
 	if err != nil {
@@ -227,7 +226,10 @@ func (*jobCli) CreateLauncherByRestorer(ctx context.Context, jobInfo *batch_job_
 	// 占用节点速率
 	RateLimit.RunJob(ctx, int(jobInfo.JobID), int32(jobInfo.RateSec))
 
-	handler.Trigger(ctx, handler.AfterRunJob, jobInfo)
+	handler.Trigger(ctx, handler.AfterRunJob, &handler.Info{
+		BizInfo: bizInfo,
+		JobInfo: jobInfo,
+	})
 
 	// 运行
 	gpool.GetDefGPool().Go(func() error {
@@ -652,12 +654,16 @@ func (j *jobLauncher) stopSideEffect() {
 		// return // 这里不影响主流程
 	}
 
+	hInfo := &handler.Info{
+		BizInfo: j.bizInfo,
+		JobInfo: j.jobInfo,
+	}
 	if isFinished || j.gotStopFlag == model.StopFlag_JobIsFinished {
-		handler.Trigger(j.ctx, handler.JobFinished, j.jobInfo)
+		handler.Trigger(j.ctx, handler.JobFinished, hInfo)
 	} else if j.gotStopFlag == model.StopFlag_Stop {
-		handler.Trigger(j.ctx, handler.AfterJobStopped, j.jobInfo)
+		handler.Trigger(j.ctx, handler.AfterJobStopped, hInfo)
 	} else {
-		handler.Trigger(j.ctx, handler.JobRunFailureExit, j.jobInfo)
+		handler.Trigger(j.ctx, handler.JobRunFailureExit, hInfo)
 	}
 }
 

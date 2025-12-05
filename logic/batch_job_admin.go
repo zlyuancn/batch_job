@@ -240,7 +240,10 @@ func (*BatchJob) AdminCreateJob(ctx context.Context, req *pb.AdminCreateJobReq) 
 	}
 
 	// 创建前拦截
-	err = interceptor.Trigger(ctx, interceptor.BeforeCreateJob, req.GetOp(), jobInfo)
+	err = interceptor.Trigger(ctx, interceptor.BeforeCreateJob, &interceptor.Info{
+		BizInfo: bizInfo,
+		JobInfo: jobInfo,
+	})
 	if err != nil {
 		log.Error(ctx, "AdminCreateJob call interceptor fail.", zap.Error(err))
 		return nil, err
@@ -248,7 +251,10 @@ func (*BatchJob) AdminCreateJob(ctx context.Context, req *pb.AdminCreateJobReq) 
 
 	// 启动前拦截
 	if req.GetStartNow() {
-		err = interceptor.Trigger(ctx, interceptor.BeforeRunJob, req.GetOp(), jobInfo)
+		err = interceptor.Trigger(ctx, interceptor.BeforeRunJob, &interceptor.Info{
+			BizInfo: bizInfo,
+			JobInfo: jobInfo,
+		})
 		if err != nil {
 			log.Error(ctx, "AdminCreateJob StartNow call interceptor fail.", zap.Error(err))
 			return nil, err
@@ -262,7 +268,10 @@ func (*BatchJob) AdminCreateJob(ctx context.Context, req *pb.AdminCreateJobReq) 
 		return nil, err
 	}
 
-	handler.Trigger(ctx, handler.AfterCreateJob, jobInfo)
+	handler.Trigger(ctx, handler.AfterCreateJob, &handler.Info{
+		BizInfo: bizInfo,
+		JobInfo: jobInfo,
+	})
 
 	cloneCtx := utils.Ctx.CloneContext(ctx)
 	// 添加历史记录
@@ -402,7 +411,10 @@ func (*BatchJob) AdminUpdateJob(ctx context.Context, req *pb.AdminUpdateJobReq) 
 	}
 
 	// 更新前拦截
-	err = interceptor.Trigger(ctx, interceptor.BeforeUpdateJob, req.GetOp(), v)
+	err = interceptor.Trigger(ctx, interceptor.BeforeUpdateJob, &interceptor.Info{
+		BizInfo: bizInfo,
+		JobInfo: v,
+	})
 	if err != nil {
 		log.Error(ctx, "AdminUpdateJob call interceptor fail.", zap.Error(err))
 		return nil, err
@@ -415,7 +427,10 @@ func (*BatchJob) AdminUpdateJob(ctx context.Context, req *pb.AdminUpdateJobReq) 
 		return nil, err
 	}
 
-	handler.Trigger(ctx, handler.AfterUpdateJob, v)
+	handler.Trigger(ctx, handler.AfterUpdateJob, &handler.Info{
+		BizInfo: bizInfo,
+		JobInfo: v,
+	})
 
 	cloneCtx := utils.Ctx.CloneContext(ctx)
 	// 添加历史记录
@@ -528,7 +543,10 @@ func (*BatchJob) AdminStartJob(ctx context.Context, req *pb.AdminStartJobReq) (*
 	jobInfo.ActivateTime = time.Now()
 
 	// 启动前拦截
-	err = interceptor.Trigger(ctx, interceptor.BeforeRunJob, req.GetOp(), v)
+	err = interceptor.Trigger(ctx, interceptor.BeforeRunJob, &interceptor.Info{
+		BizInfo: bizInfo,
+		JobInfo: jobInfo,
+	})
 	if err != nil {
 		log.Error(ctx, "AdminStartJob call interceptor fail.", zap.Error(err))
 		return nil, err
@@ -642,7 +660,7 @@ func (b *BatchJob) AdminStopJob(ctx context.Context, req *pb.AdminStopJobReq) (*
 	runLockAuthCode, err := redis.Lock(ctx, runLockKey, time.Duration(conf.Conf.JobRunLockExtraTtl)*time.Second)
 	if err == nil { // 加锁成功
 		v.Status = byte(pb.JobStatus_JobStatus_Stopped)
-		defer b.adminStopJobCB(ctx, jobInfo, runLockKey, runLockAuthCode)
+		defer b.adminStopJobCB(ctx, req.GetOp(), jobInfo, runLockKey, runLockAuthCode)
 	} else if err != redis.LockManyErr { // 加锁异常
 		log.Error(ctx, "AdminStopJob call set run lock fail.", zap.Error(err))
 		return nil, err
@@ -702,7 +720,7 @@ func (b *BatchJob) AdminStopJob(ctx context.Context, req *pb.AdminStopJobReq) (*
 	return &pb.AdminStopJobRsp{}, nil
 }
 
-func (*BatchJob) adminStopJobCB(ctx context.Context, jobInfo *batch_job_list.Model, lockKey, authCode string) {
+func (*BatchJob) adminStopJobCB(ctx context.Context, op *pb.OpInfoQ, jobInfo *batch_job_list.Model, lockKey, authCode string) {
 	cloneCtx := utils.Ctx.CloneContext(ctx)
 	// 对于加锁成功, 主动停止时注意业务回调
 	gpool.GetDefGPool().Go(func() error {
@@ -727,7 +745,10 @@ func (*BatchJob) adminStopJobCB(ctx context.Context, jobInfo *batch_job_list.Mod
 			return err
 		}
 
-		handler.Trigger(ctx, handler.AfterJobStopped, jobInfo)
+		handler.Trigger(ctx, handler.AfterJobStopped, &handler.Info{
+			BizInfo: bizInfo,
+			JobInfo: jobInfo,
+		})
 
 		return nil
 	}, nil)

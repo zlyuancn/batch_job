@@ -146,7 +146,15 @@ func (b *BatchJob) BizUpdateJobData(ctx context.Context, req *pb.BizUpdateJobDat
 	jobInfo.ProcessedCount = uint64(req.GetProcessedCount())
 	jobInfo.StatusInfo = model.StatusInfo_BizChangeStatus
 
-	handler.Trigger(ctx, handler.AfterUpdateJob, jobInfo)
+	// 获取业务信息
+	bizInfo, err := module.Biz.GetBizInfoByCache(ctx, int(jobInfo.BizId))
+	if err != nil {
+		log.Error(ctx, "BizUpdateJobData call GetBizInfoByCache fail.", zap.Error(err))
+	}
+	handler.Trigger(ctx, handler.AfterUpdateJob, &handler.Info{
+		BizInfo: bizInfo,
+		JobInfo: jobInfo,
+	})
 
 	cloneCtx := utils.Ctx.CloneContext(ctx)
 	// 添加历史记录
@@ -230,7 +238,15 @@ func (b *BatchJob) BizStopJob(ctx context.Context, req *pb.BizStopJobReq) (*pb.B
 	jobInfo.StatusInfo = model.StatusInfo_BizChangeStatus
 
 	if status == pb.JobStatus_JobStatus_Stopped {
-		handler.Trigger(ctx, handler.AfterJobStopped, jobInfo)
+		// 获取业务信息
+		bizInfo, err := module.Biz.GetBizInfoByCache(ctx, int(jobInfo.BizId))
+		if err != nil {
+			log.Error(ctx, "BizStopJob call GetBizInfoByCache fail.", zap.Error(err))
+		}
+		handler.Trigger(ctx, handler.AfterJobStopped, &handler.Info{
+			BizInfo: bizInfo,
+			JobInfo: jobInfo,
+		})
 	}
 
 	cloneCtx := utils.Ctx.CloneContext(ctx)

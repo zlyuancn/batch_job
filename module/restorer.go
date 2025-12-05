@@ -9,6 +9,7 @@ import (
 	"github.com/zly-app/zapp/component/gpool"
 	"github.com/zly-app/zapp/log"
 	"github.com/zly-app/zapp/pkg/utils"
+	"github.com/zlyuancn/batch_job/dao/batch_job_biz"
 	"go.uber.org/zap"
 
 	"github.com/zlyuancn/batch_job/conf"
@@ -165,11 +166,20 @@ func (r *restorerCli) restorerJobRunning(ctx context.Context, jobId uint, status
 		log.Error(ctx, "restorerJobRunning call batch_job_list.GetOneByJobId fail.", zap.Uint("jobId", jobId), zap.Error(err))
 		return err
 	}
+	// 获取业务信息
+	realBizInfo, err := batch_job_biz.GetOneByBizId(ctx, int(realJobInfo.BizId))
+	if err != nil {
+		log.Error(ctx, "restorerJobRunning call batch_job_biz.GetOneByBizId fail.", zap.Error(err))
+		return err
+	}
 
-	handler.Trigger(ctx, handler.JobRestorer, realJobInfo)
+	handler.Trigger(ctx, handler.JobRestorer, &handler.Info{
+		BizInfo: realBizInfo,
+		JobInfo: realJobInfo,
+	})
 
 	// 恢复任务
-	Job.CreateLauncherByRestorer(ctx, realJobInfo, authCode)
+	Job.CreateLauncherByRestorer(ctx, realBizInfo, realJobInfo, authCode)
 	isRecovered = true
 	return nil
 }
@@ -215,20 +225,22 @@ func (r *restorerCli) restorerJobStopping(ctx context.Context, jobId uint, isGot
 	jobInfo.Status = byte(status)
 	jobInfo.StatusInfo = statusInfo
 
-	handler.Trigger(ctx, handler.AfterJobStopped, jobInfo)
+	// 获取业务信息
+	bizInfo, err := batch_job_biz.GetOneByBizId(ctx, int(jobInfo.BizId))
+	if err != nil {
+		log.Error(ctx, "stopSideEffect call GetOneByBizId fail.", zap.Uint("jobId", jobId), zap.Error(err))
+		return
+	}
+	handler.Trigger(ctx, handler.AfterJobStopped, &handler.Info{
+		BizInfo: bizInfo,
+		JobInfo: jobInfo,
+	})
 
 	// 清除缓存
 	err = cache.GetDefCache().Del(ctx, CacheKey.GetJobInfo(int(jobId)))
 	if err != nil {
 		log.Error(ctx, "stopSideEffect call clear Cache fail.", zap.Uint("jobId", jobId), zap.Error(err))
 		// return err
-	}
-
-	// 获取业务信息
-	bizInfo, err := Biz.GetBizInfoByCache(ctx, int(jobInfo.BizId))
-	if err != nil {
-		log.Error(ctx, "restorerJobStopping call GetBizInfoByCache fail.", zap.Uint("jobId", jobId), zap.Error(err))
-		return
 	}
 
 	// 获取业务
