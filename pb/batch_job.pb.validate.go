@@ -2684,6 +2684,8 @@ func (m *AdminCreateJobReq) validate(all bool) error {
 
 	// no validation rules for StartNow
 
+	// no validation rules for ProcessorCarryJobData
+
 	if len(errors) > 0 {
 		return AdminCreateJobReqMultiError(errors)
 	}
@@ -2932,6 +2934,8 @@ func (m *AdminUpdateJobReq) validate(all bool) error {
 	}
 
 	// no validation rules for JobId
+
+	// no validation rules for ProcessorCarryJobData
 
 	if len(errors) > 0 {
 		return AdminUpdateJobReqMultiError(errors)
@@ -7023,6 +7027,8 @@ func (m *JobProcessReq) validate(all bool) error {
 	// no validation rules for DataIndex
 
 	// no validation rules for AttemptCount
+
+	// no validation rules for JobData
 
 	if len(errors) > 0 {
 		return JobProcessReqMultiError(errors)

@@ -209,6 +209,9 @@ func (*BatchJob) AdminCreateJob(ctx context.Context, req *pb.AdminCreateJobReq) 
 		ConcType:         byte(req.GetConcType()),
 		StatusInfo:       model.StatusInfo_UserOp,
 	}
+	if req.GetProcessorCarryJobData() {
+		jobInfo.ProcessorCarryJobData = 1
+	}
 	if req.GetStartNow() {
 		jobInfo.Status = byte(pb.JobStatus_JobStatus_Running)
 		jobInfo.StatusInfo = model.StatusInfo_UserCreateAndRun
@@ -276,20 +279,21 @@ func (*BatchJob) AdminCreateJob(ctx context.Context, req *pb.AdminCreateJobReq) 
 	cloneCtx := utils.Ctx.CloneContext(ctx)
 	// 添加历史记录
 	h := &batch_job_list_history.Model{
-		JobID:            uint(jobId),
-		JobName:          req.GetJobName(),
-		BizId:            uint(req.GetBizId()),
-		JobData:          req.GetJobData(),
-		ProcessDataTotal: uint64(req.GetProcessDataTotal()),
-		ProcessedCount:   uint64(req.GetProcessedCount()),
-		Status:           byte(pb.JobStatus_JobStatus_Created),
-		OpSource:         req.GetOp().GetOpSource(),
-		OpUserID:         req.GetOp().GetOpUserid(),
-		OpUserName:       req.GetOp().GetOpUserName(),
-		OpRemark:         req.GetOp().GetOpRemark(),
-		RateSec:          uint(req.GetRateSec()),
-		ConcType:         byte(req.GetConcType()),
-		StatusInfo:       jobInfo.StatusInfo,
+		JobID:                 uint(jobId),
+		JobName:               req.GetJobName(),
+		BizId:                 uint(req.GetBizId()),
+		JobData:               req.GetJobData(),
+		ProcessDataTotal:      uint64(req.GetProcessDataTotal()),
+		ProcessedCount:        uint64(req.GetProcessedCount()),
+		Status:                byte(pb.JobStatus_JobStatus_Created),
+		OpSource:              req.GetOp().GetOpSource(),
+		OpUserID:              req.GetOp().GetOpUserid(),
+		OpUserName:            req.GetOp().GetOpUserName(),
+		OpRemark:              req.GetOp().GetOpRemark(),
+		RateSec:               uint(req.GetRateSec()),
+		ConcType:              byte(req.GetConcType()),
+		StatusInfo:            jobInfo.StatusInfo,
+		ProcessorCarryJobData: jobInfo.ProcessorCarryJobData,
 	}
 	gpool.GetDefGPool().Go(func() error {
 		_, err = batch_job_list_history.CreateOneModel(cloneCtx, h)
@@ -409,6 +413,10 @@ func (*BatchJob) AdminUpdateJob(ctx context.Context, req *pb.AdminUpdateJobReq) 
 		StatusInfo:       model.StatusInfo_UserOp,
 		ActivateTime:     jobInfo.ActivateTime,
 	}
+	if req.GetProcessorCarryJobData() {
+		v.ProcessorCarryJobData = 1
+	}
+	jobInfo.ProcessorCarryJobData = v.ProcessorCarryJobData
 
 	// 更新前拦截
 	err = interceptor.Trigger(ctx, interceptor.BeforeUpdateJob, &interceptor.Info{
@@ -435,20 +443,21 @@ func (*BatchJob) AdminUpdateJob(ctx context.Context, req *pb.AdminUpdateJobReq) 
 	cloneCtx := utils.Ctx.CloneContext(ctx)
 	// 添加历史记录
 	h := &batch_job_list_history.Model{
-		JobID:            uint(req.GetJobId()),
-		JobName:          req.GetJobName(),
-		BizId:            jobInfo.BizId,
-		JobData:          req.GetJobData(),
-		ProcessDataTotal: uint64(req.GetProcessDataTotal()),
-		ProcessedCount:   uint64(req.GetProcessedCount()),
-		Status:           jobInfo.Status,
-		OpSource:         req.GetOp().GetOpSource(),
-		OpUserID:         req.GetOp().GetOpUserid(),
-		OpUserName:       req.GetOp().GetOpUserName(),
-		OpRemark:         req.GetOp().GetOpRemark(),
-		RateSec:          uint(req.GetRateSec()),
-		ConcType:         byte(req.GetConcType()),
-		StatusInfo:       model.StatusInfo_UserOp,
+		JobID:                 uint(req.GetJobId()),
+		JobName:               req.GetJobName(),
+		BizId:                 v.BizId,
+		JobData:               req.GetJobData(),
+		ProcessDataTotal:      uint64(req.GetProcessDataTotal()),
+		ProcessedCount:        uint64(req.GetProcessedCount()),
+		Status:                v.Status,
+		OpSource:              req.GetOp().GetOpSource(),
+		OpUserID:              req.GetOp().GetOpUserid(),
+		OpUserName:            req.GetOp().GetOpUserName(),
+		OpRemark:              req.GetOp().GetOpRemark(),
+		RateSec:               uint(req.GetRateSec()),
+		ConcType:              byte(req.GetConcType()),
+		StatusInfo:            model.StatusInfo_UserOp,
+		ProcessorCarryJobData: v.ProcessorCarryJobData,
 	}
 	gpool.GetDefGPool().Go(func() error {
 		_, err = batch_job_list_history.CreateOneModel(cloneCtx, h)
@@ -660,7 +669,7 @@ func (b *BatchJob) AdminStopJob(ctx context.Context, req *pb.AdminStopJobReq) (*
 	runLockAuthCode, err := redis.Lock(ctx, runLockKey, time.Duration(conf.Conf.JobRunLockExtraTtl)*time.Second)
 	if err == nil { // 加锁成功
 		v.Status = byte(pb.JobStatus_JobStatus_Stopped)
-		defer b.adminStopJobCB(ctx, req.GetOp(), jobInfo, runLockKey, runLockAuthCode)
+		defer b.adminStopJobCB(ctx, jobInfo, runLockKey, runLockAuthCode)
 	} else if err != redis.LockManyErr { // 加锁异常
 		log.Error(ctx, "AdminStopJob call set run lock fail.", zap.Error(err))
 		return nil, err
@@ -720,7 +729,7 @@ func (b *BatchJob) AdminStopJob(ctx context.Context, req *pb.AdminStopJobReq) (*
 	return &pb.AdminStopJobRsp{}, nil
 }
 
-func (*BatchJob) adminStopJobCB(ctx context.Context, op *pb.OpInfoQ, jobInfo *batch_job_list.Model, lockKey, authCode string) {
+func (*BatchJob) adminStopJobCB(ctx context.Context, jobInfo *batch_job_list.Model, lockKey, authCode string) {
 	cloneCtx := utils.Ctx.CloneContext(ctx)
 	// 对于加锁成功, 主动停止时注意业务回调
 	gpool.GetDefGPool().Go(func() error {

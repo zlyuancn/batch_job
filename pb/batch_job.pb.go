@@ -1851,18 +1851,19 @@ func (x *LogInfoByListA) GetCreateTime() int64 {
 }
 
 type AdminCreateJobReq struct {
-	state            protoimpl.MessageState `protogen:"open.v1"`
-	BizId            int32                  `protobuf:"varint,1,opt,name=bizId,proto3" json:"bizId,omitempty"`                               // 业务id. 必填
-	JobName          string                 `protobuf:"bytes,2,opt,name=jobName,proto3" json:"jobName,omitempty"`                            // 任务名称
-	JobData          string                 `protobuf:"bytes,3,opt,name=jobData,proto3" json:"jobData,omitempty"`                            // 任务数据, 让业务知道应该做什么
-	ProcessDataTotal int64                  `protobuf:"varint,4,opt,name=processDataTotal,proto3" json:"processDataTotal,omitempty"`         // 需要处理数据总数
-	ProcessedCount   int64                  `protobuf:"varint,5,opt,name=processedCount,proto3" json:"processedCount,omitempty"`             // 已处理过的数据量, 无论成功还是失败
-	ConcType         ConcType               `protobuf:"varint,6,opt,name=concType,proto3,enum=batch_job.ConcType" json:"concType,omitempty"` // 并发类型
-	RateSec          int32                  `protobuf:"varint,7,opt,name=rateSec,proto3" json:"rateSec,omitempty"`                           // 每秒处理速率. 0表示不限制
-	Op               *OpInfoQ               `protobuf:"bytes,8,opt,name=op,proto3" json:"op,omitempty"`                                      // 操作信息
-	StartNow         bool                   `protobuf:"varint,9,opt,name=startNow,proto3" json:"startNow,omitempty"`                         // 创建后是否立即启动
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	state                 protoimpl.MessageState `protogen:"open.v1"`
+	BizId                 int32                  `protobuf:"varint,1,opt,name=bizId,proto3" json:"bizId,omitempty"`                                  // 业务id. 必填
+	JobName               string                 `protobuf:"bytes,2,opt,name=jobName,proto3" json:"jobName,omitempty"`                               // 任务名称
+	JobData               string                 `protobuf:"bytes,3,opt,name=jobData,proto3" json:"jobData,omitempty"`                               // 任务数据, 让业务知道应该做什么
+	ProcessDataTotal      int64                  `protobuf:"varint,4,opt,name=processDataTotal,proto3" json:"processDataTotal,omitempty"`            // 需要处理数据总数
+	ProcessedCount        int64                  `protobuf:"varint,5,opt,name=processedCount,proto3" json:"processedCount,omitempty"`                // 已处理过的数据量, 无论成功还是失败
+	ConcType              ConcType               `protobuf:"varint,6,opt,name=concType,proto3,enum=batch_job.ConcType" json:"concType,omitempty"`    // 并发类型
+	RateSec               int32                  `protobuf:"varint,7,opt,name=rateSec,proto3" json:"rateSec,omitempty"`                              // 每秒处理速率. 0表示不限制
+	Op                    *OpInfoQ               `protobuf:"bytes,8,opt,name=op,proto3" json:"op,omitempty"`                                         // 操作信息
+	StartNow              bool                   `protobuf:"varint,9,opt,name=startNow,proto3" json:"startNow,omitempty"`                            // 创建后是否立即启动
+	ProcessorCarryJobData bool                   `protobuf:"varint,10,opt,name=processorCarryJobData,proto3" json:"processorCarryJobData,omitempty"` // 处理回调是否携带任务数据jobData
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
 }
 
 func (x *AdminCreateJobReq) Reset() {
@@ -1958,6 +1959,13 @@ func (x *AdminCreateJobReq) GetStartNow() bool {
 	return false
 }
 
+func (x *AdminCreateJobReq) GetProcessorCarryJobData() bool {
+	if x != nil {
+		return x.ProcessorCarryJobData
+	}
+	return false
+}
+
 type AdminCreateJobRsp struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	JobId         int64                  `protobuf:"varint,1,opt,name=jobId,proto3" json:"jobId,omitempty"` // 创建的任务id
@@ -2003,17 +2011,18 @@ func (x *AdminCreateJobRsp) GetJobId() int64 {
 }
 
 type AdminUpdateJobReq struct {
-	state            protoimpl.MessageState `protogen:"open.v1"`
-	JobName          string                 `protobuf:"bytes,2,opt,name=jobName,proto3" json:"jobName,omitempty"`                            // 任务名称
-	JobData          string                 `protobuf:"bytes,3,opt,name=jobData,proto3" json:"jobData,omitempty"`                            // 任务数据, 让业务知道应该做什么
-	ProcessDataTotal int64                  `protobuf:"varint,4,opt,name=processDataTotal,proto3" json:"processDataTotal,omitempty"`         // 需要处理数据总数
-	ProcessedCount   int64                  `protobuf:"varint,5,opt,name=processedCount,proto3" json:"processedCount,omitempty"`             // 已处理过的数据量, 无论成功还是失败
-	ConcType         ConcType               `protobuf:"varint,6,opt,name=concType,proto3,enum=batch_job.ConcType" json:"concType,omitempty"` // 并发类型
-	RateSec          int32                  `protobuf:"varint,7,opt,name=rateSec,proto3" json:"rateSec,omitempty"`                           // 每秒处理速率. 0表示不限制
-	Op               *OpInfoQ               `protobuf:"bytes,8,opt,name=op,proto3" json:"op,omitempty"`                                      // 操作信息
-	JobId            int64                  `protobuf:"varint,9,opt,name=jobId,proto3" json:"jobId,omitempty"`                               // 任务id
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	state                 protoimpl.MessageState `protogen:"open.v1"`
+	JobName               string                 `protobuf:"bytes,2,opt,name=jobName,proto3" json:"jobName,omitempty"`                               // 任务名称
+	JobData               string                 `protobuf:"bytes,3,opt,name=jobData,proto3" json:"jobData,omitempty"`                               // 任务数据, 让业务知道应该做什么
+	ProcessDataTotal      int64                  `protobuf:"varint,4,opt,name=processDataTotal,proto3" json:"processDataTotal,omitempty"`            // 需要处理数据总数
+	ProcessedCount        int64                  `protobuf:"varint,5,opt,name=processedCount,proto3" json:"processedCount,omitempty"`                // 已处理过的数据量, 无论成功还是失败
+	ConcType              ConcType               `protobuf:"varint,6,opt,name=concType,proto3,enum=batch_job.ConcType" json:"concType,omitempty"`    // 并发类型
+	RateSec               int32                  `protobuf:"varint,7,opt,name=rateSec,proto3" json:"rateSec,omitempty"`                              // 每秒处理速率. 0表示不限制
+	Op                    *OpInfoQ               `protobuf:"bytes,8,opt,name=op,proto3" json:"op,omitempty"`                                         // 操作信息
+	JobId                 int64                  `protobuf:"varint,9,opt,name=jobId,proto3" json:"jobId,omitempty"`                                  // 任务id
+	ProcessorCarryJobData bool                   `protobuf:"varint,10,opt,name=processorCarryJobData,proto3" json:"processorCarryJobData,omitempty"` // 处理回调是否携带任务数据jobData
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
 }
 
 func (x *AdminUpdateJobReq) Reset() {
@@ -2100,6 +2109,13 @@ func (x *AdminUpdateJobReq) GetJobId() int64 {
 		return x.JobId
 	}
 	return 0
+}
+
+func (x *AdminUpdateJobReq) GetProcessorCarryJobData() bool {
+	if x != nil {
+		return x.ProcessorCarryJobData
+	}
+	return false
 }
 
 type AdminUpdateJobRsp struct {
@@ -3874,6 +3890,7 @@ type JobProcessReq struct {
 	JobId         int64                  `protobuf:"varint,1,opt,name=jobId,proto3" json:"jobId,omitempty"`               // 创建的任务id. 必填
 	DataIndex     int64                  `protobuf:"varint,2,opt,name=dataIndex,proto3" json:"dataIndex,omitempty"`       // 要处理的数据索引, 从0开始
 	AttemptCount  int32                  `protobuf:"varint,3,opt,name=attemptCount,proto3" json:"attemptCount,omitempty"` // 本次任务短时间内的尝试次数. 表示一个启动器执行过程中对任务的某个数据尝试处理了几次
+	JobData       string                 `protobuf:"bytes,4,opt,name=jobData,proto3" json:"jobData,omitempty"`            // 任务数据, 如果没有勾选携带任务数据, 则为空字符串
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -3927,6 +3944,13 @@ func (x *JobProcessReq) GetAttemptCount() int32 {
 		return x.AttemptCount
 	}
 	return 0
+}
+
+func (x *JobProcessReq) GetJobData() string {
+	if x != nil {
+		return x.JobData
+	}
+	return ""
 }
 
 type JobProcessRsp struct {
@@ -4281,7 +4305,7 @@ const file_batch_job_proto_rawDesc = "" +
 	"\alogType\x18\x04 \x01(\x0e2\x16.batch_job.DataLogTypeR\alogType\x12\x1e\n" +
 	"\n" +
 	"createTime\x18\x05 \x01(\x03R\n" +
-	"createTime\"\xc5\x02\n" +
+	"createTime\"\xfb\x02\n" +
 	"\x11AdminCreateJobReq\x12\x1d\n" +
 	"\x05bizId\x18\x01 \x01(\x05B\a\xfaB\x04\x1a\x02 \x00R\x05bizId\x12\x18\n" +
 	"\ajobName\x18\x02 \x01(\tR\ajobName\x12\x18\n" +
@@ -4291,9 +4315,11 @@ const file_batch_job_proto_rawDesc = "" +
 	"\bconcType\x18\x06 \x01(\x0e2\x13.batch_job.ConcTypeR\bconcType\x12\x18\n" +
 	"\arateSec\x18\a \x01(\x05R\arateSec\x12\"\n" +
 	"\x02op\x18\b \x01(\v2\x12.batch_job.OpInfoQR\x02op\x12\x1a\n" +
-	"\bstartNow\x18\t \x01(\bR\bstartNow\")\n" +
+	"\bstartNow\x18\t \x01(\bR\bstartNow\x124\n" +
+	"\x15processorCarryJobData\x18\n" +
+	" \x01(\bR\x15processorCarryJobData\")\n" +
 	"\x11AdminCreateJobRsp\x12\x14\n" +
-	"\x05jobId\x18\x01 \x01(\x03R\x05jobId\"\xa0\x02\n" +
+	"\x05jobId\x18\x01 \x01(\x03R\x05jobId\"\xd6\x02\n" +
 	"\x11AdminUpdateJobReq\x12\x18\n" +
 	"\ajobName\x18\x02 \x01(\tR\ajobName\x12\x18\n" +
 	"\ajobData\x18\x03 \x01(\tR\ajobData\x12*\n" +
@@ -4302,7 +4328,9 @@ const file_batch_job_proto_rawDesc = "" +
 	"\bconcType\x18\x06 \x01(\x0e2\x13.batch_job.ConcTypeR\bconcType\x12\x18\n" +
 	"\arateSec\x18\a \x01(\x05R\arateSec\x12\"\n" +
 	"\x02op\x18\b \x01(\v2\x12.batch_job.OpInfoQR\x02op\x12\x14\n" +
-	"\x05jobId\x18\t \x01(\x03R\x05jobId\"\x13\n" +
+	"\x05jobId\x18\t \x01(\x03R\x05jobId\x124\n" +
+	"\x15processorCarryJobData\x18\n" +
+	" \x01(\bR\x15processorCarryJobData\"\x13\n" +
 	"\x11AdminUpdateJobRsp\"U\n" +
 	"\x10AdminStartJobReq\x12\x1d\n" +
 	"\x05jobId\x18\x01 \x01(\x03B\a\xfaB\x04\"\x02 \x00R\x05jobId\x12\"\n" +
@@ -4418,11 +4446,12 @@ const file_batch_job_proto_rawDesc = "" +
 	"\x0fJobBeforeRunReq\x12.\n" +
 	"\ajobInfo\x18\x01 \x01(\v2\x14.batch_job.JobCBInfoR\ajobInfo\x12\x1a\n" +
 	"\bauthCode\x18\x02 \x01(\tR\bauthCode\"\x11\n" +
-	"\x0fJobBeforeRunRsp\"g\n" +
+	"\x0fJobBeforeRunRsp\"\x81\x01\n" +
 	"\rJobProcessReq\x12\x14\n" +
 	"\x05jobId\x18\x01 \x01(\x03R\x05jobId\x12\x1c\n" +
 	"\tdataIndex\x18\x02 \x01(\x03R\tdataIndex\x12\"\n" +
-	"\fattemptCount\x18\x03 \x01(\x05R\fattemptCount\"z\n" +
+	"\fattemptCount\x18\x03 \x01(\x05R\fattemptCount\x12\x18\n" +
+	"\ajobData\x18\x04 \x01(\tR\ajobData\"z\n" +
 	"\rJobProcessRsp\x12*\n" +
 	"\x03cmd\x18\x01 \x01(\x0e2\x18.batch_job.JobProcessCmdR\x03cmd\x12\x16\n" +
 	"\x06remark\x18\x02 \x01(\tR\x06remark\x12%\n" +

@@ -122,6 +122,9 @@ func (h *httpCallbackBiz) Process(ctx context.Context, jobInfo *batch_job_list.M
 		DataIndex:    dataIndex,
 		AttemptCount: int32(attemptCount),
 	}
+	if jobInfo.ProcessorCarryJobData == 1 {
+		args.JobData = jobInfo.JobData
+	}
 	rsp := &pb.JobProcessRsp{}
 
 	timeout := time.Duration(h.eed.GetHttpCallback().GetProcessTimeout()) * time.Second

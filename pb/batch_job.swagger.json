@@ -639,6 +639,10 @@
         "startNow": {
           "type": "boolean",
           "title": "创建后是否立即启动"
+        },
+        "processorCarryJobData": {
+          "type": "boolean",
+          "title": "处理回调是否携带任务数据jobData"
         }
       }
     },
@@ -800,6 +804,10 @@
           "type": "string",
           "format": "int64",
           "title": "任务id"
+        },
+        "processorCarryJobData": {
+          "type": "boolean",
+          "title": "处理回调是否携带任务数据jobData"
         }
       }
     },
