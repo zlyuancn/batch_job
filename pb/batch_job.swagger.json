@@ -1248,6 +1248,10 @@
         "statusInfo": {
           "type": "string",
           "title": "状态信息"
+        },
+        "processorCarryJobData": {
+          "type": "boolean",
+          "title": "处理回调是否携带任务数据jobData"
         }
       },
       "title": "任务信息-响应"

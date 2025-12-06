@@ -12,10 +12,11 @@ import (
 	"github.com/zly-app/zapp/component/gpool"
 	"github.com/zly-app/zapp/log"
 	"github.com/zly-app/zapp/pkg/utils"
-	"github.com/zlyuancn/batch_job/model"
 	"github.com/zlyuancn/sliding_window"
 	"go.uber.org/zap"
 	"golang.org/x/time/rate"
+
+	"github.com/zlyuancn/batch_job/model"
 
 	"github.com/zlyuancn/batch_job/client/db"
 	"github.com/zlyuancn/batch_job/conf"
@@ -514,8 +515,8 @@ func (j *jobLauncher) processData(sn int64) {
 		<-j.threadLock // 释放一个线程
 	}()
 
-	name := "job_process_" + strconv.FormatInt(sn, 10)
-	ctx := utils.Trace.CtxStart(j.ctx, name)
+	name := "job_process_" + strconv.FormatInt(int64(j.jobInfo.JobID), 10)
+	ctx := utils.Trace.CtxStart(j.ctx, name, utils.OtelSpanKey("sn").Int64(sn))
 	defer utils.Trace.CtxEnd(ctx)
 
 	var processRsp *pb.JobProcessRsp

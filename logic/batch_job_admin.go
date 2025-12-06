@@ -12,8 +12,9 @@ import (
 	"github.com/zly-app/zapp/component/gpool"
 	"github.com/zly-app/zapp/log"
 	"github.com/zly-app/zapp/pkg/utils"
-	"github.com/zlyuancn/batch_job/interceptor"
 	"go.uber.org/zap"
+
+	"github.com/zlyuancn/batch_job/interceptor"
 
 	"github.com/zlyuancn/batch_job/client/db"
 	"github.com/zlyuancn/batch_job/conf"
@@ -162,6 +163,11 @@ func (*BatchJob) AdminCreateJob(ctx context.Context, req *pb.AdminCreateJobReq) 
 	// 不限速检查
 	if !conf.Conf.AllowCreateNoRateLimitJob && req.GetRateSec() < 1 {
 		return nil, errors.New("create tasks with no rate limit")
+	}
+
+	// 携带任务数据长度检查
+	if req.GetProcessorCarryJobData() && len([]rune(req.GetJobData())) > conf.Conf.MaxCarryJobDataLength {
+		return nil, fmt.Errorf("jobData length must be less MaxCarryJobDataLength %d", conf.Conf.MaxCarryJobDataLength)
 	}
 
 	// 获取业务信息
@@ -332,6 +338,11 @@ func (*BatchJob) AdminUpdateJob(ctx context.Context, req *pb.AdminUpdateJobReq) 
 		return nil, errors.New("create tasks with no rate limit")
 	}
 
+	// 携带任务数据长度检查
+	if req.GetProcessorCarryJobData() && len([]rune(req.GetJobData())) > conf.Conf.MaxCarryJobDataLength {
+		return nil, fmt.Errorf("jobData length must be less MaxCarryJobDataLength %d", conf.Conf.MaxCarryJobDataLength)
+	}
+
 	// 加锁
 	lockKey := conf.Conf.JobOpLockKeyPrefix + strconv.Itoa(int(req.GetJobId()))
 	unlock, _, err := redis.AutoLock(ctx, lockKey, time.Second*10)
@@ -347,9 +358,10 @@ func (*BatchJob) AdminUpdateJob(ctx context.Context, req *pb.AdminUpdateJobReq) 
 		log.Error(ctx, "AdminUpdateJob call batch_job_list.GetOneByJobId fail.", zap.Error(err))
 		return nil, err
 	}
+	oldStatus := jobInfo.Status
 
 	// 对于运行中的任务禁止修改
-	switch pb.JobStatus(jobInfo.Status) {
+	switch pb.JobStatus(oldStatus) {
 	case pb.JobStatus_JobStatus_Created, pb.JobStatus_JobStatus_Stopped:
 	default:
 		log.Info(ctx, "AdminUpdateJob fail. status is not stopped", zap.Int64("jobId", req.GetJobId()))
@@ -371,6 +383,9 @@ func (*BatchJob) AdminUpdateJob(ctx context.Context, req *pb.AdminUpdateJobReq) 
 	}
 
 	// 修改前回调
+	if req.GetProcessorCarryJobData() {
+		jobInfo.ProcessorCarryJobData = 1
+	}
 	args := &pb.JobBeforeCreateAndChangeReq{
 		JobInfo: &pb.JobCBInfo{
 			JobId:            req.GetJobId(),
@@ -394,29 +409,26 @@ func (*BatchJob) AdminUpdateJob(ctx context.Context, req *pb.AdminUpdateJobReq) 
 
 	// 写入数据库的数据
 	v := &batch_job_list.Model{
-		JobID:            uint(req.GetJobId()),
-		JobName:          req.GetJobName(),
-		BizId:            jobInfo.BizId,
-		JobData:          req.GetJobData(),
-		ProcessDataTotal: uint64(req.GetProcessDataTotal()),
-		ProcessedCount:   uint64(req.GetProcessedCount()),
-		ErrLogCount:      jobInfo.ErrLogCount,
-		Status:           jobInfo.Status,
-		CreateTime:       jobInfo.CreateTime,
-		UpdateTime:       jobInfo.UpdateTime,
-		OpSource:         req.GetOp().GetOpSource(),
-		OpUserID:         req.GetOp().GetOpUserid(),
-		OpUserName:       req.GetOp().GetOpUserName(),
-		OpRemark:         req.GetOp().GetOpRemark(),
-		RateSec:          uint(req.GetRateSec()),
-		ConcType:         byte(req.GetConcType()),
-		StatusInfo:       model.StatusInfo_UserOp,
-		ActivateTime:     jobInfo.ActivateTime,
+		JobID:                 uint(req.GetJobId()),
+		JobName:               req.GetJobName(),
+		BizId:                 jobInfo.BizId,
+		JobData:               req.GetJobData(),
+		ProcessDataTotal:      uint64(req.GetProcessDataTotal()),
+		ProcessedCount:        uint64(req.GetProcessedCount()),
+		ErrLogCount:           jobInfo.ErrLogCount,
+		Status:                jobInfo.Status,
+		CreateTime:            jobInfo.CreateTime,
+		UpdateTime:            jobInfo.UpdateTime,
+		OpSource:              req.GetOp().GetOpSource(),
+		OpUserID:              req.GetOp().GetOpUserid(),
+		OpUserName:            req.GetOp().GetOpUserName(),
+		OpRemark:              req.GetOp().GetOpRemark(),
+		RateSec:               uint(req.GetRateSec()),
+		ConcType:              byte(req.GetConcType()),
+		StatusInfo:            model.StatusInfo_UserOp,
+		ActivateTime:          jobInfo.ActivateTime,
+		ProcessorCarryJobData: jobInfo.ProcessorCarryJobData,
 	}
-	if req.GetProcessorCarryJobData() {
-		v.ProcessorCarryJobData = 1
-	}
-	jobInfo.ProcessorCarryJobData = v.ProcessorCarryJobData
 
 	// 更新前拦截
 	err = interceptor.Trigger(ctx, interceptor.BeforeUpdateJob, &interceptor.Info{
@@ -429,7 +441,7 @@ func (*BatchJob) AdminUpdateJob(ctx context.Context, req *pb.AdminUpdateJobReq) 
 	}
 
 	// 写入数据库
-	_, err = batch_job_list.AdminUpdateJob(ctx, v, jobInfo.Status)
+	_, err = batch_job_list.AdminUpdateJob(ctx, v, oldStatus)
 	if err != nil {
 		log.Error(ctx, "AdminUpdateJob call UpdateOneModelWhereStatus fail.", zap.Error(err))
 		return nil, err
@@ -498,6 +510,7 @@ func (*BatchJob) AdminStartJob(ctx context.Context, req *pb.AdminStartJobReq) (*
 		log.Error(ctx, "AdminStartJob call batch_job_list.GetOneByJobId fail.", zap.Error(err))
 		return nil, err
 	}
+	oldStatus := jobInfo.Status
 
 	// 检查任务状态
 	switch pb.JobStatus(jobInfo.Status) {
@@ -562,7 +575,7 @@ func (*BatchJob) AdminStartJob(ctx context.Context, req *pb.AdminStartJobReq) (*
 	}
 
 	// 更新状态和操作人
-	count, err := batch_job_list.AdminUpdateStatus(ctx, v, jobInfo.Status)
+	count, err := batch_job_list.AdminUpdateStatus(ctx, v, oldStatus)
 	if err != nil {
 		log.Error(ctx, "AdminStartJob call AdminUpdateStatus fail.", zap.Error(err))
 		return nil, err
@@ -637,9 +650,10 @@ func (b *BatchJob) AdminStopJob(ctx context.Context, req *pb.AdminStopJobReq) (*
 		log.Error(ctx, "AdminStopJob call batch_job_list.GetOneByJobId fail.", zap.Error(err))
 		return nil, err
 	}
+	oldStatus := jobInfo.Status
 
 	// 检查任务状态
-	switch pb.JobStatus(jobInfo.Status) {
+	switch pb.JobStatus(oldStatus) {
 	case pb.JobStatus_JobStatus_WaitBizRun, pb.JobStatus_JobStatus_Running:
 	default:
 		log.Info(ctx, "AdminStopJob fail. status is stopped", zap.Int64("jobId", req.GetJobId()))
@@ -675,7 +689,7 @@ func (b *BatchJob) AdminStopJob(ctx context.Context, req *pb.AdminStopJobReq) (*
 		return nil, err
 	}
 
-	count, err := batch_job_list.AdminUpdateStatus(ctx, v, jobInfo.Status)
+	count, err := batch_job_list.AdminUpdateStatus(ctx, v, oldStatus)
 	if err != nil {
 		log.Error(ctx, "AdminStopJob call AdminUpdateStatus fail.", zap.Error(err))
 		return nil, err

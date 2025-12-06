@@ -73,7 +73,7 @@ func (h *httpCallbackBiz) BeforeCreateAndChange(ctx context.Context, args *pb.Jo
 	ctx, opts := h.genHttpOpts(ctx, timeout, args, rsp)
 
 	// 创建/修改前回调
-	c := http.NewClient("job_" + strconv.Itoa(int(args.GetJobInfo().GetJobId())))
+	c := http.NewClient("job_BeforeCreateAndChange_" + strconv.Itoa(int(args.GetJobInfo().GetJobId())))
 	sp, err := c.Post(ctx, h.eed.GetHttpCallback().GetBeforeCreate(), nil, opts...)
 	if err != nil {
 		log.Error(ctx, "BeforeCreateAndChange call http fail.", zap.Error(err))
@@ -100,7 +100,7 @@ func (h *httpCallbackBiz) BeforeRun(ctx context.Context, args *pb.JobBeforeRunRe
 	ctx, opts := h.genHttpOpts(ctx, timeout, args, rsp)
 
 	// 运行前回调
-	c := http.NewClient("job_" + strconv.Itoa(int(args.GetJobInfo().GetJobId())))
+	c := http.NewClient("job_BeforeRun_" + strconv.Itoa(int(args.GetJobInfo().GetJobId())))
 	sp, err := c.Post(ctx, h.eed.GetHttpCallback().GetBeforeRun(), nil, opts...)
 	if err != nil {
 		log.Error(ctx, "BeforeRun call http fail.", zap.Error(err))
@@ -131,7 +131,7 @@ func (h *httpCallbackBiz) Process(ctx context.Context, jobInfo *batch_job_list.M
 	ctx, opts := h.genHttpOpts(ctx, timeout, args, rsp)
 
 	// 处理数据
-	c := http.NewClient("job_" + strconv.Itoa(int(jobInfo.JobID)) + "_" + strconv.FormatInt(dataIndex, 10))
+	c := http.NewClient("job_Process_" + strconv.Itoa(int(jobInfo.JobID)))
 	sp, err := c.Post(ctx, h.eed.GetHttpCallback().GetProcess(), nil, opts...)
 	if err != nil {
 		log.Error(ctx, "Process call http fail.", zap.Error(err))
@@ -173,7 +173,7 @@ func (h *httpCallbackBiz) ProcessStop(ctx context.Context, jobInfo *batch_job_li
 	ctx, opts := h.genHttpOpts(ctx, timeout, args, rsp)
 
 	// 停止时回调
-	c := http.NewClient("job_" + strconv.Itoa(int(args.GetJobInfo().JobId)))
+	c := http.NewClient("job_ProcessStop_" + strconv.Itoa(int(args.GetJobInfo().JobId)))
 	sp, err := c.Post(ctx, h.eed.GetHttpCallback().GetProcessStop(), nil, opts...)
 	if err != nil {
 		log.Error(ctx, "ProcessStop call http fail.", zap.Error(err))

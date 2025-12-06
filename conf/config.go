@@ -31,6 +31,7 @@ const (
 	defJobProcessOneDataMaxAttemptCount = 5
 	defJobProcessErrWaitRetryTimeSec    = 3
 	defAllowCreateNoRateLimitJob        = false
+	defMaxCarryJobDataLength            = 1024
 
 	defNodeMaxRate               = 10000
 	defNoRateLimitJobMappingRate = 1000
@@ -67,6 +68,7 @@ var Conf = Config{
 	JobProcessOneDataMaxAttemptCount: defJobProcessOneDataMaxAttemptCount,
 	JobProcessErrWaitRetryTimeSec:    defJobProcessErrWaitRetryTimeSec,
 	AllowCreateNoRateLimitJob:        defAllowCreateNoRateLimitJob,
+	MaxCarryJobDataLength:            defMaxCarryJobDataLength,
 
 	NodeMaxRate:               defNodeMaxRate,
 	NoRateLimitJobMappingRate: defNoRateLimitJobMappingRate,
@@ -108,6 +110,7 @@ type Config struct {
 	JobProcessOneDataMaxAttemptCount int  // 一条数据最大尝试处理次数, 多次失败会导致任务停止等待重新启动
 	JobProcessErrWaitRetryTimeSec    int  // 任务处理失败等待重试时间, 单位秒
 	AllowCreateNoRateLimitJob        bool // 是否允许创建不限速任务
+	MaxCarryJobDataLength            int  // 最大携带任务数据长度
 
 	// 节点速率控制
 
@@ -190,11 +193,14 @@ func (conf *Config) Check() {
 	if conf.JobFlushCheckStopFlagInterval < 1 {
 		conf.JobFlushCheckStopFlagInterval = defJobFlushCheckStopFlagInterval
 	}
+	if conf.JobProcessOneDataMaxAttemptCount < 1 {
+		conf.JobProcessOneDataMaxAttemptCount = defJobProcessOneDataMaxAttemptCount
+	}
 	if conf.JobProcessErrWaitRetryTimeSec < 1 {
 		conf.JobProcessErrWaitRetryTimeSec = defJobProcessErrWaitRetryTimeSec
 	}
-	if conf.JobProcessOneDataMaxAttemptCount < 1 {
-		conf.JobProcessOneDataMaxAttemptCount = defJobProcessOneDataMaxAttemptCount
+	if conf.MaxCarryJobDataLength < 1 {
+		conf.MaxCarryJobDataLength = defMaxCarryJobDataLength
 	}
 
 	if conf.NodeMaxRate < 1 {

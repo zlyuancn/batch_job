@@ -330,7 +330,8 @@ func (*BatchJob) jobDbModel2Pb(line *batch_job_list.Model) *pb.JobInfoA {
 			OpRemark:   line.OpRemark,
 			OpTime:     line.UpdateTime.Unix(),
 		},
-		StatusInfo: line.StatusInfo,
+		StatusInfo:            line.StatusInfo,
+		ProcessorCarryJobData: line.ProcessorCarryJobData == 1,
 	}
 	return ret
 }

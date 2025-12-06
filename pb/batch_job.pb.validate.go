@@ -2163,6 +2163,8 @@ func (m *JobInfoA) validate(all bool) error {
 
 	// no validation rules for StatusInfo
 
+	// no validation rules for ProcessorCarryJobData
+
 	if len(errors) > 0 {
 		return JobInfoAMultiError(errors)
 	}

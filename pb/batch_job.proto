@@ -301,6 +301,7 @@ message JobInfoA {
   int32 rateSec = 11; // 每秒处理速率. 0表示不限制
   OpInfoA op = 12; // 操作信息
   string statusInfo = 13; // 状态信息
+  bool processorCarryJobData = 14; // 处理回调是否携带任务数据jobData
 }
 
 // 任务基础信息-响应
