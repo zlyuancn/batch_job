@@ -2,6 +2,7 @@ package module
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"math"
 	"strconv"
@@ -526,8 +527,14 @@ func (j *jobLauncher) processData(sn int64) {
 		attemptCount++
 		rsp, err := j.b.Process(ctx, j.jobInfo, sn, attemptCount)
 		if err == nil {
-			processRsp = rsp
-			break
+			// 当前数据已完成
+			if rsp.GetResult() == pb.JobProcessResult_Succeed ||
+				rsp.GetResult() == pb.JobProcessResult_ErrorAndAbandon {
+				processRsp = rsp
+				break
+			}
+			// 否则为错误
+			err = errors.New("Result_Error=" + rsp.GetRemark())
 		}
 
 		log.Error(ctx, "job Run process fail.", zap.Error(err))
@@ -670,6 +677,16 @@ func (j *jobLauncher) stopSideEffect() {
 
 // 对任务处理的响应做处理
 func (j *jobLauncher) processJobRsp(ctx context.Context, sn int64, rsp *pb.JobProcessRsp) error {
+	// 数据处理
+	if rsp.GetResult() == pb.JobProcessResult_ErrorAndAbandon {
+		rsp.Log = append(rsp.GetLog(), &pb.DataLogQ{
+			DataIndex: sn,
+			Remark:    rsp.GetRemark(),
+			Extend:    "ErrorAndAbandon",
+			LogType:   pb.DataLogType_DataLogType_ErrorAndAbandon,
+		})
+	}
+
 	// 日志处理
 	err := Job.AddDataLog(ctx, j.jobInfo.JobID, rsp.GetLog())
 	if err != nil {
@@ -677,12 +694,12 @@ func (j *jobLauncher) processJobRsp(ctx context.Context, sn int64, rsp *pb.JobPr
 	}
 
 	// 命令处理
-	switch rsp.GetCmd() {
-	case pb.JobProcessCmd_StopJob:
+	switch rsp.GetStopCmd() {
+	case pb.JobProcessStopCmd_StopJob:
 		_ = Job.SetStopFlag(ctx, int(j.jobInfo.JobID), model.StopFlag_Stop)
 		j.gotStopFlag = model.StopFlag_Stop
 		j.submitStopFlag(rsp.GetRemark())
-	case pb.JobProcessCmd_MarkJobIsFinished:
+	case pb.JobProcessStopCmd_MarkJobIsFinished:
 		if j.jobInfo.ConcType != byte(pb.ConcType_ConcType_Serialization) {
 			log.Warn(ctx, "processJobRsp cmd=MarkJobIsFinished. but ConcType not Serialization", zap.Int64("sn", sn))
 			break

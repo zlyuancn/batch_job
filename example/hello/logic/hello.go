@@ -75,7 +75,7 @@ func (h *Hello) Process(ctx context.Context, req *pb_0.JobProcessReq) (*pb_0.Job
 					DataIndex: req.GetDataIndex(),
 					Remark:    "测试添加日志",
 					Extend:    "描述",
-					LogType:   pb_0.DataLogType_DataLogType_ErrData,
+					LogType:   pb_0.DataLogType_DataLogType_ErrorAndAbandon,
 				},
 			},
 		})
@@ -90,13 +90,19 @@ func (h *Hello) Process(ctx context.Context, req *pb_0.JobProcessReq) (*pb_0.Job
 				DataIndex: req.GetDataIndex(),
 				Remark:    "测试rsp添加日志",
 				Extend:    "rsp添加日志描述",
-				LogType:   pb_0.DataLogType_DataLogType_ErrData,
+				LogType:   pb_0.DataLogType_DataLogType_ErrorAndAbandon,
 			},
 		}
 		return &pb_0.JobProcessRsp{Log: l}, nil
 	}
+	if req.GetDataIndex()%10 == 2 {
+		return &pb_0.JobProcessRsp{Result: pb_0.JobProcessResult_ErrorAndAbandon, Remark: "测试rsp数据结果标记为错误且跳过"}, nil
+	}
+	if req.GetDataIndex()%10 == 3 {
+		return &pb_0.JobProcessRsp{Result: pb_0.JobProcessResult_Error, Remark: "测试rsp数据结果标记为错误"}, nil
+	}
 	if req.GetDataIndex() == 19 {
-		return &pb_0.JobProcessRsp{Cmd: pb_0.JobProcessCmd_MarkJobIsFinished, Remark: "测试rsp标记为已完成"}, nil
+		return &pb_0.JobProcessRsp{StopCmd: pb_0.JobProcessStopCmd_MarkJobIsFinished, Remark: "测试rsp标记为已完成"}, nil
 	}
 	return &pb_0.JobProcessRsp{}, nil
 }

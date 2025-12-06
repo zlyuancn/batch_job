@@ -1028,11 +1028,14 @@
         "DataLogType_Debug",
         "DataLogType_Info",
         "DataLogType_Warn",
-        "DataLogType_Err",
-        "DataLogType_ErrData"
+        "DataLogType_Error",
+        "DataLogType_ErrorAndAbandon",
+        "DataLogType_SysInfo",
+        "DataLogType_SysWarn",
+        "DataLogType_SysErr"
       ],
       "default": "DataLogType_Debug",
-      "description": "- DataLogType_Debug: 调试\n - DataLogType_Info: 信息\n - DataLogType_Warn: 警告\n - DataLogType_Err: 错误\n - DataLogType_ErrData: 错误数据, 表示放弃处理这个数据了. 这个日志会被认为是错误计数",
+      "description": "- DataLogType_Debug: 调试\n - DataLogType_Info: 信息\n - DataLogType_Warn: 警告\n - DataLogType_Error: 错误\n - DataLogType_ErrorAndAbandon: 错误并放弃处理数据, 表示放弃处理这个数据了. 这个日志会加到错误计数中\n - DataLogType_SysInfo: 信息\n - DataLogType_SysWarn: 警告\n - DataLogType_SysErr: 错误",
       "title": "数据的日志类型"
     },
     "batch_jobExecExtendDataA": {

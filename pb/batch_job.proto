@@ -325,8 +325,11 @@ enum DataLogType {
   DataLogType_Debug = 0; // 调试
   DataLogType_Info = 1; // 信息
   DataLogType_Warn = 2; // 警告
-  DataLogType_Err = 3; // 错误
-  DataLogType_ErrData = 4; // 错误数据, 表示放弃处理这个数据了. 这个日志会被认为是错误计数
+  DataLogType_Error = 3; // 错误
+  DataLogType_ErrorAndAbandon = 4; // 错误并放弃处理数据, 表示放弃处理这个数据了. 这个日志会加到错误计数中
+  DataLogType_SysInfo = 5; // 信息
+  DataLogType_SysWarn = 6; // 警告
+  DataLogType_SysErr = 7; // 错误
 }
 
 // 日志-请求
@@ -528,10 +531,15 @@ message JobBeforeRunReq {
 }
 message JobBeforeRunRsp {}
 
-enum JobProcessCmd {
+enum JobProcessStopCmd {
   None = 0; // 无
   StopJob = 1; // 要求立即停止任务.
   MarkJobIsFinished = 2; // 标记任务已完成. 仅适用于串行化运行的任务. 一般用于提前完成任务.
+}
+enum JobProcessResult {
+  Succeed = 0; // 成功
+  Error = 1; // 错误, 会自动重试
+  ErrorAndAbandon = 2; // 错误并放弃处理这条数据
 }
 // 任务处理回调参数
 message JobProcessReq {
@@ -541,9 +549,10 @@ message JobProcessReq {
   string jobData = 4; // 任务数据, 如果没有勾选携带任务数据, 则为空字符串
 }
 message JobProcessRsp {
-  JobProcessCmd cmd = 1; // 命令
-  string remark = 2; // 备注
-  repeated DataLogQ log = 3; // 写入日志内容
+  JobProcessStopCmd stopCmd = 1; // 停止命令
+  JobProcessResult result = 2; // 处理结果
+  string remark = 3; // 备注
+  repeated DataLogQ log = 4; // 写入日志内容
 }
 
 // 任务停止回调参数

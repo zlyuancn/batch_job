@@ -7132,7 +7132,9 @@ func (m *JobProcessRsp) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Cmd
+	// no validation rules for StopCmd
+
+	// no validation rules for Result
 
 	// no validation rules for Remark
 

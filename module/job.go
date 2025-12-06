@@ -11,8 +11,9 @@ import (
 	"github.com/zly-app/zapp/component/gpool"
 	"github.com/zly-app/zapp/log"
 	"github.com/zly-app/zapp/pkg/utils"
-	"github.com/zlyuancn/batch_job/model"
 	"go.uber.org/zap"
+
+	"github.com/zlyuancn/batch_job/model"
 
 	"github.com/zlyuancn/batch_job/client/db"
 	"github.com/zlyuancn/batch_job/conf"
@@ -109,7 +110,7 @@ func (*jobCli) IncrCacheErrCount(ctx context.Context, jobId int, num int64) (int
 func (*jobCli) GetErrCount(ctx context.Context, jobId int) (int64, error) {
 	where := map[string]interface{}{
 		"job_id":   jobId,
-		"log_type": int(pb.DataLogType_DataLogType_ErrData),
+		"log_type": int(pb.DataLogType_DataLogType_ErrorAndAbandon),
 	}
 	total, err := batch_job_log.Count(ctx, where)
 	if err != nil {
@@ -166,7 +167,7 @@ func (j *jobCli) AddDataLog(ctx context.Context, jobId uint, dataLog []*pb.DataL
 			Extend:    a.GetExtend(),
 			LogType:   byte(a.GetLogType()),
 		}
-		if a.GetLogType() == pb.DataLogType_DataLogType_ErrData {
+		if a.GetLogType() == pb.DataLogType_DataLogType_ErrorAndAbandon {
 			errNum++
 		}
 	}

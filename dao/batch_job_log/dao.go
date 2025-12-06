@@ -48,7 +48,7 @@ type Model struct {
 	DataIndex  int64     `db:"data_index"` // "数据索引, 从0开始"
 	Remark     string    `db:"remark"`     // "备注"
 	Extend     string    `db:"extend"`     // "扩展数据"
-	LogType    byte      `db:"log_type"`   // "日志类型 0=调试Debug 1=信息Info 2=警告Warn 3=错误Err"
+	LogType    byte      `db:"log_type"`   // "日志类型 枚举类型参考 pb.DataLogType"
 	CreateTime time.Time `db:"create_time"`
 }
 
