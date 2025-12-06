@@ -10,6 +10,7 @@ import (
 	"github.com/zly-app/zapp/log"
 	"go.uber.org/zap"
 
+	"github.com/zlyuancn/batch_job/jobsyslog"
 	"github.com/zlyuancn/batch_job/module"
 
 	"github.com/zlyuancn/batch_job/conf"
@@ -39,6 +40,9 @@ func main() {
 	cron.RegistryHandler("recover", "@every 10m", true, func(ctx cron.IContext) error {
 		return module.Restorer.Restorer(ctx)
 	})
+
+	// syslog
+	jobsyslog.Init()
 
 	handler.AddHandler(handler.AfterCreateJob, Handler)
 	handler.AddHandler(handler.AfterUpdateJob, Handler)

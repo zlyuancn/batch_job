@@ -37,6 +37,14 @@ const (
 	defNoRateLimitJobMappingRate = 1000
 
 	defRecoverJobLastActivateDay = 30
+
+	defJobSysLogWriteDatabase       = true
+	defJobSysLogWriteLevel          = "sysinfo"
+	defJobSysLogBatchSize           = 100
+	defJobSysLogAutoRotateTimeSec   = 3
+	defJobSysLogCloseAutoRotate     = false
+	defJobSysLogFlushAttemptCount   = 3
+	defJobSysLogFlushErrIntervalSec = 2
 )
 
 var Conf = Config{
@@ -73,6 +81,14 @@ var Conf = Config{
 	NodeMaxRate:               defNodeMaxRate,
 	NoRateLimitJobMappingRate: defNoRateLimitJobMappingRate,
 	RecoverJobLastActivateDay: defRecoverJobLastActivateDay,
+
+	JobSysLogWriteDatabase:       defJobSysLogWriteDatabase,
+	JobSysLogWriteLevel:          defJobSysLogWriteLevel,
+	JobSysLogBatchSize:           defJobSysLogBatchSize,
+	JobSysLogAutoRotateTimeSec:   defJobSysLogAutoRotateTimeSec,
+	JobSysLogCloseAutoRotate:     defJobSysLogCloseAutoRotate,
+	JobSysLogFlushAttemptCount:   defJobSysLogFlushAttemptCount,
+	JobSysLogFlushErrIntervalSec: defJobSysLogFlushErrIntervalSec,
 }
 
 type Config struct {
@@ -122,6 +138,14 @@ type Config struct {
 	// 恢复器
 	RecoverJobLastActivateDay int // 恢复最后多少天处于活跃的任务
 
+	// 任务系统日志
+	JobSysLogWriteDatabase       bool   // 任务系统日志是否写入到db中
+	JobSysLogWriteLevel          string // 任务系统日志写入到db的最小level. 可选 sysinfo, syswarn, syserr
+	JobSysLogBatchSize           int    // 任务系统日志批次大小, 达到批次自动旋转
+	JobSysLogAutoRotateTimeSec   int    // 任务系统日志自动旋转时间, 单位秒
+	JobSysLogCloseAutoRotate     bool   // 任务系统日志是否关闭自动旋转
+	JobSysLogFlushAttemptCount   int    // 任务系统日志写入db尝试次数
+	JobSysLogFlushErrIntervalSec int    // 任务系统日志写入db错误时重试间隔时间, 单位秒
 }
 
 func (conf *Config) Check() {
@@ -212,5 +236,21 @@ func (conf *Config) Check() {
 
 	if conf.RecoverJobLastActivateDay < 1 {
 		conf.RecoverJobLastActivateDay = defRecoverJobLastActivateDay
+	}
+
+	if conf.JobSysLogWriteLevel == "" {
+		conf.JobSysLogWriteLevel = defJobSysLogWriteLevel
+	}
+	if conf.JobSysLogBatchSize < 1 {
+		conf.JobSysLogBatchSize = defJobSysLogBatchSize
+	}
+	if conf.JobSysLogAutoRotateTimeSec < 1 {
+		conf.JobSysLogAutoRotateTimeSec = defJobSysLogAutoRotateTimeSec
+	}
+	if conf.JobSysLogFlushAttemptCount < 1 {
+		conf.JobSysLogFlushAttemptCount = defJobSysLogFlushAttemptCount
+	}
+	if conf.JobSysLogFlushErrIntervalSec < 1 {
+		conf.JobSysLogFlushErrIntervalSec = defJobSysLogFlushErrIntervalSec
 	}
 }

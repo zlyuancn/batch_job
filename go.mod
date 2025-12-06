@@ -16,7 +16,9 @@ require (
 	github.com/zly-app/service/cron v0.0.0-20251201123525-ab839839c4b2
 	github.com/zly-app/uapp v0.0.0-20251201110646-673ce4a3e75f
 	github.com/zly-app/zapp v1.4.1
+	github.com/zlyuancn/rotate v0.0.0-20251105133058-d2b2a91da640
 	github.com/zlyuancn/sliding_window v0.0.0-20250930091512-134c4ffd3184
+	github.com/zlyuancn/zretry v0.0.0-20220514032503-d78bfd22a441
 	go.uber.org/zap v1.27.0
 	golang.org/x/time v0.12.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20251029180050-ab9386a59fda
